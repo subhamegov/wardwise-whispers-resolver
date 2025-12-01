@@ -1,25 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { PenSquare, ArrowRight } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { NaivashaMap } from '@/components/map/NaivashaMap';
-import { NewStoryPanel } from '@/components/story/NewStoryPanel';
-import { StoryFeed } from '@/components/story/StoryFeed';
-import { apiClient } from '@/lib/apiClient';
-import { StorySubmission } from '@/types/story';
+import { HappeningsFeed } from '@/components/happenings/HappeningsFeed';
+import { findWardByCoords } from '@/lib/happeningsApi';
 
 const Index = () => {
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [feedRefreshTrigger, setFeedRefreshTrigger] = useState(0);
+  const [locationDescription, setLocationDescription] = useState('');
+  const [selectedWard, setSelectedWard] = useState<{ code: string; name: string } | null>(null);
 
-  const handleLocationSelect = (location: { lat: number; lng: number }) => {
+  const handleLocationSelect = useCallback((location: { lat: number; lng: number }) => {
     setSelectedLocation(location);
-  };
+    
+    // Auto-detect ward
+    const ward = findWardByCoords(location.lat, location.lng);
+    setSelectedWard(ward);
+  }, []);
 
-  const handleStorySubmit = async (submission: StorySubmission) => {
-    await apiClient.createStory(submission);
-    setSelectedLocation(null);
-    // Trigger feed refresh
-    setFeedRefreshTrigger(prev => prev + 1);
-  };
+  const handleLocationDescriptionChange = useCallback((description: string) => {
+    setLocationDescription(description);
+  }, []);
 
   return (
     <AppLayout>
@@ -30,44 +32,79 @@ const Index = () => {
             Your Voice, Your Ward
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Report problems, share ideas, or thank your community. 
-            Point to the map, speak or type, and your story reaches Naivasha.
+            Discover what's happening in Naivasha and share your own stories. 
+            Tap the map, speak or type — your voice reaches your community.
           </p>
         </div>
       </section>
 
-      {/* Main content grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left column: Map and submission form */}
-        <section aria-labelledby="report-section-title">
-          <h2 id="report-section-title" className="sr-only">
-            Report a new story
-          </h2>
-          
-          {/* Map */}
-          <div className="mb-6">
-            <h3 className="text-xl font-bold text-foreground mb-3">
-              Where is this happening?
-            </h3>
-            <NaivashaMap
-              selectedLocation={selectedLocation}
-              onLocationSelect={handleLocationSelect}
-              className="h-[350px] md:h-[400px]"
-            />
+      {/* Section 1: Map + Guided Pin Drop */}
+      <section className="mb-10" aria-labelledby="map-section-title">
+        <h2 id="map-section-title" className="text-2xl font-bold text-foreground mb-4">
+          Where is this happening?
+        </h2>
+        <p className="text-muted-foreground mb-4">
+          Mark a spot on the map to see what's happening nearby and share your own story.
+        </p>
+        
+        <NaivashaMap
+          selectedLocation={selectedLocation}
+          onLocationSelect={handleLocationSelect}
+          onLocationDescriptionChange={handleLocationDescriptionChange}
+          showHappenings={true}
+        />
+      </section>
+
+      {/* Section 2: What's Happening Around Me */}
+      <section className="mb-10" aria-labelledby="happenings-section-title">
+        <HappeningsFeed
+          wardCode={selectedWard?.code}
+          lat={selectedLocation?.lat}
+          lng={selectedLocation?.lng}
+          radiusKm={5}
+        />
+      </section>
+
+      {/* Section 3: Share Your Story CTA */}
+      <section 
+        className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-6 md:p-8 text-primary-foreground"
+        aria-labelledby="cta-title"
+      >
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-full bg-primary-foreground/20 flex items-center justify-center flex-shrink-0">
+              <PenSquare className="w-6 h-6" aria-hidden="true" />
+            </div>
+            <div>
+              <h2 id="cta-title" className="text-2xl font-bold mb-2">
+                Share Your Story
+              </h2>
+              <p className="opacity-90 max-w-lg">
+                Have something to report? Seen a problem, have an idea, or want to thank someone? 
+                Your voice matters to Naivasha.
+              </p>
+            </div>
           </div>
+          
+          <Link
+            to="/report"
+            className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-6 py-3 rounded-lg font-semibold hover:brightness-105 transition-all focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
+          >
+            <span>Report Now</span>
+            <ArrowRight className="w-5 h-5" aria-hidden="true" />
+          </Link>
+        </div>
 
-          {/* Submission form */}
-          <NewStoryPanel
-            selectedLocation={selectedLocation}
-            onSubmit={handleStorySubmit}
-          />
-        </section>
-
-        {/* Right column: Story feed */}
-        <section aria-labelledby="stories-section-title">
-          <StoryFeed refreshTrigger={feedRefreshTrigger} />
-        </section>
-      </div>
+        {/* Show selected location context if available */}
+        {selectedLocation && selectedWard && (
+          <div className="mt-6 pt-6 border-t border-primary-foreground/20">
+            <p className="text-sm opacity-80">
+              📍 You've selected <strong>{selectedWard.name} Ward</strong>. 
+              Your story will be linked to this location.
+            </p>
+          </div>
+        )}
+      </section>
     </AppLayout>
   );
 };
