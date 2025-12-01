@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { MapPin, MessageSquare, Info, Menu, X } from 'lucide-react';
+import { MapPin, MessageSquare, Info, Menu, X, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AppLayoutProps {
@@ -8,7 +8,8 @@ interface AppLayoutProps {
 }
 
 const navigation = [
-  { name: 'Report', href: '/', icon: MapPin, description: 'Share what is happening' },
+  { name: 'Home', href: '/', icon: Home, description: 'Discover what is happening' },
+  { name: 'Report', href: '/report', icon: MapPin, description: 'Share your story' },
   { name: 'Stories', href: '/stories', icon: MessageSquare, description: 'See community stories' },
   { name: 'About', href: '/about', icon: Info, description: 'Learn about this app' },
 ];
