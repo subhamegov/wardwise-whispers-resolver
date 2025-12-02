@@ -28,33 +28,33 @@ export function AppLayout({ children }: AppLayoutProps) {
       </a>
 
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-primary text-primary-foreground shadow-medium">
+      <header className="bg-accent text-accent-foreground shadow-medium border-b-4 border-secondary">
         <div className="container">
           <div className="flex items-center justify-between h-16 md:h-18">
-            {/* Logo / Title */}
+            {/* Logo / Title - Official Government Style */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
-                <MapPin className="w-6 h-6 text-secondary-foreground" aria-hidden="true" />
+              <div className="w-12 h-12 rounded-md bg-primary flex items-center justify-center border-2 border-primary-foreground/20">
+                <MapPin className="w-7 h-7 text-primary-foreground" aria-hidden="true" />
               </div>
               <div>
-                <h1 className="text-lg md:text-xl font-bold leading-tight">
+                <h1 className="text-lg md:text-xl font-bold leading-tight text-accent-foreground">
                   Wardwise Whispers
                 </h1>
-                <p className="text-xs md:text-sm opacity-90">Naivasha</p>
+                <p className="text-xs md:text-sm text-accent-foreground/80">Naivasha County</p>
               </div>
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-2" aria-label="Main navigation">
+            <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
               {navigation.map((item) => (
                 <NavLink
                   key={item.name}
                   to={item.href}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors',
-                      'hover:bg-primary-foreground/10 focus-visible:ring-2 focus-visible:ring-primary-foreground',
-                      isActive && 'bg-primary-foreground/20'
+                      'flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors',
+                      'hover:bg-accent-foreground/10 focus-visible:ring-2 focus-visible:ring-accent-foreground',
+                      isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
                     )
                   }
                   aria-label={item.description}
@@ -68,7 +68,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             {/* Mobile Menu Button */}
             <button
               type="button"
-              className="md:hidden flex items-center justify-center w-tap h-tap rounded-lg hover:bg-primary-foreground/10 focus-visible:ring-2 focus-visible:ring-primary-foreground"
+              className="md:hidden flex items-center justify-center w-tap h-tap rounded-md hover:bg-accent-foreground/10 focus-visible:ring-2 focus-visible:ring-accent-foreground"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-menu"
@@ -87,7 +87,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         {mobileMenuOpen && (
           <nav
             id="mobile-menu"
-            className="md:hidden bg-primary border-t border-primary-foreground/20 animate-slide-up"
+            className="md:hidden bg-accent border-t border-accent-foreground/20 animate-slide-up"
             aria-label="Mobile navigation"
           >
             <div className="container py-4 space-y-2">
@@ -97,9 +97,9 @@ export function AppLayout({ children }: AppLayoutProps) {
                   to={item.href}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors',
-                      'hover:bg-primary-foreground/10 focus-visible:ring-2 focus-visible:ring-primary-foreground',
-                      isActive && 'bg-primary-foreground/20'
+                      'flex items-center gap-3 px-4 py-3 rounded-md font-medium transition-colors',
+                      'hover:bg-accent-foreground/10 focus-visible:ring-2 focus-visible:ring-accent-foreground',
+                      isActive && 'bg-primary text-primary-foreground'
                     )
                   }
                   onClick={() => setMobileMenuOpen(false)}
@@ -123,14 +123,22 @@ export function AppLayout({ children }: AppLayoutProps) {
       </main>
 
       {/* Footer */}
-      <footer className="bg-muted border-t border-border py-6">
-        <div className="container text-center">
-          <p className="text-muted-foreground text-sm">
-            Wardwise Whispers &mdash; For the people of Naivasha
-          </p>
-          <p className="text-muted-foreground text-xs mt-2">
-            Report problems, share ideas, celebrate successes
-          </p>
+      <footer className="bg-accent text-accent-foreground border-t-4 border-primary py-8">
+        <div className="container">
+          <div className="text-center space-y-3">
+            <div className="flex items-center justify-center gap-2">
+              <MapPin className="w-5 h-5 text-primary" aria-hidden="true" />
+              <p className="font-semibold text-lg">
+                Wardwise Whispers
+              </p>
+            </div>
+            <p className="text-sm opacity-90">
+              Official Citizen Engagement Platform — Naivasha County
+            </p>
+            <p className="text-xs opacity-75 max-w-2xl mx-auto">
+              Report problems, share ideas, celebrate successes. Your voice matters in building our community.
+            </p>
+          </div>
         </div>
       </footer>
     </div>

@@ -17,7 +17,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["IBM Plex Sans", "system-ui", "sans-serif"],
+        sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["IBM Plex Sans", "system-ui", "sans-serif"],
       },
       fontSize: {
         // Accessible font sizes
@@ -87,8 +88,8 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
-        xl: "1rem",
-        "2xl": "1.5rem",
+        xl: "0.75rem",
+        "2xl": "1rem",
       },
       boxShadow: {
         "soft": "0 2px 8px -2px hsl(var(--foreground) / 0.1)",
