@@ -2,100 +2,100 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans:wght@600;700&display=swap');
 
-/* Wardwise Whispers - Accessible Design System for Naivasha
-   High contrast, large touch targets, screen-reader friendly */
+/* Wardwise Whispers - eCitizen Huduma Design Language
+   Official Kenyan Government Aesthetic with High Accessibility */
 
 @layer base {
   :root {
-    /* Kenyan Earth Tones - Warm, Accessible */
-    --background: 45 30% 97%;
-    --foreground: 160 40% 12%;
+    /* eCitizen/Huduma Official Colors - Kenyan Government Branding */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 160 40% 12%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 160 40% 12%;
+    --popover-foreground: 0 0% 10%;
 
-    /* Primary: Deep Forest Green */
-    --primary: 160 45% 22%;
-    --primary-foreground: 45 30% 97%;
+    /* Primary: Kenya Government Green (from flag) */
+    --primary: 140 65% 25%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Secondary: Warm Amber */
-    --secondary: 35 90% 55%;
-    --secondary-foreground: 160 40% 12%;
+    /* Secondary: Official Red (Kenyan flag red) */
+    --secondary: 0 75% 40%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 45 20% 90%;
-    --muted-foreground: 160 25% 35%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 40%;
 
-    /* Accent: Soft Terracotta */
-    --accent: 20 70% 50%;
+    /* Accent: Deep Black (Kenyan flag black) */
+    --accent: 0 0% 15%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 45%;
+    --destructive: 0 75% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Success: Bright Green */
-    --success: 145 60% 35%;
+    /* Success: Kenya Green */
+    --success: 140 65% 30%;
     --success-foreground: 0 0% 100%;
 
-    /* Warning: Amber */
-    --warning: 35 90% 55%;
-    --warning-foreground: 160 40% 12%;
+    /* Warning: Official Orange */
+    --warning: 25 85% 50%;
+    --warning-foreground: 0 0% 100%;
 
-    --border: 160 20% 80%;
-    --input: 160 20% 85%;
-    --ring: 160 45% 22%;
+    --border: 0 0% 88%;
+    --input: 0 0% 90%;
+    --ring: 140 65% 25%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     /* Custom tokens for accessibility */
     --focus-ring: 160 80% 40%;
     --tap-target-min: 44px;
 
-    /* Category colors */
-    --complaint: 0 65% 50%;
-    --idea: 200 75% 45%;
-    --appreciation: 145 60% 35%;
+    /* Category colors - Official palette */
+    --complaint: 0 75% 40%;
+    --idea: 205 85% 35%;
+    --appreciation: 140 65% 30%;
 
     /* Recording states */
-    --recording: 0 80% 55%;
-    --playing: 200 75% 45%;
+    --recording: 0 75% 45%;
+    --playing: 205 85% 35%;
   }
 
   .dark {
-    --background: 160 40% 8%;
-    --foreground: 45 30% 95%;
+    --background: 0 0% 12%;
+    --foreground: 0 0% 95%;
 
-    --card: 160 35% 12%;
-    --card-foreground: 45 30% 95%;
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 160 35% 12%;
-    --popover-foreground: 45 30% 95%;
+    --popover: 0 0% 15%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 160 50% 45%;
-    --primary-foreground: 160 40% 8%;
+    --primary: 140 60% 35%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 35 85% 60%;
-    --secondary-foreground: 160 40% 8%;
+    --secondary: 0 70% 50%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 160 30% 18%;
-    --muted-foreground: 45 20% 70%;
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 70%;
 
-    --accent: 20 65% 55%;
+    --accent: 0 0% 25%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 65% 55%;
+    --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 145 55% 45%;
+    --success: 140 60% 40%;
     --success-foreground: 0 0% 100%;
 
-    --border: 160 25% 25%;
-    --input: 160 25% 22%;
-    --ring: 160 50% 45%;
+    --border: 0 0% 25%;
+    --input: 0 0% 22%;
+    --ring: 140 60% 35%;
   }
 }
 
@@ -111,7 +111,7 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     line-height: 1.6;
   }
 
@@ -138,13 +138,13 @@
     min-height: var(--tap-target-min);
   }
 
-  /* Heading hierarchy */
+  /* Heading hierarchy - Official Government Style */
   h1 {
-    @apply text-3xl md:text-4xl font-bold tracking-tight;
+    @apply text-3xl md:text-4xl font-bold tracking-tight font-display;
   }
 
   h2 {
-    @apply text-2xl md:text-3xl font-semibold;
+    @apply text-2xl md:text-3xl font-semibold font-display;
   }
 
   h3 {
@@ -288,8 +288,8 @@
 
 /* Leaflet map overrides for accessibility */
 .leaflet-container {
-  font-family: 'IBM Plex Sans', system-ui, sans-serif;
-  @apply rounded-xl;
+  font-family: 'Inter', system-ui, sans-serif;
+  @apply rounded-lg;
 }
 
 .leaflet-control-zoom a {
