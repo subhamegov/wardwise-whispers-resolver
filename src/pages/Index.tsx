@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { PenSquare, ArrowRight } from 'lucide-react';
+import { PenSquare, ArrowRight, Ticket } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { NaivashaMap } from '@/components/map/NaivashaMap';
+import { NairobiMap } from '@/components/map/NairobiMap';
 import { HappeningsFeed } from '@/components/happenings/HappeningsFeed';
 import { findWardByCoords } from '@/lib/happeningsApi';
 
@@ -13,8 +13,6 @@ const Index = () => {
 
   const handleLocationSelect = useCallback((location: { lat: number; lng: number }) => {
     setSelectedLocation(location);
-    
-    // Auto-detect ward
     const ward = findWardByCoords(location.lat, location.lng);
     setSelectedWard(ward);
   }, []);
@@ -29,25 +27,43 @@ const Index = () => {
       <section className="mb-8" aria-labelledby="hero-title">
         <div className="bg-gradient-to-br from-primary/10 via-secondary/5 to-transparent rounded-2xl p-6 md:p-8">
           <h1 id="hero-title" className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-            Your Voice, Your Ward
+            Your Voice, Your County
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Discover what's happening in Naivasha and share your own stories. 
-            Tap the map, speak or type — your voice reaches your community.
+            Report issues, track progress, and discover what's happening in Nairobi. 
+            Tap the map, speak or type — help build a better city.
           </p>
         </div>
       </section>
 
-      {/* Section 1: Map + Guided Pin Drop */}
+      {/* Quick Actions */}
+      <section className="grid grid-cols-2 gap-4 mb-8">
+        <Link
+          to="/report"
+          className="bg-primary text-primary-foreground rounded-xl p-4 flex flex-col items-center justify-center text-center hover:brightness-105 transition-all min-h-[100px]"
+        >
+          <PenSquare className="w-8 h-8 mb-2" />
+          <span className="font-semibold">Report Issue</span>
+        </Link>
+        <Link
+          to="/tickets"
+          className="bg-secondary text-secondary-foreground rounded-xl p-4 flex flex-col items-center justify-center text-center hover:brightness-105 transition-all min-h-[100px]"
+        >
+          <Ticket className="w-8 h-8 mb-2" />
+          <span className="font-semibold">My Tickets</span>
+        </Link>
+      </section>
+
+      {/* Map Section */}
       <section className="mb-10" aria-labelledby="map-section-title">
         <h2 id="map-section-title" className="text-2xl font-bold text-foreground mb-4">
-          Where is this happening?
+          Select a Location
         </h2>
         <p className="text-muted-foreground mb-4">
-          Mark a spot on the map to see what's happening nearby and share your own story.
+          Mark a spot on the map to see what's happening nearby or to report an issue.
         </p>
         
-        <NaivashaMap
+        <NairobiMap
           selectedLocation={selectedLocation}
           onLocationSelect={handleLocationSelect}
           onLocationDescriptionChange={handleLocationDescriptionChange}
@@ -55,7 +71,7 @@ const Index = () => {
         />
       </section>
 
-      {/* Section 2: What's Happening Around Me */}
+      {/* What's Happening Feed */}
       <section className="mb-10" aria-labelledby="happenings-section-title">
         <HappeningsFeed
           wardCode={selectedWard?.code}
@@ -65,7 +81,7 @@ const Index = () => {
         />
       </section>
 
-      {/* Section 3: Share Your Story CTA */}
+      {/* CTA Section */}
       <section 
         className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-6 md:p-8 text-primary-foreground"
         aria-labelledby="cta-title"
@@ -77,30 +93,29 @@ const Index = () => {
             </div>
             <div>
               <h2 id="cta-title" className="text-2xl font-bold mb-2">
-                Share Your Story
+                See Something? Say Something.
               </h2>
               <p className="opacity-90 max-w-lg">
-                Have something to report? Seen a problem, have an idea, or want to thank someone? 
-                Your voice matters to Naivasha.
+                Potholes, garbage, broken lights, water leaks — report any issue and 
+                help Nairobi County respond faster.
               </p>
             </div>
           </div>
           
           <Link
             to="/report"
-            className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-6 py-3 rounded-lg font-semibold hover:brightness-105 transition-all focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
+            className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-6 py-3 rounded-lg font-semibold hover:brightness-105 transition-all"
           >
             <span>Report Now</span>
             <ArrowRight className="w-5 h-5" aria-hidden="true" />
           </Link>
         </div>
 
-        {/* Show selected location context if available */}
         {selectedLocation && selectedWard && (
           <div className="mt-6 pt-6 border-t border-primary-foreground/20">
             <p className="text-sm opacity-80">
               📍 You've selected <strong>{selectedWard.name} Ward</strong>. 
-              Your story will be linked to this location.
+              Your report will be linked to this location.
             </p>
           </div>
         )}

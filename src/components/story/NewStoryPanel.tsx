@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Send, FileText, Mic, ChevronDown, ChevronUp, MapPin, AlertCircle, CheckCircle } from 'lucide-react';
 import { VoiceRecorder } from '@/components/voice/VoiceRecorder';
-import { StoryCategory, CATEGORY_LABELS, CATEGORY_DESCRIPTIONS, NAIVASHA_WARDS, StorySubmission } from '@/types/story';
+import { StoryCategory, CATEGORY_LABELS, CATEGORY_DESCRIPTIONS, NAIROBI_WARDS, StorySubmission } from '@/types/story';
 import { cn } from '@/lib/utils';
 
 interface NewStoryPanelProps {
