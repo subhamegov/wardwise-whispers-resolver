@@ -295,7 +295,7 @@ export function NewStoryPanel({ selectedLocation, onSubmit, className }: NewStor
             className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="">Select your ward...</option>
-            {NAIVASHA_WARDS.map((ward) => (
+            {NAIROBI_WARDS.map((ward) => (
               <option key={ward.code} value={ward.code}>
                 {ward.name}
               </option>
