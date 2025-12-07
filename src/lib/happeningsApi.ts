@@ -2,110 +2,110 @@
 // Will be replaced with DIGIT MDMS or civic open-data API
 
 import { Happening } from '@/types/happenings';
-import { NAIVASHA_WARDS } from '@/types/story';
+import { NAIROBI_WARDS } from '@/types/story';
 
-// Mock happenings data
+// Mock happenings data for Nairobi
 const mockHappenings: Happening[] = [
   {
-    id: 'naivasha_001',
-    wardCode: 'biashara',
-    wardName: 'Biashara',
+    id: 'nairobi_001',
+    wardCode: 'nairobi_central',
+    wardName: 'Nairobi Central',
     title: 'Road repair on Kenyatta Avenue',
-    summary: 'Repairs ongoing near the main market. Expect traffic diversions until Friday. Please use alternative routes via Moi Avenue.',
-    source: 'Naivasha Works Department',
+    summary: 'Repairs ongoing near KICC. Expect traffic diversions until Friday. Please use alternative routes.',
+    source: 'Nairobi County Roads Department',
     date: '2025-12-01',
-    endDate: '2025-12-05',
+    endDate: '2025-12-08',
     type: 'INFRASTRUCTURE',
-    lat: -0.7175,
-    lng: 36.4355,
+    lat: -1.2864,
+    lng: 36.8172,
     isActive: true,
   },
   {
-    id: 'naivasha_002',
-    wardCode: 'lake_view',
-    wardName: 'Lake View',
-    title: 'Public cleaning drive this Saturday',
-    summary: 'Join the community clean-up starting at 10 AM near Lake View Primary School. Bring gloves if you have them!',
-    source: 'Naivasha Municipal Office',
+    id: 'nairobi_002',
+    wardCode: 'westlands',
+    wardName: 'Westlands',
+    title: 'Community cleanup drive this Saturday',
+    summary: 'Join the community clean-up starting at 9 AM at Westlands Park. Gloves and bags will be provided.',
+    source: 'Nairobi County Environment',
     date: '2025-12-07',
     type: 'EVENT',
-    lat: -0.7510,
-    lng: 36.3990,
+    lat: -1.2673,
+    lng: 36.8058,
     isActive: true,
   },
   {
-    id: 'naivasha_003',
-    wardCode: 'biashara',
-    wardName: 'Biashara',
-    title: 'Ward office hours extended this week',
-    summary: 'The Biashara ward office will be open until 6 PM (instead of 4 PM) from Monday to Friday this week for certificate collection.',
-    source: 'Biashara Ward Office',
+    id: 'nairobi_003',
+    wardCode: 'kilimani',
+    wardName: 'Kilimani',
+    title: 'Water supply maintenance',
+    summary: 'Scheduled maintenance on Wednesday 8 AM - 4 PM. Kilimani and Hurlingham areas affected. Please store water.',
+    source: 'Nairobi Water Company',
+    date: '2025-12-04',
+    type: 'NOTICE',
+    lat: -1.2892,
+    lng: 36.7865,
+    isActive: true,
+  },
+  {
+    id: 'nairobi_004',
+    wardCode: 'kasarani',
+    wardName: 'Kasarani',
+    title: 'New streetlights installation',
+    summary: 'Solar-powered LED streetlights being installed along Thika Road service lane. Work continues for 2 weeks.',
+    source: 'Nairobi County Energy',
+    date: '2025-11-28',
+    endDate: '2025-12-12',
+    type: 'INFRASTRUCTURE',
+    lat: -1.2208,
+    lng: 36.8956,
+    isActive: true,
+  },
+  {
+    id: 'nairobi_005',
+    wardCode: 'langata',
+    wardName: "Lang'ata",
+    title: 'Free health screening camp',
+    summary: 'Free blood pressure, diabetes, and HIV screening at Lang\'ata Health Center. All residents welcome. Bring ID.',
+    source: 'Nairobi County Health',
+    date: '2025-12-10',
+    type: 'EVENT',
+    lat: -1.3550,
+    lng: 36.7600,
+    isActive: true,
+  },
+  {
+    id: 'nairobi_006',
+    wardCode: 'embakasi_central',
+    wardName: 'Embakasi Central',
+    title: 'Garbage collection schedule change',
+    summary: 'Garbage collection in Embakasi Central moved to Monday and Thursday. Please have bins ready by 6 AM.',
+    source: 'Nairobi County Environment',
+    date: '2025-12-02',
+    type: 'SERVICE',
+    lat: -1.3100,
+    lng: 36.8900,
+    isActive: true,
+  },
+  {
+    id: 'nairobi_007',
+    wardCode: 'starehe',
+    wardName: 'Starehe',
+    title: 'Huduma Centre extended hours',
+    summary: 'GPO Huduma Centre will operate until 6 PM (instead of 4 PM) this week for ID and certificate collection.',
+    source: 'Huduma Kenya',
     date: '2025-12-02',
     endDate: '2025-12-06',
     type: 'SERVICE',
-    lat: -0.7165,
-    lng: 36.4360,
-    link: 'https://naivasha.go.ke/offices',
-    isActive: true,
-  },
-  {
-    id: 'naivasha_004',
-    wardCode: 'maiella',
-    wardName: 'Maiella',
-    title: 'Water supply maintenance',
-    summary: 'Scheduled water maintenance on Tuesday 10 AM - 2 PM. Please store water in advance. Maiella and parts of Naivasha East affected.',
-    source: 'Naivasha Water & Sewerage',
-    date: '2025-12-03',
-    type: 'NOTICE',
-    lat: -0.7050,
-    lng: 36.4420,
-    isActive: true,
-  },
-  {
-    id: 'naivasha_005',
-    wardCode: 'hells_gate',
-    wardName: "Hell's Gate",
-    title: 'New bus stop construction',
-    summary: 'A new bus stop is being built near the Hell\'s Gate junction. Construction expected to complete by end of December.',
-    source: 'Naivasha Transport Authority',
-    date: '2025-11-25',
-    endDate: '2025-12-31',
-    type: 'INFRASTRUCTURE',
-    lat: -0.8300,
-    lng: 36.3200,
-    isActive: true,
-  },
-  {
-    id: 'naivasha_006',
-    wardCode: 'lake_view',
-    wardName: 'Lake View',
-    title: 'Free health screening camp',
-    summary: 'Free blood pressure and diabetes screening at Lake View Community Center. All residents welcome. Bring your ID.',
-    source: 'Naivasha Health Department',
-    date: '2025-12-10',
-    type: 'EVENT',
-    lat: -0.7520,
-    lng: 36.4000,
-    isActive: true,
-  },
-  {
-    id: 'naivasha_007',
-    wardCode: 'viwandani',
-    wardName: 'Viwandani',
-    title: 'New street lights installed',
-    summary: 'Solar-powered street lights have been installed along Industrial Road. Report any issues to the ward office.',
-    source: 'Naivasha Energy Department',
-    date: '2025-11-28',
-    type: 'INFRASTRUCTURE',
-    lat: -0.7340,
-    lng: 36.4180,
+    lat: -1.2833,
+    lng: 36.8333,
+    link: 'https://hudumakenya.go.ke',
     isActive: true,
   },
 ];
 
 // Calculate distance between two coordinates (in km)
 function getDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6371; // Earth's radius in km
+  const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLng = (lng2 - lng1) * Math.PI / 180;
   const a = 
@@ -118,11 +118,10 @@ function getDistance(lat1: number, lng1: number, lat2: number, lng2: number): nu
 
 // Find ward by coordinates
 export function findWardByCoords(lat: number, lng: number): { code: string; name: string } | null {
-  // Simple nearest-ward lookup (in real app, use actual ward boundaries)
   let nearestWard = null;
   let minDistance = Infinity;
   
-  for (const ward of NAIVASHA_WARDS) {
+  for (const ward of NAIROBI_WARDS) {
     const distance = getDistance(lat, lng, ward.center.lat, ward.center.lng);
     if (distance < minDistance) {
       minDistance = distance;
@@ -135,19 +134,19 @@ export function findWardByCoords(lat: number, lng: number): { code: string; name
 
 // Mock reverse geocoding for nearby landmarks
 export async function getNearbyLandmarks(lat: number, lng: number): Promise<string[]> {
-  // In production, use OpenStreetMap Nominatim API
-  // For now, return mock landmarks based on location
   await new Promise(resolve => setTimeout(resolve, 300));
   
   const landmarks = [
-    'Near Naivasha Market',
-    'Close to Main Bus Station',
-    'Lake Naivasha area',
-    'Near Kenyatta Avenue',
-    'Industrial Area vicinity',
+    'Near KICC',
+    'Close to Kenyatta Avenue',
+    'Near Uhuru Park',
+    'Close to City Market',
+    'Near GPO',
+    'Westlands area',
+    'Near Sarit Centre',
+    'Close to Junction Mall',
   ];
   
-  // Return 1-2 random landmarks
   const shuffled = landmarks.sort(() => 0.5 - Math.random());
   return shuffled.slice(0, Math.random() > 0.5 ? 2 : 1);
 }
@@ -155,9 +154,6 @@ export async function getNearbyLandmarks(lat: number, lng: number): Promise<stri
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const happeningsApi = {
-  /**
-   * Get happenings filtered by ward or location
-   */
   async getHappenings(filters?: {
     wardCode?: string;
     lat?: number;
@@ -169,20 +165,17 @@ export const happeningsApi = {
     
     let result = [...mockHappenings].filter(h => h.isActive);
     
-    // Filter by ward
     if (filters?.wardCode) {
       result = result.filter(h => h.wardCode === filters.wardCode);
     }
     
-    // Filter by proximity
     if (filters?.lat && filters?.lng) {
-      const radius = filters.radiusKm || 5; // Default 5km radius
+      const radius = filters.radiusKm || 5;
       result = result.filter(h => {
         const distance = getDistance(filters.lat!, filters.lng!, h.lat, h.lng);
         return distance <= radius;
       });
       
-      // Sort by distance
       result.sort((a, b) => {
         const distA = getDistance(filters.lat!, filters.lng!, a.lat, a.lng);
         const distB = getDistance(filters.lat!, filters.lng!, b.lat, b.lng);
@@ -190,7 +183,6 @@ export const happeningsApi = {
       });
     }
     
-    // Filter by type
     if (filters?.type) {
       result = result.filter(h => h.type === filters.type);
     }
@@ -198,17 +190,11 @@ export const happeningsApi = {
     return result;
   },
 
-  /**
-   * Get a single happening by ID
-   */
   async getHappening(id: string): Promise<Happening | null> {
     await delay(200);
     return mockHappenings.find(h => h.id === id) || null;
   },
 
-  /**
-   * Get all happenings for map markers
-   */
   async getAllHappeningsForMap(): Promise<Happening[]> {
     await delay(300);
     return mockHappenings.filter(h => h.isActive);
