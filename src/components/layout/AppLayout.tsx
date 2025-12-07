@@ -1,7 +1,8 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { MapPin, MessageSquare, Info, Menu, X, Home } from 'lucide-react';
+import { MapPin, MessageSquare, Info, Menu, X, Home, Ticket } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import kenyaCoatOfArms from '@/assets/kenya-coat-of-arms.png';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -9,8 +10,8 @@ interface AppLayoutProps {
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home, description: 'Discover what is happening' },
-  { name: 'Report', href: '/report', icon: MapPin, description: 'Share your story' },
-  { name: 'Stories', href: '/stories', icon: MessageSquare, description: 'See community stories' },
+  { name: 'Report', href: '/report', icon: MapPin, description: 'Report an issue' },
+  { name: 'My Tickets', href: '/my-tickets', icon: Ticket, description: 'Track your reports' },
   { name: 'About', href: '/about', icon: Info, description: 'Learn about this app' },
 ];
 
@@ -33,14 +34,16 @@ export function AppLayout({ children }: AppLayoutProps) {
           <div className="flex items-center justify-between h-16 md:h-18">
             {/* Logo / Title - Official Government Style */}
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-md bg-primary flex items-center justify-center border-2 border-primary-foreground/20">
-                <MapPin className="w-7 h-7 text-primary-foreground" aria-hidden="true" />
-              </div>
+              <img 
+                src={kenyaCoatOfArms} 
+                alt="Kenya Coat of Arms" 
+                className="w-12 h-12 md:w-14 md:h-14 object-contain"
+              />
               <div>
                 <h1 className="text-lg md:text-xl font-bold leading-tight text-accent-foreground">
                   Wardwise Whispers
                 </h1>
-                <p className="text-xs md:text-sm text-accent-foreground/80">Naivasha County</p>
+                <p className="text-xs md:text-sm text-accent-foreground/80">Nairobi County</p>
               </div>
             </div>
 
@@ -126,14 +129,18 @@ export function AppLayout({ children }: AppLayoutProps) {
       <footer className="bg-accent text-accent-foreground border-t-4 border-primary py-8">
         <div className="container">
           <div className="text-center space-y-3">
-            <div className="flex items-center justify-center gap-2">
-              <MapPin className="w-5 h-5 text-primary" aria-hidden="true" />
+            <div className="flex items-center justify-center gap-3">
+              <img 
+                src={kenyaCoatOfArms} 
+                alt="Kenya Coat of Arms" 
+                className="w-10 h-10 object-contain"
+              />
               <p className="font-semibold text-lg">
                 Wardwise Whispers
               </p>
             </div>
             <p className="text-sm opacity-90">
-              Official Citizen Engagement Platform — Naivasha County
+              Official Citizen Engagement Platform — Nairobi County
             </p>
             <p className="text-xs opacity-75 max-w-2xl mx-auto">
               Report problems, share ideas, celebrate successes. Your voice matters in building our community.
