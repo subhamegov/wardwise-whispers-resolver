@@ -17,8 +17,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        display: ["IBM Plex Sans", "system-ui", "sans-serif"],
+        sans: ["Open Sans", "system-ui", "sans-serif"],
+        display: ["Poppins", "system-ui", "sans-serif"],
       },
       fontSize: {
         // Accessible font sizes
