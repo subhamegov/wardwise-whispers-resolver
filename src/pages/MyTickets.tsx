@@ -50,10 +50,10 @@ const MyTickets = () => {
       <section className="mb-8" aria-labelledby="tickets-hero-title">
         <div className="ncc-hero ncc-hero-pattern p-8 md:p-10">
           <div className="max-w-2xl">
-            <h1 id="tickets-hero-title" className="text-3xl md:text-4xl font-bold mb-3">
+            <h1 id="tickets-hero-title" className="text-3xl md:text-4xl font-bold mb-3 text-white drop-shadow-md">
               My Tickets
             </h1>
-            <p className="text-lg text-white/90">
+            <p className="text-lg text-white font-medium drop-shadow-sm">
               Track the status of your reports and communicate with county staff.
             </p>
           </div>
