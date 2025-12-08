@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { MapPin, MessageSquare, Info, Menu, X, Home, Ticket } from 'lucide-react';
+import { MapPin, Info, Menu, X, Home, Ticket, Phone, Mail, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import kenyaCoatOfArms from '@/assets/kenya-coat-of-arms.png';
 
@@ -10,7 +10,7 @@ interface AppLayoutProps {
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home, description: 'Discover what is happening' },
-  { name: 'Report', href: '/report', icon: MapPin, description: 'Report an issue' },
+  { name: 'Report Issue', href: '/report', icon: MapPin, description: 'Report an issue' },
   { name: 'My Tickets', href: '/my-tickets', icon: Ticket, description: 'Track your reports' },
   { name: 'About', href: '/about', icon: Info, description: 'Learn about this app' },
 ];
@@ -19,7 +19,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Skip to main content link for screen readers */}
       <a
         href="#main-content"
@@ -28,36 +28,42 @@ export function AppLayout({ children }: AppLayoutProps) {
         Skip to main content
       </a>
 
+      {/* Top accent bar */}
+      <div className="ncc-accent-bar" />
+
       {/* Header */}
-      <header className="bg-accent text-accent-foreground shadow-medium border-b-4 border-secondary">
+      <header className="ncc-header sticky top-0 z-40">
         <div className="container">
-          <div className="flex items-center justify-between h-16 md:h-18">
+          <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo / Title - Official Government Style */}
-            <div className="flex items-center gap-3">
-              <img 
-                src={kenyaCoatOfArms} 
-                alt="Kenya Coat of Arms" 
-                className="w-12 h-12 md:w-14 md:h-14 object-contain"
-              />
-              <div>
-                <h1 className="text-lg md:text-xl font-bold leading-tight text-accent-foreground">
-                  Wardwise Whispers
-                </h1>
-                <p className="text-xs md:text-sm text-accent-foreground/80">Nairobi County</p>
+            <NavLink to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+              <div className="relative">
+                <img 
+                  src={kenyaCoatOfArms} 
+                  alt="Kenya Coat of Arms" 
+                  className="w-12 h-12 md:w-14 md:h-14 object-contain drop-shadow-lg"
+                />
               </div>
-            </div>
+              <div>
+                <h1 className="text-lg md:text-xl font-bold leading-tight tracking-tight font-display">
+                  Nairobi City County
+                </h1>
+                <p className="text-xs md:text-sm text-white/80 font-medium">
+                  Citizen Service Portal
+                </p>
+              </div>
+            </NavLink>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
+            <nav className="hidden lg:flex items-center gap-1" aria-label="Main navigation">
               {navigation.map((item) => (
                 <NavLink
                   key={item.name}
                   to={item.href}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors',
-                      'hover:bg-accent-foreground/10 focus-visible:ring-2 focus-visible:ring-accent-foreground',
-                      isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
+                      'ncc-nav-item',
+                      isActive && 'ncc-nav-item-active'
                     )
                   }
                   aria-label={item.description}
@@ -71,7 +77,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             {/* Mobile Menu Button */}
             <button
               type="button"
-              className="md:hidden flex items-center justify-center w-tap h-tap rounded-md hover:bg-accent-foreground/10 focus-visible:ring-2 focus-visible:ring-accent-foreground"
+              className="lg:hidden flex items-center justify-center w-11 h-11 rounded-lg hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-menu"
@@ -90,19 +96,19 @@ export function AppLayout({ children }: AppLayoutProps) {
         {mobileMenuOpen && (
           <nav
             id="mobile-menu"
-            className="md:hidden bg-accent border-t border-accent-foreground/20 animate-slide-up"
+            className="lg:hidden bg-primary/95 backdrop-blur-sm border-t border-white/10 animate-slide-up"
             aria-label="Mobile navigation"
           >
-            <div className="container py-4 space-y-2">
+            <div className="container py-4 space-y-1">
               {navigation.map((item) => (
                 <NavLink
                   key={item.name}
                   to={item.href}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-3 px-4 py-3 rounded-md font-medium transition-colors',
-                      'hover:bg-accent-foreground/10 focus-visible:ring-2 focus-visible:ring-accent-foreground',
-                      isActive && 'bg-primary text-primary-foreground'
+                      'flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all',
+                      'hover:bg-white/10',
+                      isActive && 'bg-secondary text-secondary-foreground'
                     )
                   }
                   onClick={() => setMobileMenuOpen(false)}
@@ -110,7 +116,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 >
                   <item.icon className="w-6 h-6" aria-hidden="true" />
                   <div>
-                    <span className="block">{item.name}</span>
+                    <span className="block font-semibold">{item.name}</span>
                     <span className="text-sm opacity-80">{item.description}</span>
                   </div>
                 </NavLink>
@@ -121,29 +127,80 @@ export function AppLayout({ children }: AppLayoutProps) {
       </header>
 
       {/* Main Content */}
-      <main id="main-content" className="container py-6 md:py-8" tabIndex={-1}>
+      <main id="main-content" className="flex-1 container py-6 md:py-8" tabIndex={-1}>
         {children}
       </main>
 
       {/* Footer */}
-      <footer className="bg-accent text-accent-foreground border-t-4 border-primary py-8">
+      <footer className="ncc-footer">
         <div className="container">
-          <div className="text-center space-y-3">
-            <div className="flex items-center justify-center gap-3">
-              <img 
-                src={kenyaCoatOfArms} 
-                alt="Kenya Coat of Arms" 
-                className="w-10 h-10 object-contain"
-              />
-              <p className="font-semibold text-lg">
-                Wardwise Whispers
+          <div className="grid md:grid-cols-3 gap-8 mb-8">
+            {/* Brand Column */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <img 
+                  src={kenyaCoatOfArms} 
+                  alt="Kenya Coat of Arms" 
+                  className="w-12 h-12 object-contain"
+                />
+                <div>
+                  <p className="font-bold text-lg font-display">
+                    Nairobi City County
+                  </p>
+                  <p className="text-sm opacity-80">
+                    Citizen Service Portal
+                  </p>
+                </div>
+              </div>
+              <p className="text-sm opacity-75 max-w-xs">
+                Report issues, track progress, and stay informed about what's happening in your ward.
               </p>
             </div>
-            <p className="text-sm opacity-90">
-              Official Citizen Engagement Platform — Nairobi County
-            </p>
-            <p className="text-xs opacity-75 max-w-2xl mx-auto">
-              Report problems, share ideas, celebrate successes. Your voice matters in building our community.
+
+            {/* Quick Links */}
+            <div className="space-y-4">
+              <h3 className="font-bold text-lg font-display">Quick Links</h3>
+              <ul className="space-y-2 text-sm">
+                {navigation.map((item) => (
+                  <li key={item.name}>
+                    <NavLink 
+                      to={item.href}
+                      className="opacity-80 hover:opacity-100 hover:text-secondary transition-all inline-flex items-center gap-2"
+                    >
+                      <item.icon className="w-4 h-4" />
+                      {item.name}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Contact Info */}
+            <div className="space-y-4">
+              <h3 className="font-bold text-lg font-display">Contact Us</h3>
+              <ul className="space-y-3 text-sm">
+                <li className="flex items-center gap-3 opacity-80">
+                  <Phone className="w-4 h-4 text-secondary" />
+                  <span>+254 (0)20 222 1111</span>
+                </li>
+                <li className="flex items-center gap-3 opacity-80">
+                  <Mail className="w-4 h-4 text-secondary" />
+                  <span>info@nairobi.go.ke</span>
+                </li>
+                <li className="flex items-center gap-3 opacity-80">
+                  <Globe className="w-4 h-4 text-secondary" />
+                  <a href="https://nairobi.go.ke" target="_blank" rel="noopener noreferrer" className="hover:text-secondary">
+                    nairobi.go.ke
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom bar */}
+          <div className="pt-8 border-t border-white/10 text-center">
+            <p className="text-sm opacity-60">
+              © {new Date().getFullYear()} Nairobi City County. All rights reserved.
             </p>
           </div>
         </div>
