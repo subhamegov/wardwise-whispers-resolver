@@ -1,17 +1,20 @@
 import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { PenSquare, ArrowRight, Ticket, MapPin, Clock, Shield, Users } from 'lucide-react';
+import { PenSquare, ArrowRight, Ticket, MapPin, Clock, Shield, Users, Settings2 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { NairobiMap } from '@/components/map/NairobiMap';
 import { HappeningsFeed } from '@/components/happenings/HappeningsFeed';
 import { ActiveSurveys } from '@/components/surveys/ActiveSurveys';
 import { findWardByCoords } from '@/lib/happeningsApi';
+import { UserPreferencesModal, loadUserPreferences, UserPreferences } from '@/components/preferences/UserPreferencesModal';
+import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationDescription, setLocationDescription] = useState('');
   const [selectedWard, setSelectedWard] = useState<{ code: string; name: string } | null>(null);
-
+  const [preferencesOpen, setPreferencesOpen] = useState(false);
+  const [userPreferences, setUserPreferences] = useState<UserPreferences>(loadUserPreferences);
   const handleLocationSelect = useCallback((location: { lat: number; lng: number }) => {
     setSelectedLocation(location);
     const ward = findWardByCoords(location.lat, location.lng);
@@ -56,6 +59,34 @@ const Index = () => {
               </Link>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Preferences Banner */}
+      <section className="mb-6">
+        <div className="ncc-card p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Settings2 className="w-5 h-5 text-primary" />
+            <div>
+              <p className="font-medium text-foreground">
+                {userPreferences.subscribedWards.length > 0 || userPreferences.preferredTopics.length > 0
+                  ? `Following ${userPreferences.subscribedWards.length} area(s), ${userPreferences.preferredTopics.length} topic(s)`
+                  : 'Customize your feed'}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Select your wards and topics of interest
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPreferencesOpen(true)}
+            className="gap-2"
+          >
+            <Settings2 className="w-4 h-4" />
+            Preferences
+          </Button>
         </div>
       </section>
 
@@ -180,6 +211,13 @@ const Index = () => {
           </div>
         )}
       </section>
+
+      {/* Preferences Modal */}
+      <UserPreferencesModal
+        open={preferencesOpen}
+        onOpenChange={setPreferencesOpen}
+        onSave={setUserPreferences}
+      />
     </AppLayout>
   );
 };
