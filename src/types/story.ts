@@ -3,6 +3,38 @@
 export type IssueCategory = 'roads' | 'water' | 'waste' | 'streetlights' | 'noise' | 'other';
 export type StoryCategory = 'complaint' | 'idea' | 'appreciation';
 export type TicketStatus = 'new' | 'assigned' | 'in_progress' | 'resolved' | 'escalated';
+export type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+export type WorkflowAction = 'CREATE' | 'ASSIGN' | 'IN_PROGRESS' | 'REQUEST_INFO' | 'RESOLVE' | 'ESCALATE' | 'CLOSE' | 'REOPEN';
+
+export interface WorkflowHistoryItem {
+  id: string;
+  performedBy: string;
+  performedByRole: 'citizen' | 'officer' | 'system';
+  action: WorkflowAction;
+  note?: string;
+  timestamp: string;
+}
+
+export interface TicketRemark {
+  id: string;
+  by: string;
+  byRole: 'citizen' | 'officer';
+  text: string;
+  timestamp: string;
+  attachments?: { fileStoreId: string; fileName: string }[];
+}
+
+export interface CitizenInfo {
+  name: string;
+  mobileNumber?: string;
+  email?: string;
+}
+
+export interface SLAInfo {
+  dueInHours: number;
+  remaining: number; // can be negative if overdue
+  deadline: string;
+}
 
 export interface Story {
   id: string;
@@ -10,12 +42,14 @@ export interface Story {
   tenantId: string;
   category: StoryCategory;
   issueCategory?: IssueCategory;
+  serviceCode?: string; // DIGIT PGR service code
   title: string;
   description: string;
   audioUrl?: string;
   audioBlob?: Blob;
   audioDuration?: number;
   photos?: string[]; // URLs to uploaded photos
+  attachments?: { fileStoreId: string; fileName: string }[];
   lat: number;
   lng: number;
   locationDescription?: string;
@@ -28,25 +62,32 @@ export interface Story {
   // Contact info
   reporterName?: string;
   reporterPhone?: string;
+  citizen?: CitizenInfo;
   
   // Rating (1-5 stars)
   serviceRating?: number;
   
   // Status tracking
   status: TicketStatus;
+  priority?: TicketPriority;
   assignedTo?: string;
+  assignedDepartment?: string;
   departmentCode?: string;
   
   // SLA tracking
   slaDeadline?: string;
+  sla?: SLAInfo;
   isOverdue?: boolean;
   
-  // Updates and comments
+  // Updates and comments (legacy)
   updates?: TicketUpdate[];
   satisfactionRating?: number; // Post-resolution rating
   
+  // Workflow history (DIGIT-compatible)
+  history?: WorkflowHistoryItem[];
+  remarks?: TicketRemark[];
+  
   // DIGIT PGR mapping
-  serviceCode?: string;
   serviceRequestId?: string;
 }
 
@@ -99,13 +140,13 @@ export const NAIROBI_WARDS: Ward[] = [
   { code: 'nairobi_central', name: 'Nairobi Central', subcounty: 'Starehe', center: { lat: -1.2864, lng: 36.8172 } },
 ];
 
-export const ISSUE_CATEGORIES: { code: IssueCategory; label: string; icon: string; description: string }[] = [
-  { code: 'roads', label: 'Roads & Potholes', icon: '🛣️', description: 'Potholes, road damage, traffic issues' },
-  { code: 'water', label: 'Water & Sewage', icon: '💧', description: 'Leaks, blockages, water supply' },
-  { code: 'waste', label: 'Waste & Garbage', icon: '🗑️', description: 'Garbage collection, dumping' },
-  { code: 'streetlights', label: 'Streetlights', icon: '💡', description: 'Broken or missing lights' },
-  { code: 'noise', label: 'Noise & Pollution', icon: '🔊', description: 'Noise complaints, air quality' },
-  { code: 'other', label: 'Other Issues', icon: '📋', description: 'Other service requests' },
+export const ISSUE_CATEGORIES: { code: IssueCategory; label: string; icon: string; description: string; serviceCode: string }[] = [
+  { code: 'roads', label: 'Roads & Potholes', icon: '🛣️', description: 'Potholes, road damage, traffic issues', serviceCode: 'ROAD_MAINTENANCE' },
+  { code: 'water', label: 'Water & Sewage', icon: '💧', description: 'Leaks, blockages, water supply', serviceCode: 'WATER_SUPPLY' },
+  { code: 'waste', label: 'Waste & Garbage', icon: '🗑️', description: 'Garbage collection, dumping', serviceCode: 'WASTE_MANAGEMENT' },
+  { code: 'streetlights', label: 'Streetlights', icon: '💡', description: 'Broken or missing lights', serviceCode: 'STREET_LIGHTING' },
+  { code: 'noise', label: 'Noise & Pollution', icon: '🔊', description: 'Noise complaints, air quality', serviceCode: 'ENVIRONMENTAL' },
+  { code: 'other', label: 'Other Issues', icon: '📋', description: 'Other service requests', serviceCode: 'GENERAL' },
 ];
 
 export const CATEGORY_LABELS: Record<StoryCategory, string> = {
@@ -120,10 +161,28 @@ export const CATEGORY_DESCRIPTIONS: Record<StoryCategory, string> = {
   appreciation: 'Something good that happened',
 };
 
-export const STATUS_LABELS: Record<TicketStatus, { label: string; color: string }> = {
-  new: { label: 'New', color: 'bg-blue-500' },
-  assigned: { label: 'Assigned', color: 'bg-purple-500' },
-  in_progress: { label: 'In Progress', color: 'bg-amber-500' },
-  resolved: { label: 'Resolved', color: 'bg-green-500' },
-  escalated: { label: 'Escalated', color: 'bg-red-500' },
+export const STATUS_LABELS: Record<TicketStatus, { label: string; color: string; bgColor: string }> = {
+  new: { label: 'New', color: 'text-blue-700', bgColor: 'bg-blue-100' },
+  assigned: { label: 'Assigned', color: 'text-purple-700', bgColor: 'bg-purple-100' },
+  in_progress: { label: 'In Progress', color: 'text-amber-700', bgColor: 'bg-amber-100' },
+  resolved: { label: 'Resolved', color: 'text-green-700', bgColor: 'bg-green-100' },
+  escalated: { label: 'Escalated', color: 'text-red-700', bgColor: 'bg-red-100' },
+};
+
+export const PRIORITY_LABELS: Record<TicketPriority, { label: string; color: string }> = {
+  LOW: { label: 'Low', color: 'text-slate-600' },
+  MEDIUM: { label: 'Medium', color: 'text-blue-600' },
+  HIGH: { label: 'High', color: 'text-orange-600' },
+  URGENT: { label: 'Urgent', color: 'text-red-600' },
+};
+
+export const WORKFLOW_ACTION_LABELS: Record<WorkflowAction, { label: string; icon: string }> = {
+  CREATE: { label: 'Created', icon: '📝' },
+  ASSIGN: { label: 'Assigned', icon: '👤' },
+  IN_PROGRESS: { label: 'In Progress', icon: '🔧' },
+  REQUEST_INFO: { label: 'Info Requested', icon: '❓' },
+  RESOLVE: { label: 'Resolved', icon: '✅' },
+  ESCALATE: { label: 'Escalated', icon: '⚠️' },
+  CLOSE: { label: 'Closed', icon: '🔒' },
+  REOPEN: { label: 'Reopened', icon: '🔓' },
 };
