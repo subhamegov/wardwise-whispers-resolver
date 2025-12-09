@@ -164,7 +164,7 @@ const Index = () => {
           wardCode={selectedWard?.code}
           lat={selectedLocation?.lat ?? -1.2921}
           lng={selectedLocation?.lng ?? 36.8219}
-          radiusKm={10}
+          radiusKm={20}
         />
       </section>
 
