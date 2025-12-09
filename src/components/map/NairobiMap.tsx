@@ -43,17 +43,88 @@ const happeningMarkerIcon = new L.DivIcon({
   popupAnchor: [0, -12],
 });
 
-// Map filter categories
+// Map filter categories with colors
 const MAP_FILTERS = [
-  { id: 'traffic', label: 'Traffic', icon: Car },
-  { id: 'health', label: 'Health', icon: Heart },
-  { id: 'safety', label: 'Safety', icon: Shield },
-  { id: 'water', label: 'Water', icon: Droplets },
-  { id: 'waste', label: 'Waste', icon: Trash2 },
-  { id: 'power', label: 'Power', icon: Zap },
+  { id: 'traffic', label: 'Traffic', icon: Car, color: '#E74C3C' },
+  { id: 'health', label: 'Health', icon: Heart, color: '#E91E63' },
+  { id: 'safety', label: 'Safety', icon: Shield, color: '#3B82F6' },
+  { id: 'water', label: 'Water', icon: Droplets, color: '#06B6D4' },
+  { id: 'waste', label: 'Waste', icon: Trash2, color: '#8B5CF6' },
+  { id: 'power', label: 'Power', icon: Zap, color: '#F59E0B' },
 ] as const;
 
 type MapFilterId = typeof MAP_FILTERS[number]['id'];
+
+// Mock projects data by category around Upper Hill area
+interface MapProject {
+  id: string;
+  category: MapFilterId;
+  title: string;
+  description: string;
+  lat: number;
+  lng: number;
+  status: 'active' | 'planned' | 'completed';
+}
+
+const MOCK_PROJECTS: MapProject[] = [
+  // Traffic projects
+  { id: 't1', category: 'traffic', title: 'Mbagathi Way Traffic Lights', description: 'New traffic signal installation', lat: -1.2985, lng: 36.8150, status: 'active' },
+  { id: 't2', category: 'traffic', title: 'Hospital Road Expansion', description: 'Road widening project', lat: -1.2890, lng: 36.8180, status: 'planned' },
+  { id: 't3', category: 'traffic', title: 'Kenyatta Hospital Junction', description: 'Roundabout construction', lat: -1.3010, lng: 36.8090, status: 'active' },
+  
+  // Health projects
+  { id: 'h1', category: 'health', title: 'Upper Hill Clinic Upgrade', description: 'Medical facility renovation', lat: -1.2930, lng: 36.8250, status: 'active' },
+  { id: 'h2', category: 'health', title: 'Community Health Center', description: 'New primary care facility', lat: -1.2870, lng: 36.8300, status: 'planned' },
+  { id: 'h3', category: 'health', title: 'Mobile Clinic Station', description: 'Weekly mobile health services', lat: -1.2960, lng: 36.8120, status: 'completed' },
+  
+  // Safety projects
+  { id: 's1', category: 'safety', title: 'CCTV Installation Phase 2', description: 'Security camera network expansion', lat: -1.2900, lng: 36.8200, status: 'active' },
+  { id: 's2', category: 'safety', title: 'Street Lighting Upgrade', description: 'LED streetlight installation', lat: -1.2950, lng: 36.8280, status: 'active' },
+  { id: 's3', category: 'safety', title: 'Police Patrol Post', description: 'New community police booth', lat: -1.2880, lng: 36.8150, status: 'completed' },
+  
+  // Water projects
+  { id: 'w1', category: 'water', title: 'Water Pipeline Repair', description: 'Main pipe replacement', lat: -1.2940, lng: 36.8170, status: 'active' },
+  { id: 'w2', category: 'water', title: 'Community Borehole', description: 'New borehole drilling', lat: -1.2910, lng: 36.8260, status: 'planned' },
+  { id: 'w3', category: 'water', title: 'Rainwater Harvesting', description: 'Public water collection tanks', lat: -1.2970, lng: 36.8230, status: 'completed' },
+  
+  // Waste projects
+  { id: 'g1', category: 'waste', title: 'Garbage Collection Point', description: 'New waste disposal area', lat: -1.2925, lng: 36.8190, status: 'active' },
+  { id: 'g2', category: 'waste', title: 'Recycling Center', description: 'Community recycling facility', lat: -1.2895, lng: 36.8240, status: 'planned' },
+  { id: 'g3', category: 'waste', title: 'Street Cleaning Initiative', description: 'Regular cleanup program', lat: -1.2955, lng: 36.8160, status: 'active' },
+  
+  // Power projects
+  { id: 'p1', category: 'power', title: 'Transformer Upgrade', description: 'Power capacity increase', lat: -1.2915, lng: 36.8210, status: 'active' },
+  { id: 'p2', category: 'power', title: 'Solar Streetlights', description: 'Renewable energy lighting', lat: -1.2945, lng: 36.8140, status: 'completed' },
+  { id: 'p3', category: 'power', title: 'Underground Cabling', description: 'Power line undergrounding', lat: -1.2875, lng: 36.8270, status: 'planned' },
+];
+
+// Create category-specific marker icons
+const createCategoryIcon = (color: string, iconSvg: string) => new L.DivIcon({
+  className: 'category-marker',
+  html: `<div style="
+    width: 32px;
+    height: 32px;
+    background: ${color};
+    border: 3px solid white;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  ">${iconSvg}</div>`,
+  iconSize: [32, 32],
+  iconAnchor: [16, 16],
+  popupAnchor: [0, -16],
+});
+
+const CATEGORY_ICONS: Record<MapFilterId, L.DivIcon> = {
+  traffic: createCategoryIcon('#E74C3C', '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>'),
+  health: createCategoryIcon('#E91E63', '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>'),
+  safety: createCategoryIcon('#3B82F6', '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>'),
+  water: createCategoryIcon('#06B6D4', '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>'),
+  waste: createCategoryIcon('#8B5CF6', '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>'),
+  power: createCategoryIcon('#F59E0B', '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>'),
+};
 
 interface NairobiMapProps {
   selectedLocation: { lat: number; lng: number } | null;
@@ -353,7 +424,44 @@ export function NairobiMap({
             }}
           />
 
-          {showHappenings && happenings.map((happening) => (
+          {/* Category Project Markers */}
+          {MOCK_PROJECTS
+            .filter(project => activeFilter === null || project.category === activeFilter)
+            .map((project) => {
+              const filterConfig = MAP_FILTERS.find(f => f.id === project.category);
+              return (
+                <Marker
+                  key={project.id}
+                  position={[project.lat, project.lng]}
+                  icon={CATEGORY_ICONS[project.category]}
+                >
+                  <Popup>
+                    <div className="max-w-[220px]">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div 
+                          className="w-3 h-3 rounded-full" 
+                          style={{ backgroundColor: filterConfig?.color }}
+                        />
+                        <span className="text-xs font-medium uppercase text-muted-foreground">
+                          {filterConfig?.label}
+                        </span>
+                      </div>
+                      <p className="font-semibold text-sm">{project.title}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{project.description}</p>
+                      <span className={`inline-block mt-2 text-xs px-2 py-0.5 rounded-full ${
+                        project.status === 'active' ? 'bg-green-100 text-green-700' :
+                        project.status === 'planned' ? 'bg-blue-100 text-blue-700' :
+                        'bg-gray-100 text-gray-700'
+                      }`}>
+                        {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                      </span>
+                    </div>
+                  </Popup>
+                </Marker>
+              );
+            })}
+
+          {showHappenings && !activeFilter && happenings.map((happening) => (
             <Marker
               key={happening.id}
               position={[happening.lat, happening.lng]}
@@ -428,20 +536,40 @@ export function NairobiMap({
         </p>
       )}
 
-      {showHappenings && happenings.length > 0 && (
-        <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-secondary border border-background shadow-sm" />
-            <span>County works/events</span>
-          </div>
-          {selectedLocation && (
-            <div className="flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-primary" />
-              <span>Your location</span>
-            </div>
-          )}
+      {/* Legend */}
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-full bg-[#4285F4] border-2 border-white shadow-sm" />
+          <span>You are here</span>
         </div>
-      )}
+        {activeFilter ? (
+          <div className="flex items-center gap-1.5">
+            <div 
+              className="w-3 h-3 rounded-full border border-white shadow-sm" 
+              style={{ backgroundColor: MAP_FILTERS.find(f => f.id === activeFilter)?.color }}
+            />
+            <span>{MAP_FILTERS.find(f => f.id === activeFilter)?.label} projects</span>
+          </div>
+        ) : (
+          <>
+            {MAP_FILTERS.map((filter) => (
+              <div key={filter.id} className="flex items-center gap-1.5">
+                <div 
+                  className="w-3 h-3 rounded-full border border-white shadow-sm" 
+                  style={{ backgroundColor: filter.color }}
+                />
+                <span>{filter.label}</span>
+              </div>
+            ))}
+          </>
+        )}
+        {selectedLocation && (
+          <div className="flex items-center gap-1.5">
+            <MapPin className="w-4 h-4 text-primary" />
+            <span>Selected</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
