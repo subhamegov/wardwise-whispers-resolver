@@ -1,7 +1,12 @@
+export interface SurveyOption {
+  label: string;
+  votes: number;
+}
+
 export interface SurveyQuestion {
   id: string;
   text: string;
-  options: string[];
+  options: SurveyOption[];
 }
 
 export interface Survey {

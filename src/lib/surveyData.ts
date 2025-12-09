@@ -3,19 +3,19 @@ import type { Survey } from '@/types/survey';
 export const mockSurveys: Survey[] = [
   {
     id: "survey_001",
-    title: "Street Lighting Improvement Drive",
-    description: "Help us identify dark spots and improve lighting in your area.",
-    responses: 842,
+    title: "Street Lighting Improvement Survey",
+    description: "Help us prioritize street lighting improvements in your area",
+    responses: 342,
     daysLeft: 5,
     questions: [
       {
         id: "q1",
         text: "Which areas should be prioritized for new streetlights?",
         options: [
-          "Residential streets and estates",
-          "Main roads and intersections",
-          "Markets and commercial zones",
-          "Public parks and recreation areas"
+          { label: "Residential streets and estates", votes: 156 },
+          { label: "Main roads and intersections", votes: 98 },
+          { label: "Parks and recreational areas", votes: 67 },
+          { label: "Commercial and market areas", votes: 21 }
         ]
       }
     ]
@@ -23,47 +23,37 @@ export const mockSurveys: Survey[] = [
   {
     id: "survey_002",
     title: "Public Transport Route Feedback",
-    description: "Share your thoughts on proposed matatu and bus route realignments.",
-    responses: 615,
-    daysLeft: 9,
+    description: "Share your thoughts on proposed bus route changes",
+    responses: 156,
+    daysLeft: 12,
     questions: [
       {
         id: "q1",
         text: "Which changes would most improve your daily commute?",
         options: [
-          "Shorter walking distance to bus stops",
-          "Better safety at termini",
-          "Reduced waiting times",
-          "New feeder routes to estates"
+          { label: "Shorter walking distance to bus stops", votes: 45 },
+          { label: "Better safety at termini", votes: 38 },
+          { label: "Reduced waiting times", votes: 52 },
+          { label: "New feeder routes to estates", votes: 21 }
         ]
       }
     ]
   },
   {
     id: "survey_003",
-    title: "Garbage Collection Satisfaction Survey",
-    description: "Tell us about your garbage collection schedule and service quality.",
-    responses: 1093,
+    title: "Garbage Collection Satisfaction",
+    description: "Rate your garbage collection service quality",
+    responses: 289,
     daysLeft: 7,
     questions: [
       {
         id: "q1",
         text: "How often is garbage collected on your street?",
         options: [
-          "Daily",
-          "Twice a week",
-          "Once a week",
-          "Rarely / Never"
-        ]
-      },
-      {
-        id: "q2",
-        text: "Rate the cleanliness of your neighborhood overall:",
-        options: [
-          "Very clean",
-          "Mostly clean",
-          "Needs improvement",
-          "Dirty / Unattended"
+          { label: "Daily", votes: 34 },
+          { label: "Twice a week", votes: 87 },
+          { label: "Once a week", votes: 112 },
+          { label: "Rarely / Never", votes: 56 }
         ]
       }
     ]
@@ -71,28 +61,18 @@ export const mockSurveys: Survey[] = [
   {
     id: "survey_004",
     title: "Water Supply Reliability Poll",
-    description: "We'd like to know how frequently you receive piped water at home.",
-    responses: 776,
+    description: "How frequently do you receive piped water at home?",
+    responses: 198,
     daysLeft: 6,
     questions: [
       {
         id: "q1",
         text: "How regular is your water supply?",
         options: [
-          "Daily supply",
-          "Every 2–3 days",
-          "Once a week",
-          "Rarely available"
-        ]
-      },
-      {
-        id: "q2",
-        text: "If you experience shortages, where do you get alternative water?",
-        options: [
-          "County water bowsers",
-          "Private vendors",
-          "Community boreholes",
-          "Neighbours / shared supply"
+          { label: "Daily supply", votes: 42 },
+          { label: "Every 2–3 days", votes: 67 },
+          { label: "Once a week", votes: 54 },
+          { label: "Rarely available", votes: 35 }
         ]
       }
     ]
@@ -100,45 +80,46 @@ export const mockSurveys: Survey[] = [
   {
     id: "survey_005",
     title: "Flood Hotspot Mapping",
-    description: "Help identify flood-prone areas before the next rainy season.",
-    responses: 493,
+    description: "Help identify flood-prone areas in your ward",
+    responses: 124,
     daysLeft: 10,
     questions: [
       {
         id: "q1",
         text: "Which areas in your ward flood most frequently?",
         options: [
-          "Low-lying roads and junctions",
-          "Market areas and bus stages",
-          "Residential zones near rivers",
-          "Public open spaces / parks"
+          { label: "Low-lying roads and junctions", votes: 48 },
+          { label: "Market areas and bus stages", votes: 31 },
+          { label: "Residential zones near rivers", votes: 29 },
+          { label: "Public open spaces / parks", votes: 16 }
         ]
       }
     ]
   },
   {
     id: "survey_006",
-    title: "Market Facilities Upgrade Consultation",
-    description: "We're planning upgrades to local markets — share your input.",
-    responses: 382,
+    title: "Market Facilities Upgrade",
+    description: "Share input on planned market improvements",
+    responses: 87,
     daysLeft: 8,
     questions: [
       {
         id: "q1",
         text: "What facility should be prioritized for upgrade?",
         options: [
-          "Toilets and sanitation blocks",
-          "Roofing and drainage",
-          "Waste bins and collection points",
-          "Security and lighting"
+          { label: "Toilets and sanitation blocks", votes: 32 },
+          { label: "Roofing and drainage", votes: 24 },
+          { label: "Waste bins and collection points", votes: 18 },
+          { label: "Security and lighting", votes: 13 }
         ]
       }
     ]
   }
 ];
 
-// Session storage key for tracking completed surveys
+// Session storage keys
 const COMPLETED_SURVEYS_KEY = 'ncc_completed_surveys';
+const USER_CHOICES_KEY = 'ncc_user_choices';
 
 export function getCompletedSurveys(): string[] {
   try {
@@ -146,6 +127,26 @@ export function getCompletedSurveys(): string[] {
     return stored ? JSON.parse(stored) : [];
   } catch {
     return [];
+  }
+}
+
+export function getUserChoices(): Record<string, Record<string, string>> {
+  try {
+    const stored = sessionStorage.getItem(USER_CHOICES_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveUserChoice(surveyId: string, questionId: string, choice: string): void {
+  try {
+    const choices = getUserChoices();
+    if (!choices[surveyId]) choices[surveyId] = {};
+    choices[surveyId][questionId] = choice;
+    sessionStorage.setItem(USER_CHOICES_KEY, JSON.stringify(choices));
+  } catch {
+    // Silent fail
   }
 }
 
@@ -157,7 +158,7 @@ export function markSurveyCompleted(surveyId: string): void {
       sessionStorage.setItem(COMPLETED_SURVEYS_KEY, JSON.stringify(completed));
     }
   } catch {
-    // Silent fail for session storage issues
+    // Silent fail
   }
 }
 
