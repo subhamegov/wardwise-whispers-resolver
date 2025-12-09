@@ -70,7 +70,7 @@ export const mockSurveys: Survey[] = [
         text: "How regular is your water supply?",
         options: [
           { label: "Daily supply", votes: 42 },
-          { label: "Every 2–3 days", votes: 67 },
+          { label: "Every 2-3 days", votes: 67 },
           { label: "Once a week", votes: 54 },
           { label: "Rarely available", votes: 35 }
         ]
@@ -110,7 +110,7 @@ export const mockSurveys: Survey[] = [
           { label: "Reconstruction of fire-resistant stalls and roofing (Gikomba, Toi, Muthurwa)", votes: 32 },
           { label: "Improved drainage and flood control inside market lanes", votes: 24 },
           { label: "Installation of clean, functional toilets and handwashing stations", votes: 18 },
-          { label: "Upgraded lighting and night-time security patrols", votes: 8 },
+          { label: "Upgraded lighting and nighttime security patrols", votes: 8 },
           { label: "Designated waste collection points and timely garbage pickup", votes: 5 }
         ]
       }
