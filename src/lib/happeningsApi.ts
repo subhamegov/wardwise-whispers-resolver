@@ -211,10 +211,7 @@ export const happeningsApi = {
     
     let result = [...allHappenings].filter(h => h.isActive);
     
-    if (filters?.wardCode) {
-      result = result.filter(h => h.wardCode === filters.wardCode);
-    }
-    
+    // If we have lat/lng, prioritize proximity over ward filtering
     if (filters?.lat && filters?.lng) {
       const radius = filters.radiusKm || 5;
       result = result.filter(h => {
@@ -227,6 +224,9 @@ export const happeningsApi = {
         const distB = getDistance(filters.lat!, filters.lng!, b.lat, b.lng);
         return distA - distB;
       });
+    } else if (filters?.wardCode) {
+      // Only filter by ward if no coordinates provided
+      result = result.filter(h => h.wardCode === filters.wardCode);
     }
     
     if (filters?.type) {
