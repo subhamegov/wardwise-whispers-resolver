@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, CircleMarker } from 'react-leaflet';
 import L from 'leaflet';
-import { MapPin, Navigation, Mic, MicOff, AlertCircle, Locate, Car, Heart, Shield, Droplets, Trash2, Zap } from 'lucide-react';
+import { MapPin, Navigation, Mic, MicOff, AlertCircle, Locate, Car, Heart, Shield, Droplets, Trash2, Zap, LayoutGrid } from 'lucide-react';
 import { MapGuide } from './MapGuide';
 import { LocationCard } from './LocationCard';
 import { Happening } from '@/types/happenings';
@@ -45,6 +45,7 @@ const happeningMarkerIcon = new L.DivIcon({
 
 // Map filter categories with colors
 const MAP_FILTERS = [
+  { id: 'all', label: 'All', icon: LayoutGrid, color: '#6B7280' },
   { id: 'traffic', label: 'Traffic', icon: Car, color: '#E74C3C' },
   { id: 'health', label: 'Health', icon: Heart, color: '#E91E63' },
   { id: 'safety', label: 'Safety', icon: Shield, color: '#3B82F6' },
@@ -54,11 +55,12 @@ const MAP_FILTERS = [
 ] as const;
 
 type MapFilterId = typeof MAP_FILTERS[number]['id'];
+type ProjectCategory = Exclude<MapFilterId, 'all'>;
 
 // Mock projects data by category around Upper Hill area
-interface MapProject {
+export interface MapProject {
   id: string;
-  category: MapFilterId;
+  category: ProjectCategory;
   title: string;
   description: string;
   lat: number;
@@ -66,7 +68,7 @@ interface MapProject {
   status: 'active' | 'planned' | 'completed';
 }
 
-const MOCK_PROJECTS: MapProject[] = [
+export const MOCK_PROJECTS: MapProject[] = [
   // Traffic projects
   { id: 't1', category: 'traffic', title: 'Mbagathi Way Traffic Lights', description: 'New traffic signal installation', lat: -1.2985, lng: 36.8150, status: 'active' },
   { id: 't2', category: 'traffic', title: 'Hospital Road Expansion', description: 'Road widening project', lat: -1.2890, lng: 36.8180, status: 'planned' },
@@ -117,7 +119,7 @@ const createCategoryIcon = (color: string, iconSvg: string) => new L.DivIcon({
   popupAnchor: [0, -16],
 });
 
-const CATEGORY_ICONS: Record<MapFilterId, L.DivIcon> = {
+const CATEGORY_ICONS: Record<ProjectCategory, L.DivIcon> = {
   traffic: createCategoryIcon('#E74C3C', '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>'),
   health: createCategoryIcon('#E91E63', '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>'),
   safety: createCategoryIcon('#3B82F6', '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>'),
@@ -125,6 +127,10 @@ const CATEGORY_ICONS: Record<MapFilterId, L.DivIcon> = {
   waste: createCategoryIcon('#8B5CF6', '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>'),
   power: createCategoryIcon('#F59E0B', '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>'),
 };
+
+export { MAP_FILTERS };
+export type { MapFilterId, ProjectCategory };
+
 
 interface NairobiMapProps {
   selectedLocation: { lat: number; lng: number } | null;
@@ -241,7 +247,7 @@ export function NairobiMap({
   const [happenings, setHappenings] = useState<Happening[]>([]);
   const [isVoiceListening, setIsVoiceListening] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
-  const [activeFilter, setActiveFilter] = useState<MapFilterId | null>(null);
+  const [activeFilter, setActiveFilter] = useState<MapFilterId>('all');
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number }>({ 
     lat: -1.2921, 
     lng: 36.8219 
@@ -337,7 +343,7 @@ export function NairobiMap({
           return (
             <button
               key={filter.id}
-              onClick={() => setActiveFilter(isActive ? null : filter.id)}
+              onClick={() => setActiveFilter(filter.id)}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all border ${
                 isActive
                   ? 'bg-primary text-primary-foreground border-primary shadow-md'
@@ -426,7 +432,7 @@ export function NairobiMap({
 
           {/* Category Project Markers */}
           {MOCK_PROJECTS
-            .filter(project => activeFilter === null || project.category === activeFilter)
+            .filter(project => activeFilter === 'all' || project.category === activeFilter)
             .map((project) => {
               const filterConfig = MAP_FILTERS.find(f => f.id === project.category);
               return (
@@ -460,21 +466,6 @@ export function NairobiMap({
                 </Marker>
               );
             })}
-
-          {showHappenings && !activeFilter && happenings.map((happening) => (
-            <Marker
-              key={happening.id}
-              position={[happening.lat, happening.lng]}
-              icon={happeningMarkerIcon}
-            >
-              <Popup>
-                <div className="max-w-[200px]">
-                  <p className="font-semibold text-sm">{happening.title}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{happening.source}</p>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
         </MapContainer>
         
         {!isMapReady && (
@@ -542,7 +533,7 @@ export function NairobiMap({
           <div className="w-3 h-3 rounded-full bg-[#4285F4] border-2 border-white shadow-sm" />
           <span>You are here</span>
         </div>
-        {activeFilter ? (
+        {activeFilter !== 'all' ? (
           <div className="flex items-center gap-1.5">
             <div 
               className="w-3 h-3 rounded-full border border-white shadow-sm" 
@@ -552,7 +543,7 @@ export function NairobiMap({
           </div>
         ) : (
           <>
-            {MAP_FILTERS.map((filter) => (
+            {MAP_FILTERS.filter(f => f.id !== 'all').map((filter) => (
               <div key={filter.id} className="flex items-center gap-1.5">
                 <div 
                   className="w-3 h-3 rounded-full border border-white shadow-sm" 

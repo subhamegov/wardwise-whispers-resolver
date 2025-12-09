@@ -4,7 +4,50 @@
 import { Happening } from '@/types/happenings';
 import { NAIROBI_WARDS } from '@/types/story';
 
-// Mock happenings data for Nairobi
+// Category to type mapping for projects
+const CATEGORY_TYPE_MAP: Record<string, Happening['type']> = {
+  traffic: 'INFRASTRUCTURE',
+  health: 'SERVICE',
+  safety: 'NOTICE',
+  water: 'SERVICE',
+  waste: 'SERVICE',
+  power: 'INFRASTRUCTURE',
+};
+
+// Convert map projects to happenings format
+const projectsAsHappenings: Happening[] = [
+  // Traffic projects
+  { id: 'proj_t1', wardCode: 'kilimani', wardName: 'Kilimani', title: 'Mbagathi Way Traffic Lights', summary: 'New traffic signal installation at Mbagathi Way intersection. Expect improved traffic flow once complete.', source: 'Nairobi County Roads', date: '2025-12-01', type: 'INFRASTRUCTURE', lat: -1.2985, lng: 36.8150, isActive: true },
+  { id: 'proj_t2', wardCode: 'kilimani', wardName: 'Kilimani', title: 'Hospital Road Expansion', summary: 'Road widening project to ease congestion near Kenyatta National Hospital.', source: 'Nairobi County Roads', date: '2025-12-05', type: 'INFRASTRUCTURE', lat: -1.2890, lng: 36.8180, isActive: true },
+  { id: 'proj_t3', wardCode: 'kilimani', wardName: 'Kilimani', title: 'Kenyatta Hospital Junction', summary: 'Roundabout construction to improve traffic management at the busy hospital junction.', source: 'Nairobi County Roads', date: '2025-11-28', type: 'INFRASTRUCTURE', lat: -1.3010, lng: 36.8090, isActive: true },
+  
+  // Health projects
+  { id: 'proj_h1', wardCode: 'kilimani', wardName: 'Kilimani', title: 'Upper Hill Clinic Upgrade', summary: 'Medical facility renovation to expand services and improve patient care capacity.', source: 'Nairobi County Health', date: '2025-12-02', type: 'SERVICE', lat: -1.2930, lng: 36.8250, isActive: true },
+  { id: 'proj_h2', wardCode: 'kilimani', wardName: 'Kilimani', title: 'Community Health Center', summary: 'New primary care facility planned to serve Upper Hill residents.', source: 'Nairobi County Health', date: '2025-12-10', type: 'SERVICE', lat: -1.2870, lng: 36.8300, isActive: true },
+  { id: 'proj_h3', wardCode: 'kilimani', wardName: 'Kilimani', title: 'Mobile Clinic Station', summary: 'Weekly mobile health services now available every Tuesday and Thursday.', source: 'Nairobi County Health', date: '2025-11-25', type: 'SERVICE', lat: -1.2960, lng: 36.8120, isActive: true },
+  
+  // Safety projects
+  { id: 'proj_s1', wardCode: 'kilimani', wardName: 'Kilimani', title: 'CCTV Installation Phase 2', summary: 'Security camera network expansion covering major streets and junctions in Upper Hill.', source: 'Nairobi County Security', date: '2025-12-03', type: 'NOTICE', lat: -1.2900, lng: 36.8200, isActive: true },
+  { id: 'proj_s2', wardCode: 'kilimani', wardName: 'Kilimani', title: 'Street Lighting Upgrade', summary: 'LED streetlight installation to improve night-time visibility and safety.', source: 'Nairobi County Energy', date: '2025-12-01', type: 'INFRASTRUCTURE', lat: -1.2950, lng: 36.8280, isActive: true },
+  { id: 'proj_s3', wardCode: 'kilimani', wardName: 'Kilimani', title: 'Police Patrol Post', summary: 'New community police booth established for faster emergency response.', source: 'Kenya Police Service', date: '2025-11-20', type: 'NOTICE', lat: -1.2880, lng: 36.8150, isActive: true },
+  
+  // Water projects
+  { id: 'proj_w1', wardCode: 'kilimani', wardName: 'Kilimani', title: 'Water Pipeline Repair', summary: 'Main pipe replacement to address frequent water supply interruptions in the area.', source: 'Nairobi Water Company', date: '2025-12-04', type: 'SERVICE', lat: -1.2940, lng: 36.8170, isActive: true },
+  { id: 'proj_w2', wardCode: 'kilimani', wardName: 'Kilimani', title: 'Community Borehole', summary: 'New borehole drilling to provide alternative water source during shortages.', source: 'Nairobi Water Company', date: '2025-12-08', type: 'SERVICE', lat: -1.2910, lng: 36.8260, isActive: true },
+  { id: 'proj_w3', wardCode: 'kilimani', wardName: 'Kilimani', title: 'Rainwater Harvesting', summary: 'Public water collection tanks installed for community use during dry season.', source: 'Nairobi County Environment', date: '2025-11-22', type: 'SERVICE', lat: -1.2970, lng: 36.8230, isActive: true },
+  
+  // Waste projects
+  { id: 'proj_g1', wardCode: 'kilimani', wardName: 'Kilimani', title: 'Garbage Collection Point', summary: 'New designated waste disposal area with scheduled collection twice weekly.', source: 'Nairobi County Environment', date: '2025-12-02', type: 'SERVICE', lat: -1.2925, lng: 36.8190, isActive: true },
+  { id: 'proj_g2', wardCode: 'kilimani', wardName: 'Kilimani', title: 'Recycling Center', summary: 'Community recycling facility planned to promote waste separation and recycling.', source: 'Nairobi County Environment', date: '2025-12-12', type: 'SERVICE', lat: -1.2895, lng: 36.8240, isActive: true },
+  { id: 'proj_g3', wardCode: 'kilimani', wardName: 'Kilimani', title: 'Street Cleaning Initiative', summary: 'Regular cleanup program with daily sweeping of major streets and walkways.', source: 'Nairobi County Environment', date: '2025-12-01', type: 'SERVICE', lat: -1.2955, lng: 36.8160, isActive: true },
+  
+  // Power projects
+  { id: 'proj_p1', wardCode: 'kilimani', wardName: 'Kilimani', title: 'Transformer Upgrade', summary: 'Power capacity increase to reduce outages and improve supply reliability.', source: 'Kenya Power', date: '2025-12-03', type: 'INFRASTRUCTURE', lat: -1.2915, lng: 36.8210, isActive: true },
+  { id: 'proj_p2', wardCode: 'kilimani', wardName: 'Kilimani', title: 'Solar Streetlights', summary: 'Renewable energy lighting installed along major walkways and parks.', source: 'Nairobi County Energy', date: '2025-11-18', type: 'INFRASTRUCTURE', lat: -1.2945, lng: 36.8140, isActive: true },
+  { id: 'proj_p3', wardCode: 'kilimani', wardName: 'Kilimani', title: 'Underground Cabling', summary: 'Power line undergrounding project to reduce outages from weather and accidents.', source: 'Kenya Power', date: '2025-12-15', type: 'INFRASTRUCTURE', lat: -1.2875, lng: 36.8270, isActive: true },
+];
+
+// Original mock happenings data for Nairobi
 const mockHappenings: Happening[] = [
   {
     id: 'nairobi_001',
@@ -103,6 +146,9 @@ const mockHappenings: Happening[] = [
   },
 ];
 
+// Combine all happenings
+const allHappenings: Happening[] = [...projectsAsHappenings, ...mockHappenings];
+
 // Calculate distance between two coordinates (in km)
 function getDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371;
@@ -163,7 +209,7 @@ export const happeningsApi = {
   }): Promise<Happening[]> {
     await delay(400);
     
-    let result = [...mockHappenings].filter(h => h.isActive);
+    let result = [...allHappenings].filter(h => h.isActive);
     
     if (filters?.wardCode) {
       result = result.filter(h => h.wardCode === filters.wardCode);
@@ -192,11 +238,11 @@ export const happeningsApi = {
 
   async getHappening(id: string): Promise<Happening | null> {
     await delay(200);
-    return mockHappenings.find(h => h.id === id) || null;
+    return allHappenings.find(h => h.id === id) || null;
   },
 
   async getAllHappeningsForMap(): Promise<Happening[]> {
     await delay(300);
-    return mockHappenings.filter(h => h.isActive);
+    return allHappenings.filter(h => h.isActive);
   },
 };
