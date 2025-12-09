@@ -99,18 +99,19 @@ export const mockSurveys: Survey[] = [
   {
     id: "survey_006",
     title: "Market Facilities Upgrade",
-    description: "Share input on planned market improvements",
+    description: "Share input on planned market infrastructure improvements across Nairobi.",
     responses: 87,
     daysLeft: 8,
     questions: [
       {
         id: "q1",
-        text: "What facility should be prioritized for upgrade?",
+        text: "Which improvement would most benefit traders and customers in your market?",
         options: [
-          { label: "Toilets and sanitation blocks", votes: 32 },
-          { label: "Roofing and drainage", votes: 24 },
-          { label: "Waste bins and collection points", votes: 18 },
-          { label: "Security and lighting", votes: 13 }
+          { label: "Reconstruction of fire-resistant stalls and roofing (Gikomba, Toi, Muthurwa)", votes: 32 },
+          { label: "Improved drainage and flood control inside market lanes", votes: 24 },
+          { label: "Installation of clean, functional toilets and handwashing stations", votes: 18 },
+          { label: "Upgraded lighting and night-time security patrols", votes: 8 },
+          { label: "Designated waste collection points and timely garbage pickup", votes: 5 }
         ]
       }
     ]
