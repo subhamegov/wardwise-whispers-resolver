@@ -2,21 +2,25 @@ import React, { useState, useCallback } from 'react';
 import { SurveyCard } from './SurveyCard';
 import { SurveyModal } from './SurveyModal';
 import { FloodHotspotSurveyModal, FloodHotspotData } from './FloodHotspotSurveyModal';
+import { GarbageHotspotSurveyModal, GarbageHotspotData } from './GarbageHotspotSurveyModal';
 import { mockSurveys, markSurveyCompleted, saveUserChoice } from '@/lib/surveyData';
 import type { Survey } from '@/types/survey';
 
 const FLOOD_SURVEY_ID = 'survey_005';
+const GARBAGE_SURVEY_ID = 'survey_003';
 
 export const ActiveSurveys: React.FC = () => {
   const [surveys, setSurveys] = useState<Survey[]>(mockSurveys);
   const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [floodModalOpen, setFloodModalOpen] = useState(false);
+  const [garbageModalOpen, setGarbageModalOpen] = useState(false);
 
   const handleParticipate = useCallback((survey: Survey) => {
     if (survey.id === FLOOD_SURVEY_ID) {
-      // Open special flood hotspot modal
       setFloodModalOpen(true);
+    } else if (survey.id === GARBAGE_SURVEY_ID) {
+      setGarbageModalOpen(true);
     } else {
       setSelectedSurvey(survey);
       setModalOpen(true);
@@ -32,16 +36,17 @@ export const ActiveSurveys: React.FC = () => {
     setFloodModalOpen(false);
   }, []);
 
+  const handleCloseGarbageModal = useCallback(() => {
+    setGarbageModalOpen(false);
+  }, []);
+
   const handleSubmitSurvey = useCallback((surveyId: string, answers: Record<string, string>) => {
-    // Save user choices
     Object.entries(answers).forEach(([questionId, choice]) => {
       saveUserChoice(surveyId, questionId, choice);
     });
     
-    // Mark as completed
     markSurveyCompleted(surveyId);
 
-    // Increment response count locally
     setSurveys(prev =>
       prev.map(s =>
         s.id === surveyId ? { ...s, responses: s.responses + 1 } : s
@@ -52,10 +57,8 @@ export const ActiveSurveys: React.FC = () => {
   }, []);
 
   const handleSubmitFloodHotspot = useCallback((data: FloodHotspotData) => {
-    // Mark as completed
     markSurveyCompleted(FLOOD_SURVEY_ID);
 
-    // Increment response count locally
     setSurveys(prev =>
       prev.map(s =>
         s.id === FLOOD_SURVEY_ID ? { ...s, responses: s.responses + 1 } : s
@@ -63,6 +66,18 @@ export const ActiveSurveys: React.FC = () => {
     );
 
     console.log('Flood hotspot submitted:', data);
+  }, []);
+
+  const handleSubmitGarbageHotspot = useCallback((data: GarbageHotspotData) => {
+    markSurveyCompleted(GARBAGE_SURVEY_ID);
+
+    setSurveys(prev =>
+      prev.map(s =>
+        s.id === GARBAGE_SURVEY_ID ? { ...s, responses: s.responses + 1 } : s
+      )
+    );
+
+    console.log('Garbage hotspot submitted:', data);
   }, []);
 
   return (
@@ -97,6 +112,13 @@ export const ActiveSurveys: React.FC = () => {
         open={floodModalOpen}
         onClose={handleCloseFloodModal}
         onSubmit={handleSubmitFloodHotspot}
+      />
+
+      {/* Special garbage hotspot modal */}
+      <GarbageHotspotSurveyModal
+        open={garbageModalOpen}
+        onClose={handleCloseGarbageModal}
+        onSubmit={handleSubmitGarbageHotspot}
       />
     </section>
   );
