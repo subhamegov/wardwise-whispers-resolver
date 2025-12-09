@@ -23,18 +23,18 @@ export const mockSurveys: Survey[] = [
   {
     id: "survey_002",
     title: "Public Transport Route Feedback",
-    description: "Share your thoughts on proposed bus route changes",
+    description: "Share your thoughts on Nairobi's ongoing bus and matatu route changes.",
     responses: 156,
     daysLeft: 12,
     questions: [
       {
         id: "q1",
-        text: "Which changes would most improve your daily commute?",
+        text: "Which of these changes would most improve your daily commute in Nairobi?",
         options: [
-          { label: "Shorter walking distance to bus stops", votes: 45 },
-          { label: "Better safety at termini", votes: 38 },
-          { label: "Reduced waiting times", votes: 52 },
-          { label: "New feeder routes to estates", votes: 21 }
+          { label: "Reopening direct matatu access to CBD zones (Railways, Kencom, GPO)", votes: 45 },
+          { label: "Better safety and lighting at termini such as Green Park or Fig Tree", votes: 38 },
+          { label: "Introduction of dedicated BRT and express lanes on Thika and Jogoo roads", votes: 52 },
+          { label: "Reliable, frequent feeder routes from estates like Umoja, Kasarani, and Lang'ata", votes: 21 }
         ]
       }
     ]
