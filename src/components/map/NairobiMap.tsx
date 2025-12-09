@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, CircleMarker } from 'react-leaflet';
 import L from 'leaflet';
-import { MapPin, Navigation, Mic, MicOff, AlertCircle, Locate } from 'lucide-react';
+import { MapPin, Navigation, Mic, MicOff, AlertCircle, Locate, Car, Heart, Shield, Droplets, Trash2, Zap } from 'lucide-react';
 import { MapGuide } from './MapGuide';
 import { LocationCard } from './LocationCard';
 import { Happening } from '@/types/happenings';
@@ -42,6 +42,18 @@ const happeningMarkerIcon = new L.DivIcon({
   iconAnchor: [12, 12],
   popupAnchor: [0, -12],
 });
+
+// Map filter categories
+const MAP_FILTERS = [
+  { id: 'traffic', label: 'Traffic', icon: Car },
+  { id: 'health', label: 'Health', icon: Heart },
+  { id: 'safety', label: 'Safety', icon: Shield },
+  { id: 'water', label: 'Water', icon: Droplets },
+  { id: 'waste', label: 'Waste', icon: Trash2 },
+  { id: 'power', label: 'Power', icon: Zap },
+] as const;
+
+type MapFilterId = typeof MAP_FILTERS[number]['id'];
 
 interface NairobiMapProps {
   selectedLocation: { lat: number; lng: number } | null;
@@ -158,10 +170,15 @@ export function NairobiMap({
   const [happenings, setHappenings] = useState<Happening[]>([]);
   const [isVoiceListening, setIsVoiceListening] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<MapFilterId | null>(null);
+  const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number }>({ 
+    lat: -1.2921, 
+    lng: 36.8219 
+  }); // Upper Hill, Nairobi
   const mapRef = useRef<L.Map | null>(null);
   
-  // Nairobi CBD center coordinates
-  const nairobiCenter: [number, number] = [-1.29, 36.82];
+  // Upper Hill, Nairobi as default center
+  const nairobiCenter: [number, number] = [-1.2921, 36.8219];
 
   useEffect(() => {
     const hasSeenGuide = localStorage.getItem('nairobi_map_guide_seen');
@@ -240,6 +257,29 @@ export function NairobiMap({
         pressing Enter to mark the center, using the location button, or voice commands by saying "Mark here."
         Government project locations are shown as orange markers.
       </div>
+
+      {/* Filter Pills */}
+      <div className="flex flex-wrap gap-2 mb-4" role="group" aria-label="Map category filters">
+        {MAP_FILTERS.map((filter) => {
+          const Icon = filter.icon;
+          const isActive = activeFilter === filter.id;
+          return (
+            <button
+              key={filter.id}
+              onClick={() => setActiveFilter(isActive ? null : filter.id)}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all border ${
+                isActive
+                  ? 'bg-primary text-primary-foreground border-primary shadow-md'
+                  : 'bg-card text-foreground border-border hover:bg-muted hover:border-primary/50'
+              }`}
+              aria-pressed={isActive}
+            >
+              <Icon className="w-4 h-4" aria-hidden="true" />
+              {filter.label}
+            </button>
+          );
+        })}
+      </div>
       
       <div 
         className="map-container relative h-[350px] md:h-[400px]"
@@ -280,6 +320,38 @@ export function NairobiMap({
               </Popup>
             </Marker>
           )}
+
+          {/* Current Location Indicator - "You are here" */}
+          <CircleMarker
+            center={[currentLocation.lat, currentLocation.lng]}
+            radius={10}
+            pathOptions={{
+              fillColor: '#4285F4',
+              fillOpacity: 1,
+              color: '#fff',
+              weight: 3,
+            }}
+          >
+            <Popup>
+              <div className="flex items-center gap-2 py-1">
+                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse" />
+                <strong className="text-sm">You are here</strong>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Upper Hill, Nairobi</p>
+            </Popup>
+          </CircleMarker>
+          {/* Outer pulse ring for current location */}
+          <CircleMarker
+            center={[currentLocation.lat, currentLocation.lng]}
+            radius={20}
+            pathOptions={{
+              fillColor: '#4285F4',
+              fillOpacity: 0.2,
+              color: '#4285F4',
+              weight: 1,
+              opacity: 0.5,
+            }}
+          />
 
           {showHappenings && happenings.map((happening) => (
             <Marker
