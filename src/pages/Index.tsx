@@ -4,6 +4,7 @@ import { PenSquare, ArrowRight, Ticket, MapPin, Clock, Shield, Users } from 'luc
 import { AppLayout } from '@/components/layout/AppLayout';
 import { NairobiMap } from '@/components/map/NairobiMap';
 import { HappeningsFeed } from '@/components/happenings/HappeningsFeed';
+import { ActiveSurveys } from '@/components/surveys/ActiveSurveys';
 import { findWardByCoords } from '@/lib/happeningsApi';
 
 const Index = () => {
@@ -135,6 +136,9 @@ const Index = () => {
           radiusKm={5}
         />
       </section>
+
+      {/* Active Surveys - Citizen Voice */}
+      <ActiveSurveys />
 
       {/* CTA Section */}
       <section 
