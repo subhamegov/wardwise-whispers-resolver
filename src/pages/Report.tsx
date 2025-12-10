@@ -8,17 +8,19 @@ import { PhotoUpload } from '@/components/report/PhotoUpload';
 import { StarRating } from '@/components/report/StarRating';
 import { VoiceRecorder } from '@/components/voice/VoiceRecorder';
 import { LocationStep, LocationData } from '@/components/report/LocationStep';
+import { ComplaintIntentStep, ComplaintIntent, LinkedProject } from '@/components/report/ComplaintIntentStep';
 import { apiClient } from '@/lib/apiClient';
 import { StorySubmission, IssueCategory } from '@/types/story';
 import { cn } from '@/lib/utils';
 
 const STEPS = [
   { number: 1, label: 'Location' },
-  { number: 2, label: 'Category' },
-  { number: 3, label: 'Photos' },
-  { number: 4, label: 'Details' },
-  { number: 5, label: 'Rating' },
-  { number: 6, label: 'Submit' },
+  { number: 2, label: 'Intent' },
+  { number: 3, label: 'Category' },
+  { number: 4, label: 'Photos' },
+  { number: 5, label: 'Details' },
+  { number: 6, label: 'Rating' },
+  { number: 7, label: 'Submit' },
 ];
 
 const Report = () => {
@@ -33,6 +35,8 @@ const Report = () => {
     admin: { subCounty: '', ward: '', wardCode: '', zone: '' },
     description: ''
   });
+  const [complaintIntent, setComplaintIntent] = useState<ComplaintIntent | null>(null);
+  const [linkedProject, setLinkedProject] = useState<LinkedProject | null>(null);
   const [issueCategory, setIssueCategory] = useState<IssueCategory | null>(null);
   const [photos, setPhotos] = useState<File[]>([]);
   const [title, setTitle] = useState('');
@@ -50,17 +54,20 @@ const Report = () => {
         return locationData.coordinates !== null || 
                (locationData.admin.subCounty && locationData.admin.wardCode) ||
                locationData.description.trim().length > 0;
-      case 2: return issueCategory !== null;
-      case 3: return true; // Photos optional
-      case 4: return title.trim().length > 0 && (description.trim().length > 0 || recording !== null);
-      case 5: return true; // Rating optional
-      case 6: return true;
+      case 2: return complaintIntent !== null;
+      case 3: 
+        // For feedback, category is optional; for service/project, required
+        return complaintIntent === 'feedback' || issueCategory !== null;
+      case 4: return true; // Photos optional
+      case 5: return title.trim().length > 0 && (description.trim().length > 0 || recording !== null);
+      case 6: return true; // Rating optional
+      case 7: return true;
       default: return false;
     }
   };
 
   const handleNext = () => {
-    if (currentStep < 6) {
+    if (currentStep < 7) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -165,16 +172,27 @@ const Report = () => {
           />
         )}
 
-        {/* Step 2: Category */}
+        {/* Step 2: Intent */}
         {currentStep === 2 && (
+          <ComplaintIntentStep
+            intent={complaintIntent}
+            onIntentChange={setComplaintIntent}
+            linkedProject={linkedProject}
+            onLinkedProjectChange={setLinkedProject}
+            wardCode={locationData.admin.wardCode}
+          />
+        )}
+
+        {/* Step 3: Category */}
+        {currentStep === 3 && (
           <CategoryPicker
             selected={issueCategory}
             onSelect={setIssueCategory}
           />
         )}
 
-        {/* Step 3: Photos */}
-        {currentStep === 3 && (
+        {/* Step 4: Photos */}
+        {currentStep === 4 && (
           <PhotoUpload
             photos={photos}
             onPhotosChange={setPhotos}
@@ -182,8 +200,8 @@ const Report = () => {
           />
         )}
 
-        {/* Step 4: Details */}
-        {currentStep === 4 && (
+        {/* Step 5: Details */}
+        {currentStep === 5 && (
           <div className="space-y-6">
             <div>
               <label htmlFor="title" className="block text-lg font-semibold text-foreground mb-2">
@@ -253,8 +271,8 @@ const Report = () => {
           </div>
         )}
 
-        {/* Step 5: Rating */}
-        {currentStep === 5 && (
+        {/* Step 6: Rating */}
+        {currentStep === 6 && (
           <div className="space-y-6">
             <StarRating
               rating={serviceRating}
@@ -301,8 +319,8 @@ const Report = () => {
           </div>
         )}
 
-        {/* Step 6: Review & Submit */}
-        {currentStep === 6 && (
+        {/* Step 7: Review & Submit */}
+        {currentStep === 7 && (
           <div className="space-y-6">
             <h2 className="text-xl font-bold text-foreground">
               Review your report
@@ -358,7 +376,7 @@ const Report = () => {
           <span>Back</span>
         </button>
 
-        {currentStep < 6 ? (
+        {currentStep < 7 ? (
           <button
             onClick={handleNext}
             disabled={!canProceed()}
