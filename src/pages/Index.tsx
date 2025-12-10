@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { PenSquare, ArrowRight, Ticket, MapPin, Clock, Shield, Users, Settings2 } from 'lucide-react';
+import { PenSquare, ArrowRight, Ticket, MapPin, Clock, Shield, Users, Settings2, GraduationCap } from 'lucide-react';
 import nairobiSkyline from '@/assets/nairobi-skyline.jpg';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { NairobiMap } from '@/components/map/NairobiMap';
@@ -134,12 +134,12 @@ const Index = () => {
             <span className="text-sm opacity-80 mt-1">Track your reports</span>
           </Link>
           <Link
-            to="/about"
+            to="/training"
             className="ncc-action-tile-accent min-h-[140px] col-span-2 md:col-span-1"
           >
-            <Users className="w-10 h-10 mb-3" />
-            <span className="font-bold text-lg">About NCC</span>
-            <span className="text-sm opacity-80 mt-1">Learn more about us</span>
+            <GraduationCap className="w-10 h-10 mb-3" />
+            <span className="font-bold text-lg">Training & Help</span>
+            <span className="text-sm opacity-80 mt-1">Learn how to use the portal</span>
           </Link>
         </div>
       </section>
