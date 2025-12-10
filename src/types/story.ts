@@ -99,6 +99,33 @@ export interface TicketUpdate {
   createdAt: string;
 }
 
+export type DepartmentSelectionSource = 'AUTO' | 'USER_OVERRIDE';
+
+export type NairobiDepartment = 
+  | 'Environment'
+  | 'Water and Sewerage'
+  | 'Works'
+  | 'Public Health'
+  | 'Mobility and ICT Infrastructure'
+  | 'To be assigned';
+
+export const NAIROBI_DEPARTMENTS: NairobiDepartment[] = [
+  'Environment',
+  'Water and Sewerage',
+  'Works',
+  'Public Health',
+  'Mobility and ICT Infrastructure',
+];
+
+export const CATEGORY_TO_DEPARTMENT: Record<IssueCategory, NairobiDepartment> = {
+  roads: 'Works',
+  water: 'Water and Sewerage',
+  waste: 'Environment',
+  streetlights: 'Mobility and ICT Infrastructure',
+  noise: 'Public Health',
+  other: 'To be assigned',
+};
+
 export interface StorySubmission {
   category: StoryCategory;
   issueCategory?: IssueCategory;
@@ -114,6 +141,8 @@ export interface StorySubmission {
   reporterName?: string;
   reporterPhone?: string;
   serviceRating?: number;
+  responsibleDepartment?: NairobiDepartment;
+  departmentSelectionSource?: DepartmentSelectionSource;
 }
 
 export interface Ward {
