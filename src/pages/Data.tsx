@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ServiceAnalytics } from '@/components/data/ServiceAnalytics';
-import { BarChart3, Database, TrendingUp } from 'lucide-react';
+import { BarChart3, TrendingUp } from 'lucide-react';
 
 export default function Data() {
   const [activeTab, setActiveTab] = useState('service');
@@ -24,7 +24,7 @@ export default function Data() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-3 mb-6">
+          <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
             <TabsTrigger value="service" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               Service
@@ -32,10 +32,6 @@ export default function Data() {
             <TabsTrigger value="trends" className="flex items-center gap-2" disabled>
               <TrendingUp className="w-4 h-4" />
               Trends
-            </TabsTrigger>
-            <TabsTrigger value="custom" className="flex items-center gap-2" disabled>
-              <Database className="w-4 h-4" />
-              Build Your Own
             </TabsTrigger>
           </TabsList>
 
@@ -46,12 +42,6 @@ export default function Data() {
           <TabsContent value="trends">
             <div className="text-center py-12 text-muted-foreground">
               Trends analytics coming soon
-            </div>
-          </TabsContent>
-
-          <TabsContent value="custom">
-            <div className="text-center py-12 text-muted-foreground">
-              Custom chart builder coming soon
             </div>
           </TabsContent>
         </Tabs>
