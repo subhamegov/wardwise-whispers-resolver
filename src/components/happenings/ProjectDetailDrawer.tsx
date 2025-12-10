@@ -233,16 +233,18 @@ export function ProjectDetailDrawer({ happening, open, onOpenChange }: ProjectDe
                   <div className="mb-4">
                     <h4 className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1">
                       <Ticket className="w-3 h-3" />
-                      Linked Complaints
+                      Linked Complaints ({details.relatedTickets.length})
                     </h4>
-                    <ul className="space-y-1">
+                    <ul className="space-y-2">
                       {details.relatedTickets.map(ticket => (
                         <li 
                           key={ticket.id}
-                          className="text-sm bg-muted/50 rounded px-3 py-2 flex items-center justify-between"
+                          className="text-sm flex items-start gap-2 pl-2 border-l-2 border-muted-foreground/30"
                         >
-                          <span className="text-foreground">{ticket.summary}</span>
-                          <span className="text-xs text-muted-foreground font-mono">{ticket.id}</span>
+                          <div className="flex-1">
+                            <span className="text-foreground">{ticket.summary}</span>
+                            <span className="text-xs text-muted-foreground font-mono block mt-0.5">{ticket.id}</span>
+                          </div>
                         </li>
                       ))}
                     </ul>
