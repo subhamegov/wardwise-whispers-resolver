@@ -11,8 +11,22 @@ import { LocationStep, LocationData } from '@/components/report/LocationStep';
 import { ComplaintIntentStep, ComplaintIntent, LinkedProject } from '@/components/report/ComplaintIntentStep';
 import { AppreciationStep, AppreciationData } from '@/components/report/AppreciationStep';
 import { apiClient } from '@/lib/apiClient';
-import { StorySubmission, IssueCategory } from '@/types/story';
+import { StorySubmission, IssueCategory, NairobiDepartment, CATEGORY_TO_DEPARTMENT, NAIROBI_DEPARTMENTS, DepartmentSelectionSource } from '@/types/story';
 import { cn } from '@/lib/utils';
+import { Building2, Info, ChevronDown } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const STANDARD_STEPS = [
   { number: 1, label: 'Intent' },
@@ -54,6 +68,8 @@ const Report = () => {
   const [serviceRating, setServiceRating] = useState(0);
   const [reporterName, setReporterName] = useState('');
   const [reporterPhone, setReporterPhone] = useState('');
+  const [responsibleDepartment, setResponsibleDepartment] = useState<NairobiDepartment>('To be assigned');
+  const [departmentSelectionSource, setDepartmentSelectionSource] = useState<DepartmentSelectionSource>('AUTO');
   
   // Appreciation form state
   const [appreciationData, setAppreciationData] = useState<AppreciationData>({
@@ -136,6 +152,8 @@ const Report = () => {
         reporterName: reporterName.trim() || undefined,
         reporterPhone: reporterPhone.trim() || undefined,
         serviceRating: serviceRating > 0 ? serviceRating : undefined,
+        responsibleDepartment,
+        departmentSelectionSource,
       };
 
       const result = await apiClient.createStory(submission);
@@ -355,7 +373,13 @@ const Report = () => {
         {!isAppreciationFlow && currentStep === 3 && (
           <CategoryPicker
             selected={issueCategory}
-            onSelect={setIssueCategory}
+            onSelect={(category) => {
+              setIssueCategory(category);
+              // Auto-map category to department
+              const mappedDept = CATEGORY_TO_DEPARTMENT[category];
+              setResponsibleDepartment(mappedDept);
+              setDepartmentSelectionSource('AUTO');
+            }}
           />
         )}
 
@@ -384,6 +408,79 @@ const Report = () => {
                 className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 maxLength={100}
               />
+            </div>
+
+            {/* Department Assignment Section */}
+            <div className="bg-muted/30 rounded-xl p-4 border border-border">
+              <div className="flex items-center gap-2 mb-2">
+                <Building2 className="w-5 h-5 text-primary" />
+                <span className="font-semibold text-foreground">Who will handle this?</span>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        type="button" 
+                        className="text-muted-foreground hover:text-foreground"
+                        aria-label="Department assignment information"
+                      >
+                        <Info className="w-4 h-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">This department is responsible for handling complaints of this type.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-sm text-muted-foreground">This issue will be sent to:</span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary font-medium text-sm">
+                  <Building2 className="w-3.5 h-3.5" />
+                  {responsibleDepartment}
+                  {departmentSelectionSource === 'AUTO' && (
+                    <span className="text-xs opacity-70">(auto)</span>
+                  )}
+                </span>
+              </div>
+              
+              <p className="text-xs text-muted-foreground mb-3">
+                Auto-selected based on your issue category. You can change this if needed.
+              </p>
+              
+              <div className="flex items-center gap-2">
+                <label htmlFor="department-override" className="text-sm text-muted-foreground shrink-0">
+                  Change department:
+                </label>
+                <Select
+                  value={responsibleDepartment}
+                  onValueChange={(value) => {
+                    const autoMapped = issueCategory ? CATEGORY_TO_DEPARTMENT[issueCategory] : 'To be assigned';
+                    if (value === 'Let the system decide') {
+                      setResponsibleDepartment(autoMapped);
+                      setDepartmentSelectionSource('AUTO');
+                    } else {
+                      const dept = value as NairobiDepartment;
+                      setResponsibleDepartment(dept);
+                      setDepartmentSelectionSource(dept === autoMapped ? 'AUTO' : 'USER_OVERRIDE');
+                    }
+                  }}
+                >
+                  <SelectTrigger 
+                    id="department-override" 
+                    className="flex-1 bg-background"
+                    aria-label="Select responsible department"
+                  >
+                    <SelectValue placeholder="Select department" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover">
+                    <SelectItem value="Let the system decide">Let the system decide</SelectItem>
+                    {NAIROBI_DEPARTMENTS.map((dept) => (
+                      <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <fieldset>
