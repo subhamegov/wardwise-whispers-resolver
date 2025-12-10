@@ -14,6 +14,7 @@ import { AverageSolutionTimeCard } from './cards/AverageSolutionTimeCard';
 import { UniqueCitizensChart } from './cards/UniqueCitizensChart';
 import { TopComplaintsChart } from './cards/TopComplaintsChart';
 import { StatusByBoundaryTable } from './cards/StatusByBoundaryTable';
+import { MyComplaintsSummary } from './cards/MyComplaintsSummary';
 import {
   SUB_COUNTIES,
   TIME_RANGES,
@@ -27,7 +28,9 @@ export function ServiceAnalytics() {
 
   return (
     <div className="space-y-6">
-      {/* Filter Bar */}
+      {/* My Complaints Summary & Similar Complaints */}
+      <MyComplaintsSummary />
+      {/* Aggregate Analytics Filter Bar */}
       <Card className="ncc-card">
         <CardContent className="p-4">
           <div className="flex flex-wrap items-center gap-4">
