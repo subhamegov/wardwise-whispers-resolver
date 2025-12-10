@@ -56,7 +56,7 @@ const Index = () => {
                 Report an Issue
               </Link>
               <Link
-                to="/my-tickets"
+                to="/data"
                 className="ncc-btn-outline border-white text-white hover:bg-white hover:text-primary"
               >
                 <Ticket className="w-5 h-5" />
