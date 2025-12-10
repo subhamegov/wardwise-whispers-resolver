@@ -152,13 +152,11 @@ export function getComplaintsByStatus(): StatusData[] {
 
 export function getComplaintsByDepartment(): DepartmentData[] {
   return [
-    { department: 'Solid Waste', count: 2340, color: 'hsl(145, 70%, 35%)' },
-    { department: 'Water & Sewerage', count: 1890, color: 'hsl(205, 85%, 45%)' },
-    { department: 'Roads', count: 1560, color: 'hsl(38, 95%, 50%)' },
-    { department: 'Street Lighting', count: 980, color: 'hsl(270, 60%, 50%)' },
-    { department: 'Public Health', count: 650, color: 'hsl(0, 75%, 50%)' },
-    { department: 'Markets', count: 420, color: 'hsl(180, 60%, 40%)' },
-    { department: 'Others', count: 360, color: 'hsl(0, 0%, 55%)' },
+    { department: 'Environment', count: 2340, color: 'hsl(145, 70%, 35%)' },
+    { department: 'Water and Sewerage', count: 1890, color: 'hsl(205, 85%, 45%)' },
+    { department: 'Works', count: 1560, color: 'hsl(38, 95%, 50%)' },
+    { department: 'Public Health', count: 980, color: 'hsl(270, 60%, 50%)' },
+    { department: 'Mobility and ICT Infrastructure', count: 650, color: 'hsl(0, 75%, 50%)' },
   ];
 }
 
