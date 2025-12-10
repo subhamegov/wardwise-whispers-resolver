@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { MapPin, Info, Menu, X, Home, Ticket, Phone, Mail, Globe, ClipboardList } from 'lucide-react';
+import { MapPin, Info, Menu, X, Home, Ticket, Phone, Mail, Globe, ClipboardList, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import kenyaCoatOfArms from '@/assets/kenya-coat-of-arms.png';
 
@@ -12,6 +12,7 @@ const navigation = [
   { name: 'Home', href: '/', icon: Home, description: 'Discover what is happening' },
   { name: 'Report Issue', href: '/report', icon: MapPin, description: 'Report an issue' },
   { name: 'Active Surveys', href: '/surveys', icon: ClipboardList, description: 'Participate in surveys' },
+  { name: 'Policy Feedback', href: '/policy', icon: FileText, description: 'Share views on policies' },
   { name: 'My Tickets', href: '/my-tickets', icon: Ticket, description: 'Track your reports' },
   { name: 'About', href: '/about', icon: Info, description: 'Learn about this app' },
 ];
