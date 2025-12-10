@@ -130,7 +130,7 @@ const Report = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => navigate('/tickets')}
+              onClick={() => navigate('/my-tickets')}
               className="btn-primary"
             >
               View My Tickets
