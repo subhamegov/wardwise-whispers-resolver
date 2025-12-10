@@ -267,26 +267,24 @@ export function MyComplaintsSummary() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {DEPARTMENT_RATINGS.map((dept) => (
               <div 
                 key={dept.name}
                 className="p-3 rounded-lg border border-border bg-muted/30"
               >
-                <p className="text-xs font-medium text-muted-foreground mb-1 truncate" title={dept.name}>
+                <p className="text-xs font-medium text-muted-foreground mb-2 line-clamp-2 min-h-[2rem]" title={dept.name}>
                   {dept.name}
                 </p>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1">
-                    <Star className={cn(
-                      "w-4 h-4",
-                      dept.rating >= 4 ? "text-yellow-500 fill-yellow-500" : 
-                      dept.rating >= 3 ? "text-yellow-500 fill-yellow-500/50" : 
-                      "text-yellow-500"
-                    )} />
-                    <span className="text-lg font-bold text-foreground">{dept.rating.toFixed(1)}</span>
-                  </div>
-                  <span className="text-xs text-muted-foreground">({dept.totalFeedback})</span>
+                <div className="flex items-center gap-1.5">
+                  <Star className={cn(
+                    "w-4 h-4 flex-shrink-0",
+                    dept.rating >= 4 ? "text-yellow-500 fill-yellow-500" : 
+                    dept.rating >= 3 ? "text-yellow-500 fill-yellow-500/50" : 
+                    "text-yellow-500"
+                  )} />
+                  <span className="text-lg font-bold text-foreground">{dept.rating.toFixed(1)}</span>
+                  <span className="text-xs text-muted-foreground ml-auto">({dept.totalFeedback})</span>
                 </div>
               </div>
             ))}
@@ -311,40 +309,39 @@ export function MyComplaintsSummary() {
                   key={similar.category}
                   className="p-4 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors"
                 >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{similar.icon}</span>
-                      <div>
-                        <h4 className="font-semibold text-foreground">{similar.categoryLabel}</h4>
-                        <p className="text-xs text-muted-foreground">
-                          You: {similar.myCount} • Others: {similar.othersCount.toLocaleString()}
-                        </p>
-                      </div>
+                  {/* Header with icon, title, and badge */}
+                  <div className="flex items-start gap-3 mb-4">
+                    <span className="text-2xl flex-shrink-0 leading-none">{similar.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-foreground leading-tight">{similar.categoryLabel}</h4>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        You: {similar.myCount} • Others: {similar.othersCount.toLocaleString()}
+                      </p>
                     </div>
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant="secondary" className="text-xs flex-shrink-0 whitespace-nowrap">
                       {similar.totalCount.toLocaleString()} total
                     </Badge>
                   </div>
                   
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span>Avg. Resolution:</span>
-                      <span className="font-medium text-foreground">{similar.avgResolutionWeeks} weeks</span>
-                    </div>
-                    
-                    {similar.topLocations.length > 0 && (
-                      <div>
-                        <span className="text-xs text-muted-foreground">Hot spots:</span>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {similar.topLocations.map((loc) => (
-                            <Badge key={loc} variant="outline" className="text-xs">
-                              {loc}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                  {/* Avg Resolution Row */}
+                  <div className="flex items-center justify-between text-sm py-2 border-t border-border/50">
+                    <span className="text-muted-foreground">Avg. Resolution:</span>
+                    <span className="font-semibold text-foreground">{similar.avgResolutionWeeks} weeks</span>
                   </div>
+                  
+                  {/* Hot spots */}
+                  {similar.topLocations.length > 0 && (
+                    <div className="pt-2 border-t border-border/50">
+                      <span className="text-xs text-muted-foreground block mb-1.5">Hot spots:</span>
+                      <div className="flex flex-wrap gap-1">
+                        {similar.topLocations.map((loc) => (
+                          <Badge key={loc} variant="outline" className="text-xs">
+                            {loc}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -367,12 +364,12 @@ function StatCard({
   className?: string;
 }) {
   return (
-    <div className={cn('rounded-xl p-3 text-center', className)}>
-      <div className="flex items-center justify-center gap-1 mb-1">
+    <div className={cn('rounded-xl p-3 flex flex-col items-center justify-center min-h-[80px]', className)}>
+      <div className="flex items-center justify-center gap-1.5 mb-1">
         {icon}
-        <span className="text-2xl font-bold">{value}</span>
+        <span className="text-2xl font-bold leading-none">{value}</span>
       </div>
-      <p className="text-xs font-medium">{label}</p>
+      <p className="text-xs font-medium text-center leading-tight">{label}</p>
     </div>
   );
 }
