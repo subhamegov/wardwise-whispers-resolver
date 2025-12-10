@@ -14,8 +14,8 @@ import { StorySubmission, IssueCategory } from '@/types/story';
 import { cn } from '@/lib/utils';
 
 const STEPS = [
-  { number: 1, label: 'Location' },
-  { number: 2, label: 'Intent' },
+  { number: 1, label: 'Intent' },
+  { number: 2, label: 'Location' },
   { number: 3, label: 'Category' },
   { number: 4, label: 'Photos' },
   { number: 5, label: 'Details' },
@@ -49,12 +49,12 @@ const Report = () => {
 
   const canProceed = () => {
     switch (currentStep) {
-      case 1: 
+      case 1: return complaintIntent !== null;
+      case 2: 
         // Either map pin OR (sub-county + ward) must be provided
         return locationData.coordinates !== null || 
                (locationData.admin.subCounty && locationData.admin.wardCode) ||
                locationData.description.trim().length > 0;
-      case 2: return complaintIntent !== null;
       case 3: 
         // For feedback, category is optional; for service/project, required
         return complaintIntent === 'feedback' || issueCategory !== null;
@@ -152,10 +152,10 @@ const Report = () => {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-          Report an Issue
+          Share Your Voice
         </h1>
         <p className="text-muted-foreground">
-          Help improve Nairobi by reporting problems in your area.
+          Help us build a better Nairobi together.
         </p>
       </div>
 
@@ -164,22 +164,22 @@ const Report = () => {
 
       {/* Step Content */}
       <div className="bg-card rounded-2xl border border-border p-5 md:p-6 mb-6">
-        {/* Step 1: Location */}
+        {/* Step 1: Intent */}
         {currentStep === 1 && (
-          <LocationStep 
-            location={locationData}
-            onLocationChange={setLocationData}
-          />
-        )}
-
-        {/* Step 2: Intent */}
-        {currentStep === 2 && (
           <ComplaintIntentStep
             intent={complaintIntent}
             onIntentChange={setComplaintIntent}
             linkedProject={linkedProject}
             onLinkedProjectChange={setLinkedProject}
             wardCode={locationData.admin.wardCode}
+          />
+        )}
+
+        {/* Step 2: Location */}
+        {currentStep === 2 && (
+          <LocationStep 
+            location={locationData}
+            onLocationChange={setLocationData}
           />
         )}
 
