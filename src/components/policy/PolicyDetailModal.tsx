@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  X, FileText, MessageSquare, ThumbsUp, Lightbulb, AlertTriangle, 
+  X, FileText, MessageSquare, ThumbsUp, ThumbsDown, Lightbulb, AlertTriangle, 
   ExternalLink, Volume2, VolumeX, Mic, MicOff, Clock, Building2, 
   Calendar, FileDown, Send, Check
 } from 'lucide-react';
@@ -8,7 +8,7 @@ import { Policy, PolicyComment } from '@/types/policy';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import { getDaysRemaining, getSupportPercentage } from '@/lib/policyData';
+import { getDaysRemaining } from '@/lib/policyData';
 import { format, formatDistanceToNow } from 'date-fns';
 
 interface PolicyDetailModalProps {
@@ -39,12 +39,50 @@ export const PolicyDetailModal: React.FC<PolicyDetailModalProps> = ({
   const [comments, setComments] = useState<PolicyComment[]>(policy.comments);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
+  
+  // Voting state
+  const [supportCount, setSupportCount] = useState(policy.engagement.supportCount);
+  const [opposeCount, setOpposeCount] = useState(policy.engagement.opposeCount);
+  const [userVote, setUserVote] = useState<'support' | 'oppose' | null>(null);
 
   if (!isOpen) return null;
 
   const daysRemaining = getDaysRemaining(policy.deadline);
-  const supportPercentage = getSupportPercentage(policy.engagement);
+  const totalVotes = supportCount + opposeCount;
+  const supportPercentage = totalVotes > 0 ? Math.round((supportCount / totalVotes) * 100) : 0;
   const isActive = policy.status !== 'closed';
+
+  const handleVote = (vote: 'support' | 'oppose') => {
+    if (!isActive) return;
+    
+    if (userVote === vote) {
+      // Remove vote
+      if (vote === 'support') {
+        setSupportCount(prev => prev - 1);
+      } else {
+        setOpposeCount(prev => prev - 1);
+      }
+      setUserVote(null);
+    } else if (userVote === null) {
+      // New vote
+      if (vote === 'support') {
+        setSupportCount(prev => prev + 1);
+      } else {
+        setOpposeCount(prev => prev + 1);
+      }
+      setUserVote(vote);
+    } else {
+      // Change vote
+      if (vote === 'support') {
+        setSupportCount(prev => prev + 1);
+        setOpposeCount(prev => prev - 1);
+      } else {
+        setOpposeCount(prev => prev + 1);
+        setSupportCount(prev => prev - 1);
+      }
+      setUserVote(vote);
+    }
+  };
 
   const handleReadAloud = () => {
     if (isReading) {
@@ -170,20 +208,56 @@ export const PolicyDetailModal: React.FC<PolicyDetailModalProps> = ({
             </button>
           </div>
 
-          {/* Read Aloud Button */}
-          <button
-            onClick={handleReadAloud}
-            className={cn(
-              'mt-3 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all',
-              isReading
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-foreground hover:bg-muted/80'
+          {/* Voting Buttons & Read Aloud */}
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            {isActive && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleVote('support')}
+                  className={cn(
+                    'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all border-2',
+                    userVote === 'support'
+                      ? 'border-green-500 bg-green-500 text-white'
+                      : 'border-green-500/30 bg-green-50 text-green-700 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/30'
+                  )}
+                  aria-label="I support this policy"
+                  aria-pressed={userVote === 'support'}
+                >
+                  <ThumbsUp className="w-4 h-4" />
+                  <span>Support</span>
+                  <span className="font-bold">{supportCount}</span>
+                </button>
+                <button
+                  onClick={() => handleVote('oppose')}
+                  className={cn(
+                    'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all border-2',
+                    userVote === 'oppose'
+                      ? 'border-red-500 bg-red-500 text-white'
+                      : 'border-red-500/30 bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30'
+                  )}
+                  aria-label="I have concerns about this policy"
+                  aria-pressed={userVote === 'oppose'}
+                >
+                  <ThumbsDown className="w-4 h-4" />
+                  <span>Concerns</span>
+                  <span className="font-bold">{opposeCount}</span>
+                </button>
+              </div>
             )}
-            aria-label={isReading ? 'Stop reading' : 'Read policy aloud'}
-          >
-            {isReading ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-            {isReading ? 'Stop reading' : 'Read aloud'}
-          </button>
+            <button
+              onClick={handleReadAloud}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all',
+                isReading
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-foreground hover:bg-muted/80'
+              )}
+              aria-label={isReading ? 'Stop reading' : 'Read policy aloud'}
+            >
+              {isReading ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              {isReading ? 'Stop' : 'Read aloud'}
+            </button>
+          </div>
         </div>
 
         {/* Content */}
@@ -228,29 +302,37 @@ export const PolicyDetailModal: React.FC<PolicyDetailModalProps> = ({
                   </div>
                   <div>
                     <span className="text-muted-foreground">Public inputs</span>
-                    <p className="font-medium text-foreground">{policy.engagement.commentCount} comments</p>
+                    <p className="font-medium text-foreground">{comments.length} comments</p>
                   </div>
                 </div>
               </div>
 
-              {/* Engagement Summary */}
-              <div className="flex items-center gap-6 p-4 bg-primary/5 rounded-xl">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">{supportPercentage}%</div>
-                  <div className="text-xs text-muted-foreground">support</div>
-                </div>
-                <div className="flex-1">
-                  <div className="h-3 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-primary rounded-full transition-all"
-                      style={{ width: `${supportPercentage}%` }}
-                    />
+              {/* Engagement Summary with Live Stats */}
+              <div className="p-4 bg-primary/5 rounded-xl">
+                <div className="flex items-center gap-6">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">{supportPercentage}%</div>
+                    <div className="text-xs text-muted-foreground">support</div>
                   </div>
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    <span>{policy.engagement.supportCount} support</span>
-                    <span>{policy.engagement.opposeCount} concerns</span>
+                  <div className="flex-1">
+                    <div className="h-3 bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-primary rounded-full transition-all duration-300"
+                        style={{ width: `${supportPercentage}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                      <span>{supportCount} support</span>
+                      <span>{opposeCount} concerns</span>
+                    </div>
                   </div>
                 </div>
+                {userVote && (
+                  <p className="text-sm text-primary mt-3 flex items-center gap-1">
+                    <Check className="w-4 h-4" />
+                    Your vote has been recorded
+                  </p>
+                )}
               </div>
             </TabsContent>
 
