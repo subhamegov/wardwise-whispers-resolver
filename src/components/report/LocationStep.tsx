@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-lea
 import L from 'leaflet';
 import { MapPin, Mic, MicOff, Navigation, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { NAIROBI_SUBCOUNTIES, getWardsBySubCounty, getZonesByWard, Ward, Zone } from '@/lib/nairobiAdminData';
+import { NAIROBI_SUBCOUNTIES, getWardsBySubCounty, getZonesByWard, reverseGeocodeToWard, Ward, Zone } from '@/lib/nairobiAdminData';
 import 'leaflet/dist/leaflet.css';
 
 // Custom marker icon
@@ -106,7 +106,7 @@ export function LocationStep({ location, onLocationChange }: LocationStepProps) 
     if (location.admin.subCounty) {
       const wards = getWardsBySubCounty(location.admin.subCounty);
       setAvailableWards(wards);
-      // Reset ward and zone if sub-county changed
+      // Reset ward and zone if sub-county changed and current ward not in new list
       if (!wards.find(w => w.code === location.admin.wardCode)) {
         onLocationChange({
           ...location,
@@ -129,10 +129,28 @@ export function LocationStep({ location, onLocationChange }: LocationStepProps) 
   }, [location.admin.wardCode]);
 
   const handleMapClick = (lat: number, lng: number) => {
-    onLocationChange({
-      ...location,
-      coordinates: { lat, lng }
-    });
+    // Reverse geocode to find the ward
+    const wardInfo = reverseGeocodeToWard(lat, lng);
+    
+    if (wardInfo) {
+      // Auto-populate the admin fields
+      onLocationChange({
+        ...location,
+        coordinates: { lat, lng },
+        admin: {
+          subCounty: wardInfo.subCounty,
+          ward: wardInfo.wardName,
+          wardCode: wardInfo.wardCode,
+          zone: wardInfo.zone
+        }
+      });
+    } else {
+      // Just set coordinates if no ward found
+      onLocationChange({
+        ...location,
+        coordinates: { lat, lng }
+      });
+    }
   };
 
   const handleSubCountyChange = (subCounty: string) => {

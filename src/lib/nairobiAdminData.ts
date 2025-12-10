@@ -744,6 +744,122 @@ export const NAIROBI_SUBCOUNTIES: SubCounty[] = [
   }
 ];
 
+// Ward center coordinates for reverse geocoding
+// These are approximate center points for each ward
+export const WARD_COORDINATES: { [wardCode: string]: { lat: number; lng: number; subCounty: string } } = {
+  // Westlands
+  KILIMANI: { lat: -1.2892, lng: 36.7850, subCounty: "Westlands" },
+  KANGEMI: { lat: -1.2650, lng: 36.7450, subCounty: "Westlands" },
+  KITISURU: { lat: -1.2350, lng: 36.7800, subCounty: "Westlands" },
+  PARKLANDS_HIGHRIDGE: { lat: -1.2620, lng: 36.8150, subCounty: "Westlands" },
+  KARURA: { lat: -1.2380, lng: 36.8300, subCounty: "Westlands" },
+  
+  // Starehe
+  NGARA: { lat: -1.2750, lng: 36.8280, subCounty: "Starehe" },
+  NAIROBI_CENTRAL: { lat: -1.2864, lng: 36.8219, subCounty: "Starehe" },
+  LANDIMAWE: { lat: -1.3050, lng: 36.8350, subCounty: "Starehe" },
+  NAIROBI_SOUTH: { lat: -1.3150, lng: 36.8250, subCounty: "Starehe" },
+  KARIOKOR: { lat: -1.2780, lng: 36.8400, subCounty: "Starehe" },
+  
+  // Dagoretti North
+  KILIMANI_DG: { lat: -1.2950, lng: 36.7750, subCounty: "Dagoretti North" },
+  KAWANGWARE: { lat: -1.2720, lng: 36.7380, subCounty: "Dagoretti North" },
+  GATINA: { lat: -1.2800, lng: 36.7300, subCounty: "Dagoretti North" },
+  KILELESHWA: { lat: -1.2780, lng: 36.7680, subCounty: "Dagoretti North" },
+  KABIRO: { lat: -1.2880, lng: 36.7200, subCounty: "Dagoretti North" },
+  
+  // Dagoretti South
+  MUTUINI: { lat: -1.3050, lng: 36.7100, subCounty: "Dagoretti South" },
+  NGANDO: { lat: -1.2980, lng: 36.7250, subCounty: "Dagoretti South" },
+  RIRUTA: { lat: -1.2920, lng: 36.7150, subCounty: "Dagoretti South" },
+  UTHIRU_RUTHIMITU: { lat: -1.2700, lng: 36.6950, subCounty: "Dagoretti South" },
+  WAITHAKA: { lat: -1.2850, lng: 36.6900, subCounty: "Dagoretti South" },
+  
+  // Lang'ata
+  KAREN: { lat: -1.3200, lng: 36.7100, subCounty: "Lang'ata" },
+  NAIROBI_WEST_LG: { lat: -1.3080, lng: 36.8100, subCounty: "Lang'ata" },
+  MUGUMONI: { lat: -1.3150, lng: 36.7900, subCounty: "Lang'ata" },
+  SOUTHC: { lat: -1.3100, lng: 36.8200, subCounty: "Lang'ata" },
+  NYAYO_HIGHRISE: { lat: -1.3180, lng: 36.8280, subCounty: "Lang'ata" },
+  
+  // Kibra
+  LAINI_SABA: { lat: -1.3120, lng: 36.7850, subCounty: "Kibra" },
+  LINDI: { lat: -1.3080, lng: 36.7820, subCounty: "Kibra" },
+  MAKINA: { lat: -1.3100, lng: 36.7780, subCounty: "Kibra" },
+  WOODLEY_SARANGOMBE: { lat: -1.2980, lng: 36.7750, subCounty: "Kibra" },
+  SARANGOMBE: { lat: -1.3050, lng: 36.7700, subCounty: "Kibra" },
+  
+  // Embakasi South
+  IMARA_DAIMA: { lat: -1.3250, lng: 36.8950, subCounty: "Embakasi South" },
+  KWA_NJENGA: { lat: -1.3180, lng: 36.8850, subCounty: "Embakasi South" },
+  KWA_REUBEN: { lat: -1.3120, lng: 36.8780, subCounty: "Embakasi South" },
+  PIPELINE: { lat: -1.3080, lng: 36.8920, subCounty: "Embakasi South" },
+  KWARE: { lat: -1.3200, lng: 36.8800, subCounty: "Embakasi South" },
+  
+  // Embakasi North
+  KARIOBANGI_SOUTH: { lat: -1.2650, lng: 36.8750, subCounty: "Embakasi North" },
+  DANDORA_AREA_I: { lat: -1.2520, lng: 36.8950, subCounty: "Embakasi North" },
+  DANDORA_AREA_II: { lat: -1.2480, lng: 36.9050, subCounty: "Embakasi North" },
+  DANDORA_AREA_III: { lat: -1.2550, lng: 36.9100, subCounty: "Embakasi North" },
+  DANDORA_AREA_IV: { lat: -1.2600, lng: 36.9150, subCounty: "Embakasi North" },
+  
+  // Embakasi Central
+  KAYOLE_NORTH: { lat: -1.2750, lng: 36.9050, subCounty: "Embakasi Central" },
+  KAYOLE_CENTRAL: { lat: -1.2820, lng: 36.9100, subCounty: "Embakasi Central" },
+  KAYOLE_SOUTH: { lat: -1.2900, lng: 36.9150, subCounty: "Embakasi Central" },
+  KOMAROCK: { lat: -1.2650, lng: 36.9200, subCounty: "Embakasi Central" },
+  MATOPENI: { lat: -1.2580, lng: 36.9300, subCounty: "Embakasi Central" },
+  
+  // Embakasi East
+  UPPER_SAVANNA: { lat: -1.2450, lng: 36.9450, subCounty: "Embakasi East" },
+  LOWER_SAVANNA: { lat: -1.2550, lng: 36.9500, subCounty: "Embakasi East" },
+  EMBAKASI: { lat: -1.3050, lng: 36.9000, subCounty: "Embakasi East" },
+  UTAWALA: { lat: -1.2700, lng: 36.9600, subCounty: "Embakasi East" },
+  MIHANGO: { lat: -1.2600, lng: 36.9700, subCounty: "Embakasi East" },
+  
+  // Embakasi West
+  UMOJA_I: { lat: -1.2780, lng: 36.8850, subCounty: "Embakasi West" },
+  UMOJA_II: { lat: -1.2850, lng: 36.8900, subCounty: "Embakasi West" },
+  MOWLEM: { lat: -1.2720, lng: 36.8950, subCounty: "Embakasi West" },
+  KARIOBANGI_NORTH: { lat: -1.2580, lng: 36.8700, subCounty: "Embakasi West" },
+  
+  // Makadara
+  MARINGO_HAMZA: { lat: -1.2950, lng: 36.8580, subCounty: "Makadara" },
+  VIWANDANI: { lat: -1.3020, lng: 36.8650, subCounty: "Makadara" },
+  HARAMBEE: { lat: -1.2880, lng: 36.8520, subCounty: "Makadara" },
+  MAKONGENI: { lat: -1.2920, lng: 36.8480, subCounty: "Makadara" },
+  PUMWANI: { lat: -1.2780, lng: 36.8550, subCounty: "Makadara" },
+  
+  // Kamukunji
+  EASTLEIGH_NORTH: { lat: -1.2680, lng: 36.8500, subCounty: "Kamukunji" },
+  EASTLEIGH_SOUTH: { lat: -1.2750, lng: 36.8550, subCounty: "Kamukunji" },
+  AIRBASE: { lat: -1.2600, lng: 36.8600, subCounty: "Kamukunji" },
+  CALIFORNIA: { lat: -1.2720, lng: 36.8620, subCounty: "Kamukunji" },
+  PUMWANI_KMK: { lat: -1.2680, lng: 36.8450, subCounty: "Kamukunji" },
+  
+  // Kasarani
+  CLAY_CITY: { lat: -1.2200, lng: 36.8950, subCounty: "Kasarani" },
+  MWIKI: { lat: -1.2100, lng: 36.9050, subCounty: "Kasarani" },
+  KASARANI: { lat: -1.2280, lng: 36.8850, subCounty: "Kasarani" },
+  NJIRU: { lat: -1.2350, lng: 36.9200, subCounty: "Kasarani" },
+  RUAI: { lat: -1.2450, lng: 36.9800, subCounty: "Kasarani" },
+  
+  // Roysambu
+  GITHURAI: { lat: -1.2050, lng: 36.9150, subCounty: "Roysambu" },
+  KAHAWA_WEST: { lat: -1.1950, lng: 36.9050, subCounty: "Roysambu" },
+  ZIMMERMAN: { lat: -1.2150, lng: 36.8900, subCounty: "Roysambu" },
+  ROYSAMBU: { lat: -1.2080, lng: 36.8780, subCounty: "Roysambu" },
+  KAHAWA: { lat: -1.1850, lng: 36.9250, subCounty: "Roysambu" },
+  
+  // Mathare
+  HOSPITAL: { lat: -1.2580, lng: 36.8600, subCounty: "Mathare" },
+  MABATINI: { lat: -1.2620, lng: 36.8580, subCounty: "Mathare" },
+  HURUMA: { lat: -1.2550, lng: 36.8650, subCounty: "Mathare" },
+  NGEI: { lat: -1.2500, lng: 36.8620, subCounty: "Mathare" },
+  MLANGO_KUBWA: { lat: -1.2480, lng: 36.8550, subCounty: "Mathare" },
+  KIAMAIKO: { lat: -1.2530, lng: 36.8700, subCounty: "Mathare" },
+};
+
 // Helper functions
 export function getWardsBySubCounty(subCountyName: string): Ward[] {
   const subCounty = NAIROBI_SUBCOUNTIES.find(sc => sc.name === subCountyName);
@@ -763,5 +879,56 @@ export function getWardByCode(wardCode: string): { ward: Ward; subCounty: string
       return { ward, subCounty: subCounty.name };
     }
   }
+  return null;
+}
+
+// Calculate distance between two coordinates in kilometers (Haversine formula)
+function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+// Reverse geocode: find the nearest ward based on lat/lng
+export function reverseGeocodeToWard(lat: number, lng: number): { 
+  wardCode: string; 
+  wardName: string; 
+  subCounty: string;
+  zone: string;
+} | null {
+  let nearestWard: string | null = null;
+  let nearestDistance = Infinity;
+  let nearestSubCounty = '';
+
+  for (const [wardCode, coords] of Object.entries(WARD_COORDINATES)) {
+    const distance = haversineDistance(lat, lng, coords.lat, coords.lng);
+    if (distance < nearestDistance) {
+      nearestDistance = distance;
+      nearestWard = wardCode;
+      nearestSubCounty = coords.subCounty;
+    }
+  }
+
+  // Only return if within reasonable distance (e.g., 5km from ward center)
+  if (nearestWard && nearestDistance < 5) {
+    const wardInfo = getWardByCode(nearestWard);
+    if (wardInfo) {
+      // Get the first zone as default
+      const zones = getZonesByWard(nearestSubCounty, nearestWard);
+      return {
+        wardCode: nearestWard,
+        wardName: wardInfo.ward.name,
+        subCounty: nearestSubCounty,
+        zone: zones.length > 0 ? zones[0].name : ''
+      };
+    }
+  }
+
   return null;
 }
