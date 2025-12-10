@@ -33,9 +33,9 @@ export default function Data() {
               <TrendingUp className="w-4 h-4" />
               Trends
             </TabsTrigger>
-            <TabsTrigger value="raw" className="flex items-center gap-2" disabled>
+            <TabsTrigger value="custom" className="flex items-center gap-2" disabled>
               <Database className="w-4 h-4" />
-              Raw Data
+              Build Your Own
             </TabsTrigger>
           </TabsList>
 
@@ -49,9 +49,9 @@ export default function Data() {
             </div>
           </TabsContent>
 
-          <TabsContent value="raw">
+          <TabsContent value="custom">
             <div className="text-center py-12 text-muted-foreground">
-              Raw data export coming soon
+              Custom chart builder coming soon
             </div>
           </TabsContent>
         </Tabs>
