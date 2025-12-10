@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { PenSquare, ArrowRight, Ticket, MapPin, Clock, Shield, Users, Settings2 } from 'lucide-react';
+import nairobiSkyline from '@/assets/nairobi-skyline.jpg';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { NairobiMap } from '@/components/map/NairobiMap';
 import { HappeningsFeed } from '@/components/happenings/HappeningsFeed';
@@ -29,8 +30,12 @@ const Index = () => {
     <AppLayout>
       {/* Hero Section - Nairobi Style */}
       <section className="mb-10" aria-labelledby="hero-title">
-        <div className="ncc-hero ncc-hero-pattern p-8 md:p-12">
-          <div className="max-w-2xl">
+        <div 
+          className="ncc-hero p-8 md:p-12 relative bg-cover bg-center"
+          style={{ backgroundImage: `url(${nairobiSkyline})` }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/80 to-primary/60" />
+          <div className="max-w-2xl relative z-10">
             <p className="text-secondary font-semibold mb-2 uppercase tracking-wide text-sm">
               Welcome to
             </p>
