@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { PenSquare, ArrowRight, Ticket, MapPin, Clock, Shield, Users, Settings2, GraduationCap } from 'lucide-react';
+import { PenSquare, ArrowRight, Ticket, MapPin, Clock, Shield, Users, Settings2, GraduationCap, BarChart3 } from 'lucide-react';
 import nairobiSkyline from '@/assets/nairobi-skyline.jpg';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { NairobiMap } from '@/components/map/NairobiMap';
@@ -9,6 +9,7 @@ import { ActiveSurveys } from '@/components/surveys/ActiveSurveys';
 import { findWardByCoords } from '@/lib/happeningsApi';
 import { UserPreferencesModal, loadUserPreferences, UserPreferences } from '@/components/preferences/UserPreferencesModal';
 import { Button } from '@/components/ui/button';
+import { getOverviewStats, getAverageSolutionTime } from '@/lib/serviceAnalyticsData';
 
 const Index = () => {
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -95,20 +96,33 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Quick Stats */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-        {[
-          { icon: MapPin, label: 'Active Reports', value: '1,234', color: 'text-primary' },
-          { icon: Clock, label: 'Avg Response', value: '24h', color: 'text-secondary' },
-          { icon: Shield, label: 'Resolved', value: '89%', color: 'text-success' },
-          { icon: Users, label: 'Citizens Engaged', value: '15K+', color: 'text-accent' },
-        ].map((stat, i) => (
-          <div key={i} className="ncc-card p-4 md:p-6 text-center">
-            <stat.icon className={`w-8 h-8 mx-auto mb-2 ${stat.color}`} />
-            <p className="text-2xl md:text-3xl font-bold text-foreground">{stat.value}</p>
-            <p className="text-sm text-muted-foreground">{stat.label}</p>
-          </div>
-        ))}
+      {/* Quick Stats - Consistent with Dashboard */}
+      <section className="mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {(() => {
+            const stats = getOverviewStats('30days', 'all');
+            const avgTime = getAverageSolutionTime();
+            return [
+              { icon: MapPin, label: 'Total Complaints', value: stats.totalComplaints.toLocaleString(), color: 'text-primary' },
+              { icon: Clock, label: 'Avg Resolution', value: `${avgTime.avg} wks`, color: 'text-secondary' },
+              { icon: Shield, label: 'SLA Achievement', value: `${stats.slaAchievementPercent}%`, color: 'text-success' },
+              { icon: Users, label: 'Completion Rate', value: `${stats.completionRatePercent}%`, color: 'text-accent' },
+            ].map((stat, i) => (
+              <div key={i} className="ncc-card p-4 md:p-6 text-center">
+                <stat.icon className={`w-8 h-8 mx-auto mb-2 ${stat.color}`} />
+                <p className="text-2xl md:text-3xl font-bold text-foreground">{stat.value}</p>
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
+              </div>
+            ));
+          })()}
+        </div>
+        <div className="mt-4 text-center">
+          <Link to="/data" className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors">
+            <BarChart3 className="w-4 h-4" />
+            View detailed analytics
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </section>
 
       {/* Quick Actions */}
