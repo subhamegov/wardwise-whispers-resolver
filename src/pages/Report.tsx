@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check, MapPin, FileText, Mic } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, FileText, Mic } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { NairobiMap } from '@/components/map/NairobiMap';
 import { ReportStepper } from '@/components/report/ReportStepper';
 import { CategoryPicker } from '@/components/report/CategoryPicker';
 import { PhotoUpload } from '@/components/report/PhotoUpload';
 import { StarRating } from '@/components/report/StarRating';
 import { VoiceRecorder } from '@/components/voice/VoiceRecorder';
+import { LocationStep, LocationData } from '@/components/report/LocationStep';
 import { apiClient } from '@/lib/apiClient';
-import { StorySubmission, IssueCategory, NAIROBI_WARDS } from '@/types/story';
+import { StorySubmission, IssueCategory } from '@/types/story';
 import { cn } from '@/lib/utils';
 
 const STEPS = [
@@ -28,9 +28,11 @@ const Report = () => {
   const [ticketId, setTicketId] = useState<string | null>(null);
 
   // Form state
-  const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [locationDescription, setLocationDescription] = useState('');
-  const [wardCode, setWardCode] = useState('');
+  const [locationData, setLocationData] = useState<LocationData>({
+    coordinates: null,
+    admin: { subCounty: '', ward: '', wardCode: '', zone: '' },
+    description: ''
+  });
   const [issueCategory, setIssueCategory] = useState<IssueCategory | null>(null);
   const [photos, setPhotos] = useState<File[]>([]);
   const [title, setTitle] = useState('');
@@ -43,7 +45,11 @@ const Report = () => {
 
   const canProceed = () => {
     switch (currentStep) {
-      case 1: return selectedLocation !== null || locationDescription.trim().length > 0;
+      case 1: 
+        // Either map pin OR (sub-county + ward) must be provided
+        return locationData.coordinates !== null || 
+               (locationData.admin.subCounty && locationData.admin.wardCode) ||
+               locationData.description.trim().length > 0;
       case 2: return issueCategory !== null;
       case 3: return true; // Photos optional
       case 4: return title.trim().length > 0 && (description.trim().length > 0 || recording !== null);
@@ -78,10 +84,10 @@ const Report = () => {
         audioBlob: inputMode === 'voice' ? recording?.blob : undefined,
         audioDuration: inputMode === 'voice' ? recording?.duration : undefined,
         photos: photos.length > 0 ? photos : undefined,
-        lat: selectedLocation?.lat,
-        lng: selectedLocation?.lng,
-        locationDescription: locationDescription.trim() || undefined,
-        wardCode: wardCode || undefined,
+        lat: locationData.coordinates?.lat,
+        lng: locationData.coordinates?.lng,
+        locationDescription: locationData.description.trim() || undefined,
+        wardCode: locationData.admin.wardCode || undefined,
         reporterName: reporterName.trim() || undefined,
         reporterPhone: reporterPhone.trim() || undefined,
         serviceRating: serviceRating > 0 ? serviceRating : undefined,
@@ -153,52 +159,10 @@ const Report = () => {
       <div className="bg-card rounded-2xl border border-border p-5 md:p-6 mb-6">
         {/* Step 1: Location */}
         {currentStep === 1 && (
-          <div>
-            <h2 className="text-xl font-bold text-foreground mb-4">
-              Where is the issue?
-            </h2>
-            <NairobiMap
-              selectedLocation={selectedLocation}
-              onLocationSelect={setSelectedLocation}
-              onLocationDescriptionChange={setLocationDescription}
-              showHappenings={false}
-            />
-            
-            {!selectedLocation && (
-              <div className="mt-4">
-                <label htmlFor="location-text" className="block font-semibold text-foreground mb-2">
-                  Can't find it on the map? Describe the location:
-                </label>
-                <input
-                  id="location-text"
-                  type="text"
-                  value={locationDescription}
-                  onChange={(e) => setLocationDescription(e.target.value)}
-                  placeholder="e.g., Near KICC, opposite the main entrance"
-                  className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-            )}
-
-            <div className="mt-4">
-              <label htmlFor="ward-select" className="block font-semibold text-foreground mb-2">
-                Ward (optional)
-              </label>
-              <select
-                id="ward-select"
-                value={wardCode}
-                onChange={(e) => setWardCode(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                <option value="">Select your ward...</option>
-                {NAIROBI_WARDS.map((ward) => (
-                  <option key={ward.code} value={ward.code}>
-                    {ward.name} ({ward.subcounty})
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+          <LocationStep 
+            location={locationData}
+            onLocationChange={setLocationData}
+          />
         )}
 
         {/* Step 2: Category */}
@@ -347,8 +311,12 @@ const Report = () => {
             <div className="space-y-4 text-sm">
               <div className="flex justify-between py-2 border-b border-border">
                 <span className="text-muted-foreground">Location</span>
-                <span className="text-foreground font-medium">
-                  {selectedLocation ? `${selectedLocation.lat.toFixed(4)}, ${selectedLocation.lng.toFixed(4)}` : locationDescription}
+                <span className="text-foreground font-medium text-right max-w-[60%]">
+                  {locationData.coordinates 
+                    ? `${locationData.coordinates.lat.toFixed(4)}, ${locationData.coordinates.lng.toFixed(4)}`
+                    : locationData.admin.ward 
+                      ? `${locationData.admin.ward}, ${locationData.admin.subCounty}`
+                      : locationData.description || 'Not specified'}
                 </span>
               </div>
               <div className="flex justify-between py-2 border-b border-border">
