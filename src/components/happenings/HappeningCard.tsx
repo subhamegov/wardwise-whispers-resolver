@@ -7,9 +7,10 @@ import { cn } from '@/lib/utils';
 interface HappeningCardProps {
   happening: Happening;
   className?: string;
+  onClick?: () => void;
 }
 
-export function HappeningCard({ happening, className }: HappeningCardProps) {
+export function HappeningCard({ happening, className, onClick }: HappeningCardProps) {
   const [isReading, setIsReading] = useState(false);
 
   const formatDate = (dateString: string): string => {
@@ -21,7 +22,8 @@ export function HappeningCard({ happening, className }: HappeningCardProps) {
     });
   };
 
-  const handleReadAloud = async () => {
+  const handleReadAloud = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click
     if (isReading) {
       stopSpeaking();
       setIsReading(false);
@@ -32,6 +34,10 @@ export function HappeningCard({ happening, className }: HappeningCardProps) {
     setIsReading(true);
     await speakText(textToRead);
     setIsReading(false);
+  };
+
+  const handleExternalLink = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click
   };
 
   const getTypeColor = () => {
@@ -49,10 +55,20 @@ export function HappeningCard({ happening, className }: HappeningCardProps) {
   return (
     <article 
       className={cn(
-        'bg-card rounded-xl border border-border p-4 shadow-soft hover:shadow-medium transition-shadow',
+        'bg-card rounded-xl border border-border p-4 shadow-soft hover:shadow-medium transition-all cursor-pointer',
+        'hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
         className
       )}
       aria-labelledby={`happening-title-${happening.id}`}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
+      tabIndex={0}
+      role="button"
     >
       {/* Type badge and date */}
       <div className="flex items-start justify-between gap-3 mb-3">
@@ -85,7 +101,7 @@ export function HappeningCard({ happening, className }: HappeningCardProps) {
       </h3>
 
       {/* Summary */}
-      <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+      <p className="text-sm text-muted-foreground leading-relaxed mb-3 line-clamp-2">
         {happening.summary}
       </p>
 
@@ -129,12 +145,18 @@ export function HappeningCard({ happening, className }: HappeningCardProps) {
             href={happening.link}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={handleExternalLink}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <ExternalLink className="w-4 h-4" aria-hidden="true" />
             More details
           </a>
         )}
+
+        {/* View details hint */}
+        <span className="ml-auto text-xs text-muted-foreground">
+          Tap for details →
+        </span>
       </div>
     </article>
   );

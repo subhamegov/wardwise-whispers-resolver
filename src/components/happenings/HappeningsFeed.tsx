@@ -4,6 +4,7 @@ import { Happening } from '@/types/happenings';
 import { happeningsApi } from '@/lib/happeningsApi';
 import { speakText, stopSpeaking } from '@/lib/apiClient';
 import { HappeningCard } from './HappeningCard';
+import { ProjectDetailDrawer } from './ProjectDetailDrawer';
 import { cn } from '@/lib/utils';
 
 interface HappeningsFeedProps {
@@ -19,6 +20,8 @@ export function HappeningsFeed({ wardCode, lat, lng, radiusKm = 5, className }: 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isReadingAll, setIsReadingAll] = useState(false);
+  const [selectedHappening, setSelectedHappening] = useState<Happening | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const loadHappenings = async () => {
     setIsLoading(true);
@@ -62,6 +65,11 @@ export function HappeningsFeed({ wardCode, lat, lng, radiusKm = 5, className }: 
     setIsReadingAll(false);
   };
 
+  const handleCardClick = (happening: Happening) => {
+    setSelectedHappening(happening);
+    setIsDrawerOpen(true);
+  };
+
   const hasLocation = lat !== undefined && lng !== undefined;
 
   return (
@@ -86,7 +94,6 @@ export function HappeningsFeed({ wardCode, lat, lng, radiusKm = 5, className }: 
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Read all button */}
           {happenings.length > 0 && (
             <button
               type="button"
@@ -105,7 +112,6 @@ export function HappeningsFeed({ wardCode, lat, lng, radiusKm = 5, className }: 
             </button>
           )}
 
-          {/* Refresh button */}
           <button
             type="button"
             onClick={loadHappenings}
@@ -118,7 +124,6 @@ export function HappeningsFeed({ wardCode, lat, lng, radiusKm = 5, className }: 
         </div>
       </div>
 
-      {/* Location context */}
       {hasLocation && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-3 py-2 rounded-lg">
           <MapPin className="w-4 h-4" aria-hidden="true" />
@@ -126,7 +131,6 @@ export function HappeningsFeed({ wardCode, lat, lng, radiusKm = 5, className }: 
         </div>
       )}
 
-      {/* Error state */}
       {error && (
         <div 
           className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive"
@@ -136,7 +140,6 @@ export function HappeningsFeed({ wardCode, lat, lng, radiusKm = 5, className }: 
         </div>
       )}
 
-      {/* Loading state */}
       {isLoading && (
         <div className="space-y-4" aria-busy="true" aria-label="Loading updates">
           {[1, 2, 3].map((i) => (
@@ -153,21 +156,18 @@ export function HappeningsFeed({ wardCode, lat, lng, radiusKm = 5, className }: 
         </div>
       )}
 
-      {/* Happenings list */}
       {!isLoading && happenings.length > 0 && (
         <div className="space-y-4" role="feed" aria-label="Local updates and announcements">
-          {happenings.map((happening, index) => (
+          {happenings.map((happening) => (
             <HappeningCard 
               key={happening.id} 
               happening={happening}
-              aria-setsize={happenings.length}
-              aria-posinset={index + 1}
+              onClick={() => handleCardClick(happening)}
             />
           ))}
         </div>
       )}
 
-      {/* Empty state */}
       {!isLoading && happenings.length === 0 && (
         <div className="text-center py-8 bg-muted/30 rounded-xl">
           <Bell className="w-12 h-12 text-muted-foreground mx-auto mb-3" aria-hidden="true" />
@@ -180,6 +180,13 @@ export function HappeningsFeed({ wardCode, lat, lng, radiusKm = 5, className }: 
           </p>
         </div>
       )}
+
+      {/* Project Detail Drawer */}
+      <ProjectDetailDrawer 
+        happening={selectedHappening}
+        open={isDrawerOpen}
+        onOpenChange={setIsDrawerOpen}
+      />
     </div>
   );
 }
