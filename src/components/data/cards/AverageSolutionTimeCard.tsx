@@ -5,7 +5,7 @@ import { InfoTooltip } from '../ServiceAnalytics';
 import { getAverageSolutionTime, KPI_DEFINITIONS } from '@/lib/serviceAnalyticsData';
 
 export function AverageSolutionTimeCard() {
-  const avgDays = getAverageSolutionTime();
+  const timeData = getAverageSolutionTime();
 
   return (
     <Card className="ncc-card">
@@ -24,22 +24,22 @@ export function AverageSolutionTimeCard() {
           </div>
           <div className="text-center">
             <p className="text-5xl font-bold text-foreground mb-2">
-              {avgDays}
+              {timeData.avg}
             </p>
-            <p className="text-xl text-muted-foreground">days</p>
+            <p className="text-xl text-muted-foreground">weeks</p>
           </div>
           <div className="mt-6 grid grid-cols-3 gap-4 text-center w-full max-w-xs">
             <div>
               <p className="text-sm text-muted-foreground">Min</p>
-              <p className="text-lg font-semibold">0.5 days</p>
+              <p className="text-lg font-semibold">{timeData.min} weeks</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Median</p>
-              <p className="text-lg font-semibold">3.1 days</p>
+              <p className="text-lg font-semibold">{timeData.median} weeks</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Max</p>
-              <p className="text-lg font-semibold">21 days</p>
+              <p className="text-lg font-semibold">{timeData.max} weeks</p>
             </div>
           </div>
         </div>
