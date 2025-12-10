@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { User, AlertCircle, Clock, CheckCircle2, AlertTriangle, ArrowRight, Users, TrendingUp, FileText, FolderKanban, MessageSquare, Star } from 'lucide-react';
+import { User, AlertCircle, Clock, CheckCircle2, AlertTriangle, ArrowRight, Users, TrendingUp, FileText, FolderKanban, MessageSquare } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Story, ISSUE_CATEGORIES, STATUS_LABELS } from '@/types/story';
+import { Story, ISSUE_CATEGORIES } from '@/types/story';
 import { apiClient } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 import { InfoTooltip } from '../ServiceAnalytics';
 import { getComplaintsByDepartment } from '@/lib/serviceAnalyticsData';
+import { DepartmentRatingsDetail } from './DepartmentRatingsDetail';
 
 // Category to Department mapping
 const CATEGORY_TO_DEPARTMENT: Record<string, string> = {
@@ -32,20 +32,6 @@ interface SimilarComplaint {
   avgResolutionWeeks: number;
 }
 
-interface DepartmentRating {
-  name: string;
-  rating: number;
-  totalFeedback: number;
-}
-
-// Mock department ratings based on general feedback
-const DEPARTMENT_RATINGS: DepartmentRating[] = [
-  { name: 'Environment', rating: 4.2, totalFeedback: 156 },
-  { name: 'Water and Sewerage', rating: 3.8, totalFeedback: 203 },
-  { name: 'Works', rating: 3.5, totalFeedback: 178 },
-  { name: 'Public Health', rating: 4.0, totalFeedback: 92 },
-  { name: 'Mobility and ICT Infrastructure', rating: 3.9, totalFeedback: 64 },
-];
 
 export function MyComplaintsSummary() {
   const [myTickets, setMyTickets] = useState<Story[]>([]);
@@ -258,39 +244,7 @@ export function MyComplaintsSummary() {
       </Card>
 
       {/* Department Ratings from General Feedback */}
-      <Card className="ncc-card">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <Star className="w-5 h-5 text-secondary" />
-            <CardTitle className="text-lg">Department Ratings</CardTitle>
-            <InfoTooltip definition="Overall citizen feedback ratings for each department based on resolved complaints and general feedback submissions." />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            {DEPARTMENT_RATINGS.map((dept) => (
-              <div 
-                key={dept.name}
-                className="p-3 rounded-lg border border-border bg-muted/30"
-              >
-                <p className="text-xs font-medium text-muted-foreground mb-2 line-clamp-2 min-h-[2rem]" title={dept.name}>
-                  {dept.name}
-                </p>
-                <div className="flex items-center gap-1.5">
-                  <Star className={cn(
-                    "w-4 h-4 flex-shrink-0",
-                    dept.rating >= 4 ? "text-yellow-500 fill-yellow-500" : 
-                    dept.rating >= 3 ? "text-yellow-500 fill-yellow-500/50" : 
-                    "text-yellow-500"
-                  )} />
-                  <span className="text-lg font-bold text-foreground">{dept.rating.toFixed(1)}</span>
-                  <span className="text-xs text-muted-foreground ml-auto">({dept.totalFeedback})</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <DepartmentRatingsDetail />
 
       {/* Similar Complaints Section */}
       {similarComplaints.length > 0 && (
