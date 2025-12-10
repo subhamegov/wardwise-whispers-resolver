@@ -154,8 +154,10 @@ export function LocationStep({ location, onLocationChange }: LocationStepProps) 
   };
 
   const handleSubCountyChange = (subCounty: string) => {
+    // Clear map coordinates when user manually changes dropdown
     onLocationChange({
       ...location,
+      coordinates: null,
       admin: { 
         subCounty, 
         ward: '', 
@@ -167,8 +169,10 @@ export function LocationStep({ location, onLocationChange }: LocationStepProps) 
 
   const handleWardChange = (wardCode: string) => {
     const ward = availableWards.find(w => w.code === wardCode);
+    // Clear map coordinates when user manually changes dropdown
     onLocationChange({
       ...location,
+      coordinates: null,
       admin: { 
         ...location.admin, 
         ward: ward?.name || '', 
