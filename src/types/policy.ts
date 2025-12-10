@@ -19,6 +19,13 @@ export interface PolicyEngagement {
   commentCount: number;
 }
 
+export interface PolicyClause {
+  id: string;
+  title: string;
+  content: string;
+  section?: string;
+}
+
 export interface Policy {
   id: string;
   title: string;
@@ -33,4 +40,5 @@ export interface Policy {
   publishedDate: string;
   comments: PolicyComment[];
   engagement: PolicyEngagement;
+  clauses?: PolicyClause[];
 }

@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { 
   X, FileText, MessageSquare, ThumbsUp, ThumbsDown, Lightbulb, AlertTriangle, 
   ExternalLink, Volume2, VolumeX, Mic, MicOff, Clock, Building2, 
-  Calendar, FileDown, Send, Check
+  Calendar, FileDown, Send, Check, ChevronDown
 } from 'lucide-react';
 import { Policy, PolicyComment } from '@/types/policy';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 import { getDaysRemaining } from '@/lib/policyData';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -283,6 +284,38 @@ export const PolicyDetailModal: React.FC<PolicyDetailModalProps> = ({
                   {policy.fullDescription}
                 </div>
               </div>
+
+              {/* Policy Breakdown - Clause by Clause */}
+              {policy.clauses && policy.clauses.length > 0 && (
+                <div className="border border-border rounded-xl overflow-hidden">
+                  <div className="bg-muted/50 px-4 py-3 border-b border-border">
+                    <h4 className="font-semibold text-foreground flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-primary" />
+                      Policy Breakdown
+                    </h4>
+                    <p className="text-sm text-muted-foreground mt-0.5">Review clause by clause</p>
+                  </div>
+                  <Accordion type="single" collapsible className="w-full">
+                    {policy.clauses.map((clause, index) => (
+                      <AccordionItem key={clause.id} value={clause.id} className="border-b border-border last:border-0">
+                        <AccordionTrigger className="px-4 py-3 hover:bg-muted/30 text-left">
+                          <div className="flex items-start gap-3">
+                            <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
+                              {clause.section || `Clause ${index + 1}`}
+                            </span>
+                            <span className="font-medium text-foreground text-sm">{clause.title}</span>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-4 pt-0">
+                          <div className="pl-12 text-sm text-muted-foreground leading-relaxed">
+                            {clause.content}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </div>
+              )}
 
               {/* Key Facts */}
               <div className="bg-muted/30 rounded-xl p-4">
