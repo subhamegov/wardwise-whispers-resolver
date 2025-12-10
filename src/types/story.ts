@@ -126,6 +126,14 @@ export const CATEGORY_TO_DEPARTMENT: Record<IssueCategory, NairobiDepartment> = 
   other: 'To be assigned',
 };
 
+export interface BeneficiaryInfo {
+  isOnBehalf: boolean;
+  name?: string;
+  phone?: string;
+  relationship?: string;
+  receiveUpdates: boolean;
+}
+
 export interface StorySubmission {
   category: StoryCategory;
   issueCategory?: IssueCategory;
@@ -140,9 +148,11 @@ export interface StorySubmission {
   wardCode?: string;
   reporterName?: string;
   reporterPhone?: string;
+  shareContactWithDepartment?: boolean;
   serviceRating?: number;
   responsibleDepartment?: NairobiDepartment;
   departmentSelectionSource?: DepartmentSelectionSource;
+  beneficiary?: BeneficiaryInfo;
 }
 
 export interface Ward {

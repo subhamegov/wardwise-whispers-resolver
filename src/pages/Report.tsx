@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check, FileText, Mic, Heart } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, FileText, Mic, Heart, User, ChevronDown, Users } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ReportStepper } from '@/components/report/ReportStepper';
 import { CategoryPicker } from '@/components/report/CategoryPicker';
@@ -13,7 +13,7 @@ import { AppreciationStep, AppreciationData } from '@/components/report/Apprecia
 import { apiClient } from '@/lib/apiClient';
 import { StorySubmission, IssueCategory, NairobiDepartment, CATEGORY_TO_DEPARTMENT, NAIROBI_DEPARTMENTS, DepartmentSelectionSource } from '@/types/story';
 import { cn } from '@/lib/utils';
-import { Building2, Info, ChevronDown } from 'lucide-react';
+import { Building2, Info } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -27,6 +27,25 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+
+// Mock current user - in real app would come from auth context
+const currentUser = {
+  name: "Amina N.",
+  phone: "0712 345 678"
+};
+
+const RELATIONSHIP_OPTIONS = [
+  "Family member",
+  "Neighbour", 
+  "Community group",
+  "Other"
+];
 
 const STANDARD_STEPS = [
   { number: 1, label: 'Intent' },
@@ -68,8 +87,22 @@ const Report = () => {
   const [serviceRating, setServiceRating] = useState(0);
   const [reporterName, setReporterName] = useState('');
   const [reporterPhone, setReporterPhone] = useState('');
+  const [shareContactWithDepartment, setShareContactWithDepartment] = useState(true);
+  const [isOnBehalf, setIsOnBehalf] = useState(false);
+  const [beneficiaryName, setBeneficiaryName] = useState('');
+  const [beneficiaryPhone, setBeneficiaryPhone] = useState('');
+  const [beneficiaryRelationship, setBeneficiaryRelationship] = useState('');
+  const [beneficiaryReceiveUpdates, setBeneficiaryReceiveUpdates] = useState(false);
   const [responsibleDepartment, setResponsibleDepartment] = useState<NairobiDepartment>('To be assigned');
   const [departmentSelectionSource, setDepartmentSelectionSource] = useState<DepartmentSelectionSource>('AUTO');
+
+  // Auto-populate contact info from currentUser
+  useEffect(() => {
+    if (currentUser) {
+      setReporterName(currentUser.name);
+      setReporterPhone(currentUser.phone);
+    }
+  }, []);
   
   // Appreciation form state
   const [appreciationData, setAppreciationData] = useState<AppreciationData>({
@@ -151,9 +184,17 @@ const Report = () => {
         wardCode: locationData.admin.wardCode || undefined,
         reporterName: reporterName.trim() || undefined,
         reporterPhone: reporterPhone.trim() || undefined,
+        shareContactWithDepartment,
         serviceRating: serviceRating > 0 ? serviceRating : undefined,
         responsibleDepartment,
         departmentSelectionSource,
+        beneficiary: isOnBehalf ? {
+          isOnBehalf: true,
+          name: beneficiaryName.trim() || undefined,
+          phone: beneficiaryPhone.trim() || undefined,
+          relationship: beneficiaryRelationship || undefined,
+          receiveUpdates: beneficiaryReceiveUpdates,
+        } : undefined,
       };
 
       const result = await apiClient.createStory(submission);
@@ -533,6 +574,156 @@ const Report = () => {
                 />
               )}
             </fieldset>
+
+            {/* Contact Info Section */}
+            <div className="bg-muted/30 rounded-xl p-4 border border-border">
+              <div className="flex items-center gap-2 mb-2">
+                <User className="w-5 h-5 text-primary" />
+                <span className="font-semibold text-foreground">Your contact info (optional)</span>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                We'll use this only to send you updates about this issue.
+              </p>
+              
+              <div className="grid gap-4 sm:grid-cols-2 mb-4">
+                <div>
+                  <label htmlFor="reporter-name" className="block font-medium text-foreground mb-1 text-sm">
+                    Name
+                  </label>
+                  <input
+                    id="reporter-name"
+                    type="text"
+                    value={reporterName}
+                    onChange={(e) => setReporterName(e.target.value)}
+                    placeholder="Your name"
+                    className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="reporter-phone" className="block font-medium text-foreground mb-1 text-sm">
+                    Phone
+                  </label>
+                  <input
+                    id="reporter-phone"
+                    type="tel"
+                    value={reporterPhone}
+                    onChange={(e) => setReporterPhone(e.target.value)}
+                    placeholder="07XX XXX XXX"
+                    className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+              </div>
+
+              {/* Privacy Checkbox */}
+              <div className="flex items-start gap-3 py-3 border-t border-border">
+                <Checkbox
+                  id="share-contact"
+                  checked={!shareContactWithDepartment}
+                  onCheckedChange={(checked) => setShareContactWithDepartment(!checked)}
+                  aria-label="Do not share my contact with departments"
+                />
+                <div className="flex-1">
+                  <label 
+                    htmlFor="share-contact" 
+                    className="text-sm font-medium text-foreground cursor-pointer"
+                  >
+                    Don't share my information with departments handling this issue
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    We will still contact you with updates, but your name and phone will be hidden from frontline staff.
+                  </p>
+                </div>
+              </div>
+
+              {/* On Behalf Checkbox */}
+              <Collapsible open={isOnBehalf} onOpenChange={setIsOnBehalf}>
+                <div className="flex items-start gap-3 py-3 border-t border-border">
+                  <CollapsibleTrigger asChild>
+                    <Checkbox
+                      id="on-behalf"
+                      checked={isOnBehalf}
+                      onCheckedChange={(checked) => setIsOnBehalf(checked === true)}
+                      aria-expanded={isOnBehalf}
+                    />
+                  </CollapsibleTrigger>
+                  <div className="flex-1">
+                    <label 
+                      htmlFor="on-behalf" 
+                      className="text-sm font-medium text-foreground cursor-pointer flex items-center gap-2"
+                    >
+                      <Users className="w-4 h-4" />
+                      I am filing this on behalf of someone else
+                    </label>
+                  </div>
+                </div>
+
+                <CollapsibleContent className="pt-3 border-t border-border/50 mt-3">
+                  <div className="space-y-4 pl-7">
+                    <div>
+                      <label htmlFor="beneficiary-name" className="block font-medium text-foreground mb-1 text-sm">
+                        Person's name
+                      </label>
+                      <input
+                        id="beneficiary-name"
+                        type="text"
+                        value={beneficiaryName}
+                        onChange={(e) => setBeneficiaryName(e.target.value)}
+                        placeholder="e.g., My neighbour, James"
+                        className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label htmlFor="beneficiary-phone" className="block font-medium text-foreground mb-1 text-sm">
+                          Their phone (optional)
+                        </label>
+                        <input
+                          id="beneficiary-phone"
+                          type="tel"
+                          value={beneficiaryPhone}
+                          onChange={(e) => setBeneficiaryPhone(e.target.value)}
+                          placeholder="07XX XXX XXX"
+                          className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="beneficiary-relationship" className="block font-medium text-foreground mb-1 text-sm">
+                          Relationship (optional)
+                        </label>
+                        <Select
+                          value={beneficiaryRelationship}
+                          onValueChange={setBeneficiaryRelationship}
+                        >
+                          <SelectTrigger id="beneficiary-relationship" className="bg-background">
+                            <SelectValue placeholder="Select relationship" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-popover">
+                            {RELATIONSHIP_OPTIONS.map((rel) => (
+                              <SelectItem key={rel} value={rel}>{rel}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    {beneficiaryPhone && (
+                      <div className="flex items-center gap-3">
+                        <Checkbox
+                          id="beneficiary-updates"
+                          checked={beneficiaryReceiveUpdates}
+                          onCheckedChange={(checked) => setBeneficiaryReceiveUpdates(checked === true)}
+                        />
+                        <label 
+                          htmlFor="beneficiary-updates" 
+                          className="text-sm text-foreground cursor-pointer"
+                        >
+                          Send updates to them as well
+                        </label>
+                      </div>
+                    )}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
           </div>
         )}
 
@@ -544,43 +735,9 @@ const Report = () => {
               onRatingChange={setServiceRating}
               label="How would you rate the current service in this area? (Optional)"
             />
-
-            <div className="border-t border-border pt-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">
-                Your contact info (optional)
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Share your details if you'd like updates on this issue.
-              </p>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="name" className="block font-medium text-foreground mb-1">
-                    Name
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    value={reporterName}
-                    onChange={(e) => setReporterName(e.target.value)}
-                    placeholder="Your name"
-                    className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="phone" className="block font-medium text-foreground mb-1">
-                    Phone
-                  </label>
-                  <input
-                    id="phone"
-                    type="tel"
-                    value={reporterPhone}
-                    onChange={(e) => setReporterPhone(e.target.value)}
-                    placeholder="07XX XXX XXX"
-                    className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
-              </div>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              Your rating helps us understand service quality in different areas of Nairobi.
+            </p>
           </div>
         )}
 
