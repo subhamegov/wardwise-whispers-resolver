@@ -182,8 +182,8 @@ export function getComplaintsByChannel(): ChannelData[] {
   ];
 }
 
-export function getAverageSolutionTime(): number {
-  return 4.2; // days
+export function getAverageSolutionTime(): { avg: number; min: number; median: number; max: number } {
+  return { avg: 0.6, min: 0.1, median: 0.4, max: 3 }; // weeks
 }
 
 export function getUniqueCitizensData(timeRange: string): UniqueCitizensData[] {
@@ -286,4 +286,15 @@ export const CATEGORIES = [
   { value: 'lighting', label: 'Street Lighting' },
   { value: 'health', label: 'Public Health' },
   { value: 'markets', label: 'Markets' },
+];
+
+export const SOURCES = [
+  { value: 'all', label: 'All Sources' },
+  { value: 'mobile', label: 'Mobile App' },
+  { value: 'web', label: 'Web Portal' },
+  { value: 'call', label: 'Call Centre' },
+  { value: 'whatsapp', label: 'WhatsApp' },
+  { value: 'walkin', label: 'Walk-in Counter' },
+  { value: 'ivr', label: 'IVR' },
+  { value: 'ussd', label: 'USSD' },
 ];

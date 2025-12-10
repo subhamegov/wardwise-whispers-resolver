@@ -19,12 +19,14 @@ import {
   SUB_COUNTIES,
   TIME_RANGES,
   CATEGORIES,
+  SOURCES,
 } from '@/lib/serviceAnalyticsData';
 
 export function ServiceAnalytics() {
   const [subCounty, setSubCounty] = useState('all');
   const [timeRange, setTimeRange] = useState('30days');
   const [category, setCategory] = useState('all');
+  const [source, setSource] = useState('all');
 
   return (
     <div className="space-y-6">
@@ -73,6 +75,19 @@ export function ServiceAnalytics() {
                 {CATEGORIES.map((cat) => (
                   <SelectItem key={cat.value} value={cat.value}>
                     {cat.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={source} onValueChange={setSource}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Source" />
+              </SelectTrigger>
+              <SelectContent>
+                {SOURCES.map((src) => (
+                  <SelectItem key={src.value} value={src.value}>
+                    {src.label}
                   </SelectItem>
                 ))}
               </SelectContent>
