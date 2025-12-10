@@ -5,7 +5,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { ReportStepper } from '@/components/report/ReportStepper';
 import { CategoryPicker } from '@/components/report/CategoryPicker';
 import { PhotoUpload } from '@/components/report/PhotoUpload';
-import { StarRating } from '@/components/report/StarRating';
+
 import { VoiceRecorder } from '@/components/voice/VoiceRecorder';
 import { LocationStep, LocationData } from '@/components/report/LocationStep';
 import { ComplaintIntentStep, ComplaintIntent, LinkedProject } from '@/components/report/ComplaintIntentStep';
@@ -53,8 +53,7 @@ const STANDARD_STEPS = [
   { number: 3, label: 'Category' },
   { number: 4, label: 'Photos' },
   { number: 5, label: 'Details' },
-  { number: 6, label: 'Rating' },
-  { number: 7, label: 'Submit' },
+  { number: 6, label: 'Submit' },
 ];
 
 const APPRECIATION_STEPS = [
@@ -84,7 +83,7 @@ const Report = () => {
   const [description, setDescription] = useState('');
   const [inputMode, setInputMode] = useState<'text' | 'voice'>('text');
   const [recording, setRecording] = useState<{ blob: Blob; duration: number } | null>(null);
-  const [serviceRating, setServiceRating] = useState(0);
+  
   const [reporterName, setReporterName] = useState('');
   const [reporterPhone, setReporterPhone] = useState('');
   const [shareContactWithDepartment, setShareContactWithDepartment] = useState(true);
@@ -117,7 +116,7 @@ const Report = () => {
 
   const isAppreciationFlow = complaintIntent === 'appreciation';
   const STEPS = isAppreciationFlow ? APPRECIATION_STEPS : STANDARD_STEPS;
-  const maxStep = isAppreciationFlow ? 3 : 7;
+  const maxStep = isAppreciationFlow ? 3 : 6;
 
   const canProceed = () => {
     if (isAppreciationFlow) {
@@ -140,7 +139,6 @@ const Report = () => {
       case 4: return true;
       case 5: return title.trim().length > 0 && (description.trim().length > 0 || recording !== null);
       case 6: return true;
-      case 7: return true;
       default: return false;
     }
   };
@@ -185,7 +183,6 @@ const Report = () => {
         reporterName: reporterName.trim() || undefined,
         reporterPhone: reporterPhone.trim() || undefined,
         shareContactWithDepartment,
-        serviceRating: serviceRating > 0 ? serviceRating : undefined,
         responsibleDepartment,
         departmentSelectionSource,
         beneficiary: isOnBehalf ? {
@@ -727,22 +724,8 @@ const Report = () => {
           </div>
         )}
 
-        {/* Standard Flow - Step 6: Rating */}
+        {/* Standard Flow - Step 6: Review & Submit */}
         {!isAppreciationFlow && currentStep === 6 && (
-          <div className="space-y-6">
-            <StarRating
-              rating={serviceRating}
-              onRatingChange={setServiceRating}
-              label="How would you rate the current service in this area? (Optional)"
-            />
-            <p className="text-sm text-muted-foreground">
-              Your rating helps us understand service quality in different areas of Nairobi.
-            </p>
-          </div>
-        )}
-
-        {/* Standard Flow - Step 7: Review & Submit */}
-        {!isAppreciationFlow && currentStep === 7 && (
           <div className="space-y-6">
             <h2 className="text-xl font-bold text-foreground">
               Review your report
