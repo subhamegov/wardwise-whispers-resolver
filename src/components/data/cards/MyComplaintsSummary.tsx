@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { User, AlertCircle, Clock, CheckCircle2, AlertTriangle, ArrowRight, Users, TrendingUp } from 'lucide-react';
+import { User, AlertCircle, Clock, CheckCircle2, AlertTriangle, ArrowRight, Users, TrendingUp, FileText, FolderKanban, MessageSquare, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,21 @@ interface SimilarComplaint {
   topLocations: string[];
   avgResolutionDays: number;
 }
+
+interface DepartmentRating {
+  name: string;
+  rating: number;
+  totalFeedback: number;
+}
+
+// Mock department ratings based on general feedback
+const DEPARTMENT_RATINGS: DepartmentRating[] = [
+  { name: 'Environment', rating: 4.2, totalFeedback: 156 },
+  { name: 'Water and Sewerage', rating: 3.8, totalFeedback: 203 },
+  { name: 'Works', rating: 3.5, totalFeedback: 178 },
+  { name: 'Public Health', rating: 4.0, totalFeedback: 92 },
+  { name: 'Mobility and ICT Infrastructure', rating: 3.9, totalFeedback: 64 },
+];
 
 export function MyComplaintsSummary() {
   const [myTickets, setMyTickets] = useState<Story[]>([]);
@@ -45,11 +60,19 @@ export function MyComplaintsSummary() {
     }
   };
 
-  // Calculate personal stats
+  // Calculate personal stats with breakdown
   const myStats = useMemo(() => {
     const complaints = myTickets.filter(t => t.category === 'complaint');
+    // For now, mock project complaints as complaints without issue category
+    const serviceComplaints = complaints.filter(t => t.issueCategory);
+    const projectComplaints = complaints.filter(t => !t.issueCategory);
+    const feedbacks = myTickets.filter(t => t.category === 'idea' || t.category === 'appreciation');
+    
     return {
-      total: complaints.length,
+      total: myTickets.length,
+      serviceComplaints: serviceComplaints.length,
+      projectComplaints: projectComplaints.length,
+      feedbacks: feedbacks.length,
       new: complaints.filter(t => t.status === 'new').length,
       inProgress: complaints.filter(t => t.status === 'in_progress' || t.status === 'assigned').length,
       resolved: complaints.filter(t => t.status === 'resolved').length,
@@ -138,16 +161,16 @@ export function MyComplaintsSummary() {
 
   return (
     <div className="space-y-6">
-      {/* My Complaints Summary */}
+      {/* My Tickets Summary */}
       <Card className="ncc-card border-primary/20">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <User className="w-5 h-5 text-primary" />
-              <CardTitle className="text-lg">My Complaints Summary</CardTitle>
-              <InfoTooltip definition="Summary of your submitted complaints and their current status across all categories." />
+              <CardTitle className="text-lg">My Tickets Summary</CardTitle>
+              <InfoTooltip definition="Summary of all your submitted tickets including service complaints, project complaints, and general feedback." />
             </div>
-            <Link to="/tickets">
+            <Link to="/my-tickets">
               <Button variant="outline" size="sm" className="gap-2">
                 View All
                 <ArrowRight className="w-4 h-4" />
@@ -155,19 +178,36 @@ export function MyComplaintsSummary() {
             </Link>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+        <CardContent className="space-y-4">
+          {/* Ticket Type Breakdown */}
+          <div className="grid grid-cols-3 gap-3 pb-4 border-b border-border">
             <StatCard 
-              label="Total" 
-              value={myStats.total} 
-              icon={<AlertCircle className="w-4 h-4" />}
-              className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+              label="Service Complaints" 
+              value={myStats.serviceComplaints} 
+              icon={<FileText className="w-4 h-4" />}
+              className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
             />
+            <StatCard 
+              label="Project Complaints" 
+              value={myStats.projectComplaints} 
+              icon={<FolderKanban className="w-4 h-4" />}
+              className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
+            />
+            <StatCard 
+              label="Feedbacks Given" 
+              value={myStats.feedbacks} 
+              icon={<MessageSquare className="w-4 h-4" />}
+              className="bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300"
+            />
+          </div>
+
+          {/* Status Breakdown */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <StatCard 
               label="New" 
               value={myStats.new} 
               icon={<Clock className="w-4 h-4" />}
-              className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+              className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
             />
             <StatCard 
               label="In Progress" 
@@ -193,6 +233,43 @@ export function MyComplaintsSummary() {
               icon={<Clock className="w-4 h-4" />}
               className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
             />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Department Ratings from General Feedback */}
+      <Card className="ncc-card">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <Star className="w-5 h-5 text-secondary" />
+            <CardTitle className="text-lg">Department Ratings</CardTitle>
+            <InfoTooltip definition="Overall citizen feedback ratings for each department based on resolved complaints and general feedback submissions." />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+            {DEPARTMENT_RATINGS.map((dept) => (
+              <div 
+                key={dept.name}
+                className="p-3 rounded-lg border border-border bg-muted/30"
+              >
+                <p className="text-xs font-medium text-muted-foreground mb-1 truncate" title={dept.name}>
+                  {dept.name}
+                </p>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <Star className={cn(
+                      "w-4 h-4",
+                      dept.rating >= 4 ? "text-yellow-500 fill-yellow-500" : 
+                      dept.rating >= 3 ? "text-yellow-500 fill-yellow-500/50" : 
+                      "text-yellow-500"
+                    )} />
+                    <span className="text-lg font-bold text-foreground">{dept.rating.toFixed(1)}</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">({dept.totalFeedback})</span>
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
