@@ -105,7 +105,7 @@ const Index = () => {
             return [
               { icon: MapPin, label: 'Total Complaints', value: stats.totalComplaints.toLocaleString(), color: 'text-primary' },
               { icon: Clock, label: 'Avg Resolution', value: avgTime.avg, unit: 'wks', color: 'text-secondary' },
-              { icon: Shield, label: 'SLA Achievement', value: `${stats.slaAchievementPercent}%`, color: 'text-success' },
+              { icon: Shield, label: 'On-Time Resolution', value: `${stats.slaAchievementPercent}%`, color: 'text-success' },
               { icon: Users, label: 'Completion Rate', value: `${stats.completionRatePercent}%`, color: 'text-accent' },
             ].map((stat, i) => (
               <div key={i} className="ncc-card p-5 flex flex-col items-center justify-center text-center h-[140px]">

@@ -107,7 +107,7 @@ export function TicketDrawer({ ticket, open, onClose, onUpdate }: TicketDrawerPr
           </div>
         </div>
 
-        {/* Location & SLA bar */}
+        {/* Location & Service Time bar */}
         <div className="flex items-center gap-4 text-sm">
           {ticket.wardName && (
             <div className="flex items-center gap-1 text-muted-foreground">
@@ -122,11 +122,11 @@ export function TicketDrawer({ ticket, open, onClose, onUpdate }: TicketDrawerPr
           )}
         </div>
 
-        {/* SLA Progress */}
+        {/* Service Time Progress */}
         {slaProgress !== null && ticket.status !== 'resolved' && (
           <div className="space-y-1">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">SLA Progress</span>
+              <span className="text-muted-foreground">Expected Service Time</span>
               <span className={cn(
                 'font-medium',
                 isOverdue ? 'text-destructive' : 'text-foreground'

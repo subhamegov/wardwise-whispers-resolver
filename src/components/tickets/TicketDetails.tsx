@@ -95,7 +95,7 @@ export function TicketDetails({ ticket, onClose, onUpdate }: TicketDetailsProps)
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {/* SLA Warning */}
+          {/* Overdue Warning */}
           {isOverdue && (
             <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
               <AlertTriangle className="w-5 h-5 text-destructive" />

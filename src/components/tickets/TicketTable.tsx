@@ -97,7 +97,7 @@ export function TicketTable({
                 <SortableHeader field="status">Status</SortableHeader>
               </TableHead>
               <TableHead className="min-w-[130px]">
-                <SortableHeader field="sla">SLA Due</SortableHeader>
+                <SortableHeader field="sla">Expected By</SortableHeader>
               </TableHead>
               <TableHead className="min-w-[140px]">Assigned To</TableHead>
               <TableHead className="min-w-[120px]">
