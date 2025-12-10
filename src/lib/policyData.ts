@@ -21,6 +21,50 @@ The policy aims to reduce plastic waste by 60% within three years of implementat
     documentName: 'Plastic Waste Management Policy Draft 2025',
     documentSize: '2.4 MB',
     publishedDate: '2025-11-15',
+    clauses: [
+      {
+        id: 'clause-1',
+        section: 'Section 1',
+        title: 'Definitions and Scope',
+        content: 'This policy applies to all single-use plastic items including bags, straws, cutlery, and packaging materials used within Nairobi County. "Single-use plastic" refers to any plastic product designed to be used only once before disposal or recycling.'
+      },
+      {
+        id: 'clause-2',
+        section: 'Section 2',
+        title: 'Phased Implementation Timeline',
+        content: 'Phase 1 (January 2026): Ban on plastic bags in all county markets and public facilities. Phase 2 (July 2026): Extension to bus termini and hawker zones. Phase 3 (January 2027): Full ban across all commercial establishments within the county.'
+      },
+      {
+        id: 'clause-3',
+        section: 'Section 3',
+        title: 'Biodegradable Packaging Requirements',
+        content: 'All vendors operating in county markets shall transition to certified biodegradable or compostable packaging. The County shall maintain an approved list of certified suppliers and packaging materials that meet environmental standards.'
+      },
+      {
+        id: 'clause-4',
+        section: 'Section 4',
+        title: 'Recycling Infrastructure',
+        content: 'The County shall establish at least one plastic collection and recycling center in each of the 17 sub-counties within 18 months of policy adoption. These centers shall operate in partnership with licensed private recyclers and community organizations.'
+      },
+      {
+        id: 'clause-5',
+        section: 'Section 5',
+        title: 'Business Transition Incentives',
+        content: 'Small and medium enterprises transitioning to sustainable packaging shall be eligible for: (a) Tax rebates of up to 15% on eco-friendly packaging purchases, (b) Access to low-interest loans through the County Enterprise Fund, (c) Free training on sustainable business practices.'
+      },
+      {
+        id: 'clause-6',
+        section: 'Section 6',
+        title: 'Penalties and Enforcement',
+        content: 'After the transition period, violations shall attract: First offense - Written warning and 7-day compliance notice. Second offense - Fine of KES 10,000 for individuals, KES 50,000 for businesses. Third offense - Fine of KES 50,000 for individuals, KES 200,000 for businesses, potential license suspension.'
+      },
+      {
+        id: 'clause-7',
+        section: 'Section 7',
+        title: 'Green Jobs Initiative',
+        content: 'The County commits to creating 5,000 green jobs through: recycling center employment, eco-packaging manufacturing, waste collection services, and environmental monitoring. Priority shall be given to youth and women groups in these opportunities.'
+      }
+    ],
     comments: [
       {
         id: 'c1',
@@ -106,6 +150,44 @@ Implementation will begin with major termini (Railways, Kencom, Ngong Road) and 
     documentName: 'Matatu Stage Improvement Guidelines',
     documentSize: '1.8 MB',
     publishedDate: '2025-12-01',
+    clauses: [
+      {
+        id: 'trn-clause-1',
+        section: 'Section 1',
+        title: 'Shelter and Seating Requirements',
+        content: 'All designated matatu stages shall have covered shelter structures capable of accommodating at least 50 passengers. Seating shall be provided for a minimum of 20 passengers, with priority seats clearly marked for elderly, pregnant women, and persons with disabilities.'
+      },
+      {
+        id: 'trn-clause-2',
+        section: 'Section 2',
+        title: 'Security and Lighting Standards',
+        content: 'Each stage shall have adequate lighting (minimum 50 lux) operational from 6PM to 6AM. CCTV cameras shall be installed at all major termini covering boarding areas, with footage retained for 30 days. Security personnel presence required at major stages during peak hours.'
+      },
+      {
+        id: 'trn-clause-3',
+        section: 'Section 3',
+        title: 'Traffic Flow and Lane Markings',
+        content: 'Clear lane markings shall designate: (a) Vehicle entry points, (b) Passenger boarding zones, (c) Vehicle exit routes, (d) Pedestrian walkways. No parking or loading shall occur outside designated zones.'
+      },
+      {
+        id: 'trn-clause-4',
+        section: 'Section 4',
+        title: 'Sanitation Facilities',
+        content: 'Public toilet facilities shall be available within 100 meters of all major stages. Facilities shall be gender-segregated, accessible to persons with disabilities, and maintained to hygiene standards set by the County Health Department.'
+      },
+      {
+        id: 'trn-clause-5',
+        section: 'Section 5',
+        title: 'Hawking Zones',
+        content: 'Designated hawking zones shall be established at approved distances from boarding areas to prevent congestion. Registered hawkers shall receive permits and allocated spaces. Vending activities outside designated zones shall attract penalties.'
+      },
+      {
+        id: 'trn-clause-6',
+        section: 'Section 6',
+        title: 'Implementation Timeline',
+        content: 'Phase 1 (0-6 months): Major termini - Railways, Kencom, Ngong Road, Eastleigh. Phase 2 (6-12 months): Secondary stages - Buruburu, Kayole, Rongai, Kitengela. Phase 3 (12-18 months): All remaining designated stages.'
+      }
+    ],
     comments: [
       {
         id: 'c8',
@@ -183,6 +265,44 @@ The framework also establishes an appeals process and anti-corruption measures t
     documentName: 'Affordable Housing Allocation Framework',
     documentSize: '3.1 MB',
     publishedDate: '2025-11-01',
+    clauses: [
+      {
+        id: 'hsg-clause-1',
+        section: 'Section 1',
+        title: 'Eligibility - Residency Requirement',
+        content: 'Applicants must demonstrate continuous residency in Nairobi County for a minimum of five (5) years. Proof includes: utility bills, tenancy agreements, employer letters, chief/ward administrator certificates, or affidavits from two witnesses known to county administration.'
+      },
+      {
+        id: 'hsg-clause-2',
+        section: 'Section 2',
+        title: 'Eligibility - Income Threshold',
+        content: 'Household gross income shall not exceed KES 100,000 per month. Verification through: payslips, bank statements, tax returns, or sworn income declaration for informal sector workers. Joint applications shall combine both incomes.'
+      },
+      {
+        id: 'hsg-clause-3',
+        section: 'Section 3',
+        title: 'Priority Categories',
+        content: 'Priority allocation (additional points): (a) First-time homebuyers - 20 points, (b) Persons with disabilities - 15 points, (c) Single parents with dependents - 10 points, (d) Elderly citizens (65+) - 10 points, (e) Essential workers (health, education, security) - 5 points.'
+      },
+      {
+        id: 'hsg-clause-4',
+        section: 'Section 4',
+        title: 'Points-Based Allocation System',
+        content: 'Applicants scored on: years of residency (max 25 points), household size (max 20 points), current housing conditions (max 20 points), priority category bonuses (max 30 points), employment stability (max 5 points). Minimum qualifying score: 50 points.'
+      },
+      {
+        id: 'hsg-clause-5',
+        section: 'Section 5',
+        title: 'Appeals Process',
+        content: 'Unsuccessful applicants may appeal within 30 days of notification. Appeals reviewed by independent Housing Appeals Tribunal comprising: one county official, one civil society representative, and one community representative. Decisions final and binding.'
+      },
+      {
+        id: 'hsg-clause-6',
+        section: 'Section 6',
+        title: 'Anti-Corruption Measures',
+        content: 'All applications processed through transparent digital system with audit trail. Allocation lists published publicly before unit handover. Whistleblower hotline established. Officials found guilty of corruption face dismissal and prosecution. Beneficiaries who obtained units fraudulently forfeit units and face prosecution.'
+      }
+    ],
     comments: [
       {
         id: 'c14',
@@ -276,6 +396,38 @@ The review responds to feedback from CHWs about inadequate compensation relative
     documentName: 'CHW Stipend Review 2025',
     documentSize: '1.2 MB',
     publishedDate: '2025-10-15',
+    clauses: [
+      {
+        id: 'hlt-clause-1',
+        section: 'Section 1',
+        title: 'Base Stipend Increase',
+        content: 'The monthly base stipend for registered Community Health Workers shall be increased from KES 2,500 to KES 5,000, effective from the first month following policy adoption. Payment shall be made through mobile money or bank transfer by the 5th of each month.'
+      },
+      {
+        id: 'hlt-clause-2',
+        section: 'Section 2',
+        title: 'Performance Bonuses',
+        content: 'CHWs meeting quarterly targets shall receive bonuses: (a) Immunization coverage above 90% - KES 2,000 bonus, (b) Successful referrals leading to treatment - KES 500 per case, (c) Community health education sessions - KES 300 per session (max 10/month).'
+      },
+      {
+        id: 'hlt-clause-3',
+        section: 'Section 3',
+        title: 'Medical Insurance Coverage',
+        content: 'All registered CHWs shall be enrolled in NHIF or equivalent medical insurance scheme. Premium payments covered by the County. Coverage extends to CHW only; dependents may be added at CHW cost. Enrollment within 60 days of registration.'
+      },
+      {
+        id: 'hlt-clause-4',
+        section: 'Section 4',
+        title: 'Training and Certification',
+        content: 'The County shall provide: (a) Initial 2-week certification training for new CHWs, (b) Quarterly refresher trainings, (c) Specialized modules (maternal health, TB, HIV, nutrition), (d) Certificate recognized for healthcare employment pathways.'
+      },
+      {
+        id: 'hlt-clause-5',
+        section: 'Section 5',
+        title: 'Equipment and Supplies',
+        content: 'Each CHW shall receive: branded uniform and ID badge, basic medical kit (thermometer, blood pressure monitor, first aid supplies), reporting forms and registers, mobile phone with data bundle for reporting, and bicycle or transport allowance for rural areas.'
+      }
+    ],
     comments: [
       {
         id: 'c22',
