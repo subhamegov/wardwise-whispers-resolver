@@ -106,7 +106,7 @@ export function StatusByBoundaryTable() {
               <StaticHeader label="Closed" definition={KPI_DEFINITIONS.closedComplaints} />
               <ColumnHeader field="total" label="Total" definition={KPI_DEFINITIONS.totalComplaints} />
               <ColumnHeader field="completionRate" label="Completion %" definition={KPI_DEFINITIONS.completionRate} />
-              <ColumnHeader field="slaAchievement" label="SLA %" definition={KPI_DEFINITIONS.slaAchievement} />
+              <ColumnHeader field="slaAchievement" label="On-Time %" definition={KPI_DEFINITIONS.slaAchievement} />
             </TableRow>
           </TableHeader>
           <TableBody>

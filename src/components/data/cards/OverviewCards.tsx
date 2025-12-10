@@ -28,7 +28,7 @@ export function OverviewCards({ timeRange, subCounty }: OverviewCardsProps) {
       trendUp: true,
     },
     {
-      label: 'SLA Achievement',
+      label: 'On-Time Resolution',
       value: `${stats.slaAchievementPercent}%`,
       definition: KPI_DEFINITIONS.slaAchievement,
       trend: '-2.1%',

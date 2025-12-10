@@ -66,7 +66,7 @@ export interface StatusByBoundary {
 export const KPI_DEFINITIONS = {
   totalComplaints: "Unique number of complaints raised by citizen or employee. Total = Open + Assigned + Resolved + Closed + Reopened + Reassigned + Rejected.",
   closedComplaints: "Total number of complaints successfully resolved by the concerned authorities.",
-  slaAchievement: "Percentage of complaints resolved within SLA. Formula: (# complaints resolved within SLA / Total Complaints) × 100.",
+  slaAchievement: "Percentage of complaints resolved within expected service time. Formula: (# complaints resolved within expected service time / Total Complaints) × 100.",
   completionRate: "Closed Complaints / Total Complaints. Formula: (Closed Complaints / Total Complaints) × 100.",
   reopenedComplaints: "Number of complaints reopened by the citizen (directly or via counter employee) due to unsuccessful resolution earlier.",
   openComplaints: "Number of complaints that have been filed by citizens and await further action (assignment).",

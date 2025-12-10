@@ -239,7 +239,7 @@ export const mockTrainingModules: TrainingModule[] = [
         id: 'faq_1_6',
         category: 'Escalations & Reopening',
         question: 'How long does it take to resolve a complaint?',
-        answer: 'Resolution times vary by category. Most complaints have a Service Level Agreement (SLA) of 3-7 working days. You can see the SLA countdown on your ticket. If the SLA expires, you can escalate the complaint.',
+        answer: 'Resolution times vary by category. Most complaints have an expected service time of 3-7 working days. You can see the countdown on your ticket. If the expected service time expires, you can escalate the complaint.',
         isNew: true,
       },
     ],
@@ -325,7 +325,7 @@ export const mockTrainingModules: TrainingModule[] = [
         id: 'faq_2_2',
         category: 'Receiving Complaints',
         question: 'What information do I see for each complaint?',
-        answer: 'You can view: citizen contact info (if provided), exact location on map, photos/attachments, description, category, priority level, SLA deadline, and any previous remarks or updates.',
+        answer: 'You can view: citizen contact info (if provided), exact location on map, photos/attachments, description, category, priority level, expected service time, and any previous remarks or updates.',
         isNew: true,
       },
       {
@@ -387,7 +387,7 @@ export const mockTrainingModules: TrainingModule[] = [
       },
       {
         id: 'dl_2_2',
-        name: 'SLA Guidelines by Category',
+        name: 'Expected Service Time Guidelines by Category',
         type: 'PDF',
         size: '680 KB',
         url: '#',
@@ -437,7 +437,7 @@ export const mockTrainingModules: TrainingModule[] = [
         id: 'faq_3_1',
         category: 'Overview',
         question: 'What does the dashboard show?',
-        answer: 'The dashboard displays key performance indicators: total complaints, resolution rates, SLA achievement, complaints by category/department/channel, average resolution time, and trend charts over time.',
+        answer: 'The dashboard displays key performance indicators: total complaints, resolution rates, on-time resolution, complaints by category/department/channel, average resolution time, and trend charts over time.',
       },
       {
         id: 'faq_3_2',
@@ -461,8 +461,8 @@ export const mockTrainingModules: TrainingModule[] = [
       {
         id: 'faq_3_5',
         category: 'Understanding Charts',
-        question: 'What does the SLA Achievement percentage mean?',
-        answer: 'SLA Achievement shows the percentage of complaints resolved within their target timeframe. A higher percentage indicates better service delivery. The county target is 85%.',
+        question: 'What does the On-Time Resolution percentage mean?',
+        answer: 'On-Time Resolution shows the percentage of complaints resolved within their expected service time. A higher percentage indicates better service delivery. The county target is 85%.',
       },
     ],
     videos: [
@@ -500,10 +500,10 @@ export const mockTrainingModules: TrainingModule[] = [
     quiz: [
       {
         id: 'q3_1',
-        question: 'What does SLA Achievement percentage measure?',
-        options: ['Customer satisfaction', 'Complaints resolved within target time', 'Number of staff', 'Budget spent'],
+        question: 'What does On-Time Resolution percentage measure?',
+        options: ['Customer satisfaction', 'Complaints resolved within expected service time', 'Number of staff', 'Budget spent'],
         correctIndex: 1,
-        explanation: 'SLA Achievement shows the percentage of complaints resolved within their target timeframe.',
+        explanation: 'On-Time Resolution shows the percentage of complaints resolved within their expected service time.',
       },
       {
         id: 'q3_2',
@@ -514,10 +514,10 @@ export const mockTrainingModules: TrainingModule[] = [
       },
       {
         id: 'q3_3',
-        question: 'What is the county SLA target?',
+        question: 'What is the county on-time resolution target?',
         options: ['50%', '70%', '85%', '100%'],
         correctIndex: 2,
-        explanation: 'The county target is 85% SLA achievement.',
+        explanation: 'The county target is 85% on-time resolution.',
       },
     ],
     passingScore: 70,

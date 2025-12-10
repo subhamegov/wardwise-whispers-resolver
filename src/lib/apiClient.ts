@@ -152,7 +152,7 @@ let stories: Story[] = [
     history: [
       { id: 'h1', performedBy: 'Michael Otieno', performedByRole: 'citizen', action: 'CREATE', timestamp: '2025-06-01T06:00:00.000Z' },
       { id: 'h2', performedBy: 'System', performedByRole: 'system', action: 'ASSIGN', timestamp: '2025-06-01T08:00:00.000Z' },
-      { id: 'h3', performedBy: 'Michael Otieno', performedByRole: 'citizen', action: 'ESCALATE', timestamp: '2025-06-02T10:00:00.000Z', note: 'SLA breached, escalated by citizen' },
+      { id: 'h3', performedBy: 'Michael Otieno', performedByRole: 'citizen', action: 'ESCALATE', timestamp: '2025-06-02T10:00:00.000Z', note: 'Expected service time exceeded, escalated by citizen' },
     ],
     remarks: [
       { id: 'r1', by: 'David Kamau', byRole: 'officer', text: 'Main pipeline burst detected. Emergency repair team deployed.', timestamp: '2025-06-02T12:00:00.000Z' },
