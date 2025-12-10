@@ -104,14 +104,17 @@ const Index = () => {
             const avgTime = getAverageSolutionTime();
             return [
               { icon: MapPin, label: 'Total Complaints', value: stats.totalComplaints.toLocaleString(), color: 'text-primary' },
-              { icon: Clock, label: 'Avg Resolution', value: `${avgTime.avg} wks`, color: 'text-secondary' },
+              { icon: Clock, label: 'Avg Resolution', value: avgTime.avg, unit: 'wks', color: 'text-secondary' },
               { icon: Shield, label: 'SLA Achievement', value: `${stats.slaAchievementPercent}%`, color: 'text-success' },
               { icon: Users, label: 'Completion Rate', value: `${stats.completionRatePercent}%`, color: 'text-accent' },
             ].map((stat, i) => (
-              <div key={i} className="ncc-card p-4 md:p-6 flex flex-col items-center justify-center min-h-[120px]">
-                <stat.icon className={`w-8 h-8 mb-2 ${stat.color}`} />
-                <p className="text-2xl md:text-3xl font-bold text-foreground leading-none">{stat.value}</p>
-                <p className="text-sm text-muted-foreground mt-1 text-center">{stat.label}</p>
+              <div key={i} className="ncc-card p-5 flex flex-col items-center justify-center text-center h-[140px]">
+                <stat.icon className={`w-7 h-7 mb-3 ${stat.color}`} />
+                <div className="flex items-baseline gap-1 justify-center">
+                  <span className="text-2xl font-bold text-foreground">{stat.value}</span>
+                  {'unit' in stat && stat.unit && <span className="text-base font-medium text-muted-foreground">{stat.unit}</span>}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2 leading-tight whitespace-nowrap">{stat.label}</p>
               </div>
             ));
           })()}
