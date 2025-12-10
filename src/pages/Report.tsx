@@ -180,6 +180,9 @@ const Report = () => {
           <LocationStep 
             location={locationData}
             onLocationChange={setLocationData}
+            intent={complaintIntent}
+            linkedProject={linkedProject}
+            onLinkedProjectChange={setLinkedProject}
           />
         )}
 

@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { MapPin, Mic, MicOff, Navigation, ChevronDown } from 'lucide-react';
+import { MapPin, Mic, MicOff, Navigation, ChevronDown, HardHat, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { NAIROBI_SUBCOUNTIES, getWardsBySubCounty, getZonesByWard, reverseGeocodeToWard, Ward, Zone } from '@/lib/nairobiAdminData';
+import { Badge } from '@/components/ui/badge';
+import { ComplaintIntent, LinkedProject } from './ComplaintIntentStep';
 import 'leaflet/dist/leaflet.css';
 
 // Custom marker icon
@@ -34,7 +36,42 @@ export interface LocationData {
 interface LocationStepProps {
   location: LocationData;
   onLocationChange: (location: LocationData) => void;
+  intent?: ComplaintIntent | null;
+  linkedProject?: LinkedProject | null;
+  onLinkedProjectChange?: (project: LinkedProject | null) => void;
 }
+
+// Mock projects for demonstration
+const MOCK_PROJECTS: LinkedProject[] = [
+  {
+    id: 'PRJ-001',
+    title: 'Transformer Upgrade – Kilimani Ward',
+    category: 'Power',
+    status: 'Ongoing',
+    agency: 'Kenya Power'
+  },
+  {
+    id: 'PRJ-002',
+    title: 'Drainage Rehabilitation – Westlands',
+    category: 'Water & Sanitation',
+    status: 'Completed',
+    agency: 'Nairobi County Works Dept.'
+  },
+  {
+    id: 'PRJ-003',
+    title: 'Road Resurfacing – Ngong Road',
+    category: 'Roads & Infrastructure',
+    status: 'Ongoing',
+    agency: 'KURA'
+  },
+  {
+    id: 'PRJ-004',
+    title: 'Street Lighting Installation – CBD',
+    category: 'Power',
+    status: 'Planned',
+    agency: 'Nairobi County Lighting Dept.'
+  }
+];
 
 // Map click handler component
 function MapClickHandler({ 
@@ -91,7 +128,7 @@ function UseMyLocationButton({
   );
 }
 
-export function LocationStep({ location, onLocationChange }: LocationStepProps) {
+export function LocationStep({ location, onLocationChange, intent, linkedProject, onLinkedProjectChange }: LocationStepProps) {
   const [isVoiceRecording, setIsVoiceRecording] = useState(false);
   const [voiceTranscript, setVoiceTranscript] = useState('');
   const [voiceError, setVoiceError] = useState<string | null>(null);
@@ -500,6 +537,117 @@ export function LocationStep({ location, onLocationChange }: LocationStepProps) 
               <p>📝 {location.description}</p>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Project Selection (only when intent is 'project' and location is selected) */}
+      {intent === 'project' && 
+       onLinkedProjectChange && 
+       (location.coordinates || (location.admin.subCounty && location.admin.wardCode)) && (
+        <ProjectSelection 
+          linkedProject={linkedProject || null}
+          onLinkedProjectChange={onLinkedProjectChange}
+          wardName={location.admin.ward}
+        />
+      )}
+    </div>
+  );
+}
+
+// Project Selection Component
+function ProjectSelection({ 
+  linkedProject, 
+  onLinkedProjectChange,
+  wardName 
+}: { 
+  linkedProject: LinkedProject | null;
+  onLinkedProjectChange: (project: LinkedProject | null) => void;
+  wardName: string;
+}) {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Planned': return 'bg-muted text-muted-foreground';
+      case 'Ongoing': return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400';
+      case 'Completed': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+      default: return 'bg-muted text-muted-foreground';
+    }
+  };
+
+  return (
+    <div className="border-t border-border pt-6 space-y-4">
+      <div>
+        <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+          <HardHat className="w-5 h-5 text-primary" />
+          Link to a project near {wardName || 'your location'}
+        </h3>
+        <p className="text-sm text-muted-foreground mt-1">
+          Select a project to share your feedback about, or skip this step.
+        </p>
+      </div>
+
+      {MOCK_PROJECTS.length > 0 ? (
+        <div className="space-y-3">
+          <div className="grid gap-3 max-h-[280px] overflow-y-auto pr-1">
+            {MOCK_PROJECTS.map((project) => (
+              <button
+                key={project.id}
+                onClick={() => onLinkedProjectChange(
+                  linkedProject?.id === project.id ? null : project
+                )}
+                className={cn(
+                  'w-full text-left p-4 rounded-lg border-2 transition-all',
+                  'focus:outline-none focus:ring-2 focus:ring-primary',
+                  linkedProject?.id === project.id
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border bg-card hover:border-primary/40'
+                )}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="font-medium text-foreground">
+                        {project.title}
+                      </h4>
+                      <Badge className={cn('text-xs', getStatusColor(project.status))}>
+                        {project.status}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+                      <span>{project.category}</span>
+                      <span>•</span>
+                      <span>{project.agency}</span>
+                    </div>
+                  </div>
+                  {linkedProject?.id === project.id && (
+                    <Check className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Skip option */}
+          <button
+            onClick={() => onLinkedProjectChange(null)}
+            className={cn(
+              "w-full text-center text-sm py-3 rounded-lg border-2 transition-all",
+              !linkedProject 
+                ? "border-primary bg-primary/5 text-foreground font-medium"
+                : "border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
+            )}
+          >
+            {linkedProject ? "Continue without selecting a project" : "No project selected (general feedback)"}
+          </button>
+        </div>
+      ) : (
+        <div className="text-center py-8 bg-muted/30 rounded-xl">
+          <HardHat className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+          <p className="text-muted-foreground">
+            No active projects found near your selected area.
+          </p>
+          <p className="text-sm text-muted-foreground mt-2">
+            You can still share general project feedback.
+          </p>
         </div>
       )}
     </div>

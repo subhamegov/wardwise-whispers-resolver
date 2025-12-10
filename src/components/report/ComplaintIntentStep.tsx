@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { FileText, HardHat, MessageSquare, Mic, MicOff, ToggleLeft, ToggleRight, Check } from 'lucide-react';
+import { Mic, MicOff, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
 
 export type ComplaintIntent = 'service' | 'project' | 'feedback';
 
@@ -21,59 +20,27 @@ interface ComplaintIntentStepProps {
   wardCode?: string;
 }
 
-// Mock projects for demonstration
-const MOCK_PROJECTS: LinkedProject[] = [
-  {
-    id: 'PRJ-001',
-    title: 'Transformer Upgrade – Kilimani Ward',
-    category: 'Power',
-    status: 'Ongoing',
-    agency: 'Kenya Power'
-  },
-  {
-    id: 'PRJ-002',
-    title: 'Drainage Rehabilitation – Westlands',
-    category: 'Water & Sanitation',
-    status: 'Completed',
-    agency: 'Nairobi County Works Dept.'
-  },
-  {
-    id: 'PRJ-003',
-    title: 'Road Resurfacing – Ngong Road',
-    category: 'Roads & Infrastructure',
-    status: 'Ongoing',
-    agency: 'KURA'
-  },
-  {
-    id: 'PRJ-004',
-    title: 'Street Lighting Installation – CBD',
-    category: 'Power',
-    status: 'Planned',
-    agency: 'Nairobi County Lighting Dept.'
-  }
-];
-
 const INTENT_OPTIONS = [
   {
     id: 'service' as ComplaintIntent,
     icon: '🧾',
-    title: 'Complain about a Service',
-    description: 'Report an issue with water, waste, street lighting, traffic, or other county services.',
-    examples: 'e.g., "Garbage not collected for a week", "Streetlight not working"'
+    title: 'Report a Service Issue',
+    description: 'Help us fix problems with water, waste, street lighting, traffic, or other county services.',
+    examples: 'e.g., "Garbage not collected", "Streetlight not working"'
   },
   {
     id: 'project' as ComplaintIntent,
     icon: '🚧',
-    title: 'Complain about a Project',
-    description: 'Share feedback or problems related to an ongoing or completed county project.',
-    examples: 'e.g., "Construction blocking my driveway", "Project delayed for months"'
+    title: 'Share Project Feedback',
+    description: 'Share your experience or feedback about an ongoing or completed county project.',
+    examples: 'e.g., "Construction update needed", "Great progress on road works"'
   },
   {
     id: 'feedback' as ComplaintIntent,
     icon: '💬',
-    title: 'Provide General Feedback',
-    description: 'Share a suggestion, appreciation, or general comment to help improve services.',
-    examples: 'e.g., "Great job on the new park!", "Suggestion for better waste bins"'
+    title: 'Give Us a Suggestion',
+    description: 'Share ideas, appreciation, or general comments to help improve our community.',
+    examples: 'e.g., "Great job on the new park!", "Idea for better waste bins"'
   }
 ];
 
@@ -84,7 +51,6 @@ export const ComplaintIntentStep: React.FC<ComplaintIntentStepProps> = ({
   onLinkedProjectChange,
   wardCode
 }) => {
-  const [showProjects, setShowProjects] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [voiceTranscript, setVoiceTranscript] = useState('');
 
@@ -110,8 +76,7 @@ export const ComplaintIntentStep: React.FC<ComplaintIntentStepProps> = ({
       // Auto-detect intent from voice
       if (transcript.includes('project') || transcript.includes('construction') || transcript.includes('building')) {
         onIntentChange('project');
-        setShowProjects(true);
-      } else if (transcript.includes('feedback') || transcript.includes('suggestion') || transcript.includes('appreciation') || transcript.includes('thank')) {
+      } else if (transcript.includes('feedback') || transcript.includes('suggestion') || transcript.includes('appreciation') || transcript.includes('thank') || transcript.includes('idea')) {
         onIntentChange('feedback');
       } else {
         // Default to service complaint
@@ -121,15 +86,6 @@ export const ComplaintIntentStep: React.FC<ComplaintIntentStepProps> = ({
 
     recognition.onerror = () => setIsListening(false);
     recognition.start();
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Planned': return 'bg-muted text-muted-foreground';
-      case 'Ongoing': return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400';
-      case 'Completed': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
-      default: return 'bg-muted text-muted-foreground';
-    }
   };
 
   return (
@@ -186,10 +142,8 @@ export const ComplaintIntentStep: React.FC<ComplaintIntentStepProps> = ({
             key={option.id}
             onClick={() => {
               onIntentChange(option.id);
-              if (option.id === 'project') {
-                setShowProjects(true);
-              } else {
-                setShowProjects(false);
+              // Clear linked project when changing intent
+              if (option.id !== 'project') {
                 onLinkedProjectChange(null);
               }
             }}
@@ -226,105 +180,13 @@ export const ComplaintIntentStep: React.FC<ComplaintIntentStepProps> = ({
         ))}
       </div>
 
-      {/* Project Selection (when "Project" intent is selected) */}
+      {/* Info message for project intent */}
       {intent === 'project' && (
-        <div className="border-t border-border pt-6 space-y-4">
-          {/* Toggle */}
-          <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
-            <div>
-              <p className="font-medium text-foreground">Show nearby projects</p>
-              <p className="text-sm text-muted-foreground">
-                View ongoing projects near your location
-              </p>
-            </div>
-            <button
-              onClick={() => setShowProjects(!showProjects)}
-              className="text-primary"
-              aria-label={showProjects ? 'Hide projects' : 'Show projects'}
-              aria-pressed={showProjects}
-            >
-              {showProjects ? (
-                <ToggleRight className="w-10 h-10" />
-              ) : (
-                <ToggleLeft className="w-10 h-10 text-muted-foreground" />
-              )}
-            </button>
-          </div>
-
-          {/* Project List */}
-          {showProjects && (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                Select a project to link your complaint:
-              </p>
-
-              {MOCK_PROJECTS.length > 0 ? (
-                <div className="grid gap-3 max-h-[300px] overflow-y-auto pr-1">
-                  {MOCK_PROJECTS.map((project) => (
-                    <button
-                      key={project.id}
-                      onClick={() => onLinkedProjectChange(
-                        linkedProject?.id === project.id ? null : project
-                      )}
-                      className={cn(
-                        'w-full text-left p-4 rounded-lg border-2 transition-all',
-                        'focus:outline-none focus:ring-2 focus:ring-primary',
-                        linkedProject?.id === project.id
-                          ? 'border-primary bg-primary/5'
-                          : 'border-border bg-card hover:border-primary/40'
-                      )}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="font-medium text-foreground">
-                              {project.title}
-                            </h4>
-                            <Badge className={cn('text-xs', getStatusColor(project.status))}>
-                              {project.status}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
-                            <span>{project.category}</span>
-                            <span>•</span>
-                            <span>{project.agency}</span>
-                          </div>
-                        </div>
-                        {linkedProject?.id === project.id && (
-                          <Check className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 bg-muted/30 rounded-xl">
-                  <HardHat className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground">
-                    No active projects found near your selected area.
-                  </p>
-                  <button
-                    onClick={() => {
-                      onLinkedProjectChange(null);
-                    }}
-                    className="text-primary font-medium mt-3 hover:underline"
-                  >
-                    Continue without linking a project
-                  </button>
-                </div>
-              )}
-
-              {/* Skip option */}
-              {MOCK_PROJECTS.length > 0 && (
-                <button
-                  onClick={() => onLinkedProjectChange(null)}
-                  className="w-full text-center text-sm text-muted-foreground hover:text-foreground py-2"
-                >
-                  Continue without selecting a project
-                </button>
-              )}
-            </div>
-          )}
+        <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
+          <p className="text-sm text-foreground">
+            <strong>Next step:</strong> You'll select the location, and then we'll show you 
+            nearby projects to link your feedback to.
+          </p>
         </div>
       )}
 
@@ -332,7 +194,7 @@ export const ComplaintIntentStep: React.FC<ComplaintIntentStepProps> = ({
       {intent === 'feedback' && (
         <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
           <p className="text-sm text-foreground">
-            <strong>Great!</strong> On the next screen, you'll be able to share your suggestion, 
+            <strong>Great!</strong> On the next screens, you'll be able to share your suggestion, 
             appreciation, or general comment. Your feedback helps us improve services for everyone.
           </p>
         </div>
