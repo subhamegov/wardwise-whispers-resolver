@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { MapPin, Menu, X, Home, Ticket, Phone, Mail, Globe, ClipboardList, FileText, BarChart3, GraduationCap } from 'lucide-react';
+import { MapPin, Menu, X, Home, Ticket, Phone, Mail, Globe, ClipboardList, FileText, BarChart3, GraduationCap, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import kenyaCoatOfArms from '@/assets/kenya-coat-of-arms.png';
 
@@ -10,6 +10,7 @@ interface AppLayoutProps {
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home, description: 'Discover what is happening' },
+  { name: 'About My City', href: '/about-my-city', icon: Building, description: 'City info, events & FAQs' },
   { name: 'Report Issue', href: '/report', icon: MapPin, description: 'Report an issue' },
   { name: 'Active Surveys', href: '/surveys', icon: ClipboardList, description: 'Participate in surveys' },
   { name: 'Policy Feedback', href: '/policy', icon: FileText, description: 'Share views on policies' },
