@@ -24,6 +24,14 @@ export interface TrainingDownload {
   url: string;
 }
 
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation?: string;
+}
+
 export interface TrainingModule {
   id: string;
   title: string;
@@ -34,6 +42,8 @@ export interface TrainingModule {
   faqs: TrainingFAQ[];
   videos: TrainingVideo[];
   downloads: TrainingDownload[];
+  quiz: QuizQuestion[];
+  passingScore: number; // percentage required to pass (e.g., 70)
 }
 
 export type ModuleStatus = 'not_started' | 'in_progress' | 'completed';
@@ -41,31 +51,47 @@ export type ModuleStatus = 'not_started' | 'in_progress' | 'completed';
 // Storage keys
 const PROGRESS_KEY = 'ncc_training_progress';
 
+export interface QuizAttempt {
+  answers: Record<string, number>; // questionId -> selectedIndex
+  score: number;
+  passed: boolean;
+  attemptedAt: string;
+}
+
 export interface ModuleProgress {
   status: ModuleStatus;
   faqsViewed: string[];
   videosWatched: string[];
   downloadsClicked: string[];
+  quizAttempts: QuizAttempt[];
 }
+
+const DEFAULT_PROGRESS: ModuleProgress = {
+  status: 'not_started',
+  faqsViewed: [],
+  videosWatched: [],
+  downloadsClicked: [],
+  quizAttempts: [],
+};
 
 export function getModuleProgress(moduleId: string): ModuleProgress {
   const stored = localStorage.getItem(PROGRESS_KEY);
-  if (!stored) return { status: 'not_started', faqsViewed: [], videosWatched: [], downloadsClicked: [] };
+  if (!stored) return { ...DEFAULT_PROGRESS };
   
   const progress = JSON.parse(stored);
-  return progress[moduleId] || { status: 'not_started', faqsViewed: [], videosWatched: [], downloadsClicked: [] };
+  return progress[moduleId] ? { ...DEFAULT_PROGRESS, ...progress[moduleId] } : { ...DEFAULT_PROGRESS };
 }
 
 export function updateModuleProgress(moduleId: string, update: Partial<ModuleProgress>): ModuleProgress {
   const stored = localStorage.getItem(PROGRESS_KEY);
   const progress = stored ? JSON.parse(stored) : {};
   
-  const current = progress[moduleId] || { status: 'not_started', faqsViewed: [], videosWatched: [], downloadsClicked: [] };
+  const current = progress[moduleId] ? { ...DEFAULT_PROGRESS, ...progress[moduleId] } : { ...DEFAULT_PROGRESS };
   const updated = { ...current, ...update };
   
   // Auto-set to in_progress if any interaction
   if (updated.status === 'not_started' && 
-      (updated.faqsViewed.length > 0 || updated.videosWatched.length > 0 || updated.downloadsClicked.length > 0)) {
+      (updated.faqsViewed.length > 0 || updated.videosWatched.length > 0 || updated.downloadsClicked.length > 0 || updated.quizAttempts.length > 0)) {
     updated.status = 'in_progress';
   }
   
@@ -73,6 +99,44 @@ export function updateModuleProgress(moduleId: string, update: Partial<ModulePro
   localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
   
   return updated;
+}
+
+export function submitQuizAttempt(moduleId: string, answers: Record<string, number>, module: TrainingModule): { progress: ModuleProgress; score: number; passed: boolean } {
+  const current = getModuleProgress(moduleId);
+  
+  // Calculate score
+  let correct = 0;
+  module.quiz.forEach((q) => {
+    if (answers[q.id] === q.correctIndex) {
+      correct++;
+    }
+  });
+  
+  const score = Math.round((correct / module.quiz.length) * 100);
+  const passed = score >= module.passingScore;
+  
+  const attempt: QuizAttempt = {
+    answers,
+    score,
+    passed,
+    attemptedAt: new Date().toISOString(),
+  };
+  
+  const updated = updateModuleProgress(moduleId, {
+    quizAttempts: [...current.quizAttempts, attempt],
+  });
+  
+  return { progress: updated, score, passed };
+}
+
+export function hasPassedQuiz(moduleId: string): boolean {
+  const progress = getModuleProgress(moduleId);
+  return progress.quizAttempts.some((a) => a.passed);
+}
+
+export function getLastQuizAttempt(moduleId: string): QuizAttempt | null {
+  const progress = getModuleProgress(moduleId);
+  return progress.quizAttempts.length > 0 ? progress.quizAttempts[progress.quizAttempts.length - 1] : null;
 }
 
 export function markFaqViewed(moduleId: string, faqId: string): ModuleProgress {
@@ -218,6 +282,30 @@ export const mockTrainingModules: TrainingModule[] = [
         url: '#',
       },
     ],
+    quiz: [
+      {
+        id: 'q1_1',
+        question: 'What is the first step to report an issue?',
+        options: ['Call the county office', 'Select your location on the map', 'Create an account', 'Pay a fee'],
+        correctIndex: 1,
+        explanation: 'You start by selecting your location on the map or using dropdown menus.',
+      },
+      {
+        id: 'q1_2',
+        question: 'What format does the ticket ID follow?',
+        options: ['NRB-YYYY-XXXXXX', 'TICKET-12345', 'COMPLAINT/2024/001', 'ID-NAIROBI-01'],
+        correctIndex: 0,
+        explanation: 'Ticket IDs follow the format NRB-YYYY-XXXXXX.',
+      },
+      {
+        id: 'q1_3',
+        question: 'What color indicates a complaint is "In Progress"?',
+        options: ['Blue', 'Green', 'Orange', 'Red'],
+        correctIndex: 2,
+        explanation: 'Orange indicates the complaint is being worked on.',
+      },
+    ],
+    passingScore: 70,
   },
   {
     id: 'module_staff_complaints',
@@ -312,6 +400,30 @@ export const mockTrainingModules: TrainingModule[] = [
         url: '#',
       },
     ],
+    quiz: [
+      {
+        id: 'q2_1',
+        question: 'How are complaints assigned to county officers?',
+        options: ['Random selection', 'Based on category and ward automatically', 'Citizens choose the officer', 'First-come-first-served'],
+        correctIndex: 1,
+        explanation: 'Complaints are automatically routed based on category and ward.',
+      },
+      {
+        id: 'q2_2',
+        question: 'What happens when you mark a complaint as resolved?',
+        options: ['It is deleted', 'The citizen receives a notification', 'Nothing happens', 'The supervisor is notified'],
+        correctIndex: 1,
+        explanation: 'Citizens receive notifications and can rate their satisfaction.',
+      },
+      {
+        id: 'q2_3',
+        question: 'How quickly should escalated complaints be addressed?',
+        options: ['Within 1 week', 'Within 24 hours', 'Within 1 month', 'No deadline'],
+        correctIndex: 1,
+        explanation: 'Escalated complaints require priority attention within 24 hours.',
+      },
+    ],
+    passingScore: 70,
   },
   {
     id: 'module_dashboards',
@@ -385,6 +497,30 @@ export const mockTrainingModules: TrainingModule[] = [
         url: '#',
       },
     ],
+    quiz: [
+      {
+        id: 'q3_1',
+        question: 'What does SLA Achievement percentage measure?',
+        options: ['Customer satisfaction', 'Complaints resolved within target time', 'Number of staff', 'Budget spent'],
+        correctIndex: 1,
+        explanation: 'SLA Achievement shows the percentage of complaints resolved within their target timeframe.',
+      },
+      {
+        id: 'q3_2',
+        question: 'How often is dashboard data updated?',
+        options: ['Weekly', 'Monthly', 'Real-time', 'Annually'],
+        correctIndex: 2,
+        explanation: 'Dashboard data is updated in real-time as complaints are submitted and resolved.',
+      },
+      {
+        id: 'q3_3',
+        question: 'What is the county SLA target?',
+        options: ['50%', '70%', '85%', '100%'],
+        correctIndex: 2,
+        explanation: 'The county target is 85% SLA achievement.',
+      },
+    ],
+    passingScore: 70,
   },
   {
     id: 'module_policy_feedback',
@@ -452,6 +588,23 @@ export const mockTrainingModules: TrainingModule[] = [
         url: '#',
       },
     ],
+    quiz: [
+      {
+        id: 'q4_1',
+        question: 'Where can you find policies open for feedback?',
+        options: ['My Tickets', 'Policy Feedback menu', 'Report Issue', 'Data dashboard'],
+        correctIndex: 1,
+        explanation: 'Go to "Policy Feedback" from the main menu to see policies under consultation.',
+      },
+      {
+        id: 'q4_2',
+        question: 'Can you comment on specific sections of a policy?',
+        options: ['No, only general comments', 'Yes, by selecting the clause', 'Only staff can do this', 'Only in Kiswahili'],
+        correctIndex: 1,
+        explanation: 'You can select which clause or section your comment relates to.',
+      },
+    ],
+    passingScore: 70,
   },
   {
     id: 'module_accessibility',
@@ -518,6 +671,23 @@ export const mockTrainingModules: TrainingModule[] = [
         url: '#',
       },
     ],
+    quiz: [
+      {
+        id: 'q5_1',
+        question: 'How do you use voice to report issues?',
+        options: ['Call a number', 'Click the microphone icon', 'Type your message', 'Send an email'],
+        correctIndex: 1,
+        explanation: 'Click the microphone icon when creating a complaint to record your description.',
+      },
+      {
+        id: 'q5_2',
+        question: 'Is the portal compatible with screen readers?',
+        options: ['No', 'Only on mobile', 'Yes, it follows WCAG standards', 'Only in some browsers'],
+        correctIndex: 2,
+        explanation: 'The portal is designed with WCAG accessibility standards for screen reader support.',
+      },
+    ],
+    passingScore: 70,
   },
   {
     id: 'module_ward_leaders',
@@ -592,5 +762,29 @@ export const mockTrainingModules: TrainingModule[] = [
         url: '#',
       },
     ],
+    quiz: [
+      {
+        id: 'q6_1',
+        question: 'What color indicates a project is "Works Ongoing"?',
+        options: ['Gray', 'Blue', 'Orange', 'Green'],
+        correctIndex: 2,
+        explanation: 'Orange indicates works are ongoing at the project site.',
+      },
+      {
+        id: 'q6_2',
+        question: 'How do you follow a project?',
+        options: ['Email the county', 'Click "Follow Project" on the detail page', 'Call the contractor', 'Visit the site'],
+        correctIndex: 1,
+        explanation: 'Click "Follow Project" on any project detail page to receive updates.',
+      },
+      {
+        id: 'q6_3',
+        question: 'Where can you generate reports for your ward?',
+        options: ['My Tickets', 'Report Issue', 'Data section', 'Policy Feedback'],
+        correctIndex: 2,
+        explanation: 'Go to the Data section and filter by your ward to view trends and reports.',
+      },
+    ],
+    passingScore: 70,
   },
 ];

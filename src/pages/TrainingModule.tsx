@@ -24,7 +24,11 @@ import {
   FileText,
   Video,
   HelpCircle,
+  ClipboardCheck,
+  XCircle,
 } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import {
   mockTrainingModules,
   getModuleProgress,
@@ -32,9 +36,13 @@ import {
   markVideoWatched,
   markDownloadClicked,
   markModuleCompleted,
+  submitQuizAttempt,
+  hasPassedQuiz,
+  getLastQuizAttempt,
   type TrainingModule,
   type ModuleProgress,
   type ModuleStatus,
+  type QuizQuestion,
 } from '@/lib/trainingData';
 import { toast } from '@/hooks/use-toast';
 
@@ -53,14 +61,22 @@ export default function TrainingModulePage() {
     faqsViewed: [],
     videosWatched: [],
     downloadsClicked: [],
+    quizAttempts: [],
   });
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [quizAnswers, setQuizAnswers] = useState<Record<string, number>>({});
+  const [showQuizResults, setShowQuizResults] = useState(false);
+  const [lastQuizScore, setLastQuizScore] = useState<number | null>(null);
 
   const module = mockTrainingModules.find((m) => m.id === moduleId);
 
   useEffect(() => {
     if (moduleId) {
       setProgress(getModuleProgress(moduleId));
+      const lastAttempt = getLastQuizAttempt(moduleId);
+      if (lastAttempt) {
+        setLastQuizScore(lastAttempt.score);
+      }
     }
   }, [moduleId]);
 
@@ -157,7 +173,7 @@ export default function TrainingModulePage() {
   };
 
   const handleMarkComplete = () => {
-    if (moduleId) {
+    if (moduleId && hasPassedQuiz(moduleId)) {
       const updated = markModuleCompleted(moduleId);
       setProgress(updated);
       toast({
@@ -166,6 +182,51 @@ export default function TrainingModulePage() {
       });
     }
   };
+
+  const handleQuizAnswer = (questionId: string, optionIndex: number) => {
+    setQuizAnswers((prev) => ({ ...prev, [questionId]: optionIndex }));
+    setShowQuizResults(false);
+  };
+
+  const handleQuizSubmit = () => {
+    if (!moduleId || !module) return;
+    
+    // Check all questions are answered
+    const unanswered = module.quiz.filter((q) => quizAnswers[q.id] === undefined);
+    if (unanswered.length > 0) {
+      toast({
+        title: 'Please answer all questions',
+        description: `${unanswered.length} question(s) remaining.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const { progress: updatedProgress, score, passed } = submitQuizAttempt(moduleId, quizAnswers, module);
+    setProgress(updatedProgress);
+    setLastQuizScore(score);
+    setShowQuizResults(true);
+
+    if (passed) {
+      toast({
+        title: 'Quiz Passed!',
+        description: `You scored ${score}%. You can now mark this module as completed.`,
+      });
+    } else {
+      toast({
+        title: 'Quiz Not Passed',
+        description: `You scored ${score}%. You need ${module.passingScore}% to pass. Try again!`,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleRetakeQuiz = () => {
+    setQuizAnswers({});
+    setShowQuizResults(false);
+  };
+
+  const quizPassed = moduleId ? hasPassedQuiz(moduleId) : false;
 
   // Calculate progress
   const totalItems = module.faqs.length + module.videos.length + module.downloads.length;
@@ -255,7 +316,7 @@ export default function TrainingModulePage() {
 
         {/* Tabs */}
         <Tabs defaultValue="faqs" className="space-y-4">
-          <TabsList className="w-full justify-start" aria-label="Module content tabs">
+          <TabsList className="w-full justify-start flex-wrap" aria-label="Module content tabs">
             <TabsTrigger value="faqs" className="gap-2">
               <HelpCircle className="w-4 h-4" />
               FAQs ({module.faqs.length})
@@ -267,6 +328,11 @@ export default function TrainingModulePage() {
             <TabsTrigger value="downloads" className="gap-2">
               <FileText className="w-4 h-4" />
               Downloads ({module.downloads.length})
+            </TabsTrigger>
+            <TabsTrigger value="quiz" className="gap-2">
+              <ClipboardCheck className="w-4 h-4" />
+              Quiz ({module.quiz.length} questions)
+              {quizPassed && <CheckCircle2 className="w-3 h-3 text-success" />}
             </TabsTrigger>
           </TabsList>
 
@@ -396,18 +462,171 @@ export default function TrainingModulePage() {
               </div>
             )}
           </TabsContent>
+
+          {/* Quiz Tab */}
+          <TabsContent value="quiz" className="space-y-6">
+            {quizPassed && !showQuizResults && (
+              <div className="ncc-card p-4 bg-success/10 border-success flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-success flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-success">Quiz Passed!</p>
+                  <p className="text-sm text-muted-foreground">
+                    You scored {lastQuizScore}%. You can now mark this module as completed.
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" onClick={handleRetakeQuiz} className="ml-auto">
+                  Retake Quiz
+                </Button>
+              </div>
+            )}
+
+            {showQuizResults && (
+              <div className={`ncc-card p-4 flex items-center gap-3 ${
+                lastQuizScore !== null && lastQuizScore >= module.passingScore 
+                  ? 'bg-success/10 border-success' 
+                  : 'bg-destructive/10 border-destructive'
+              }`}>
+                {lastQuizScore !== null && lastQuizScore >= module.passingScore ? (
+                  <CheckCircle2 className="w-5 h-5 text-success flex-shrink-0" />
+                ) : (
+                  <XCircle className="w-5 h-5 text-destructive flex-shrink-0" />
+                )}
+                <div>
+                  <p className={`font-medium ${
+                    lastQuizScore !== null && lastQuizScore >= module.passingScore 
+                      ? 'text-success' 
+                      : 'text-destructive'
+                  }`}>
+                    {lastQuizScore !== null && lastQuizScore >= module.passingScore 
+                      ? 'Quiz Passed!' 
+                      : 'Quiz Not Passed'}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    You scored {lastQuizScore}%. {module.passingScore}% required to pass.
+                  </p>
+                </div>
+                {lastQuizScore !== null && lastQuizScore < module.passingScore && (
+                  <Button variant="outline" size="sm" onClick={handleRetakeQuiz} className="ml-auto">
+                    Try Again
+                  </Button>
+                )}
+              </div>
+            )}
+
+            <div className="space-y-6">
+              {module.quiz.map((question, qIndex) => (
+                <div key={question.id} className="ncc-card p-5 space-y-4">
+                  <div className="flex items-start gap-3">
+                    <span className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-semibold flex-shrink-0">
+                      {qIndex + 1}
+                    </span>
+                    <h4 className="text-lg font-medium text-foreground pt-0.5">
+                      {question.question}
+                    </h4>
+                  </div>
+
+                  <RadioGroup
+                    value={quizAnswers[question.id]?.toString()}
+                    onValueChange={(value) => handleQuizAnswer(question.id, parseInt(value))}
+                    className="space-y-2 pl-10"
+                    disabled={showQuizResults}
+                  >
+                    {question.options.map((option, optIndex) => {
+                      const isSelected = quizAnswers[question.id] === optIndex;
+                      const isCorrect = optIndex === question.correctIndex;
+                      const showFeedback = showQuizResults;
+                      
+                      let optionClass = '';
+                      if (showFeedback && isCorrect) {
+                        optionClass = 'bg-success/10 border-success';
+                      } else if (showFeedback && isSelected && !isCorrect) {
+                        optionClass = 'bg-destructive/10 border-destructive';
+                      }
+
+                      return (
+                        <div
+                          key={optIndex}
+                          className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${optionClass} ${
+                            !showFeedback && isSelected ? 'border-primary bg-primary/5' : 'border-border'
+                          }`}
+                        >
+                          <RadioGroupItem
+                            value={optIndex.toString()}
+                            id={`${question.id}-${optIndex}`}
+                            className="flex-shrink-0"
+                          />
+                          <Label
+                            htmlFor={`${question.id}-${optIndex}`}
+                            className="flex-1 cursor-pointer text-foreground"
+                          >
+                            {option}
+                          </Label>
+                          {showFeedback && isCorrect && (
+                            <CheckCircle2 className="w-4 h-4 text-success flex-shrink-0" />
+                          )}
+                          {showFeedback && isSelected && !isCorrect && (
+                            <XCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </RadioGroup>
+
+                  {showQuizResults && question.explanation && (
+                    <div className="ml-10 p-3 bg-muted rounded-lg">
+                      <p className="text-sm text-muted-foreground">
+                        <span className="font-medium text-foreground">Explanation:</span>{' '}
+                        {question.explanation}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {!showQuizResults && !quizPassed && (
+              <div className="flex justify-center">
+                <Button onClick={handleQuizSubmit} size="lg" className="gap-2">
+                  <ClipboardCheck className="w-5 h-5" />
+                  Submit Quiz
+                </Button>
+              </div>
+            )}
+
+            <div className="ncc-card p-4 bg-muted/50">
+              <p className="text-sm text-muted-foreground text-center">
+                <strong>Passing Score:</strong> {module.passingScore}% • 
+                <strong className="ml-2">Questions:</strong> {module.quiz.length} • 
+                <strong className="ml-2">Attempts:</strong> {progress.quizAttempts.length}
+              </p>
+            </div>
+          </TabsContent>
         </Tabs>
 
         {/* Mark as completed */}
         {progress.status !== 'completed' && (
           <div className="ncc-card p-6 text-center">
-            <p className="text-muted-foreground mb-4">
-              Finished reviewing this module? Mark it as completed.
-            </p>
-            <Button onClick={handleMarkComplete} className="gap-2">
-              <CheckCircle2 className="w-4 h-4" />
-              Mark as Completed
-            </Button>
+            {quizPassed ? (
+              <>
+                <p className="text-muted-foreground mb-4">
+                  Great job passing the quiz! You can now mark this module as completed.
+                </p>
+                <Button onClick={handleMarkComplete} className="gap-2">
+                  <CheckCircle2 className="w-4 h-4" />
+                  Mark as Completed
+                </Button>
+              </>
+            ) : (
+              <>
+                <p className="text-muted-foreground mb-4">
+                  Complete the quiz to finish this module. You need {module.passingScore}% to pass.
+                </p>
+                <Button variant="outline" disabled className="gap-2">
+                  <ClipboardCheck className="w-4 h-4" />
+                  Pass Quiz to Complete
+                </Button>
+              </>
+            )}
           </div>
         )}
 
