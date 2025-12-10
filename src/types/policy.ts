@@ -1,0 +1,36 @@
+export type PolicyStatus = 'open' | 'closing_soon' | 'closed';
+
+export interface PolicyComment {
+  id: string;
+  author: string;
+  authorType?: 'resident' | 'business' | 'youth' | 'trader' | 'community' | 'other';
+  comment: string;
+  timestamp: string;
+  reactions?: {
+    helpful: number;
+    insightful: number;
+    concern: number;
+  };
+}
+
+export interface PolicyEngagement {
+  supportCount: number;
+  opposeCount: number;
+  commentCount: number;
+}
+
+export interface Policy {
+  id: string;
+  title: string;
+  summary: string;
+  fullDescription: string;
+  department: string;
+  status: PolicyStatus;
+  deadline: string;
+  documentUrl: string;
+  documentName: string;
+  documentSize: string;
+  publishedDate: string;
+  comments: PolicyComment[];
+  engagement: PolicyEngagement;
+}
