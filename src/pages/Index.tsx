@@ -108,10 +108,10 @@ const Index = () => {
               { icon: Shield, label: 'SLA Achievement', value: `${stats.slaAchievementPercent}%`, color: 'text-success' },
               { icon: Users, label: 'Completion Rate', value: `${stats.completionRatePercent}%`, color: 'text-accent' },
             ].map((stat, i) => (
-              <div key={i} className="ncc-card p-4 md:p-6 text-center">
-                <stat.icon className={`w-8 h-8 mx-auto mb-2 ${stat.color}`} />
-                <p className="text-2xl md:text-3xl font-bold text-foreground">{stat.value}</p>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
+              <div key={i} className="ncc-card p-4 md:p-6 flex flex-col items-center justify-center min-h-[120px]">
+                <stat.icon className={`w-8 h-8 mb-2 ${stat.color}`} />
+                <p className="text-2xl md:text-3xl font-bold text-foreground leading-none">{stat.value}</p>
+                <p className="text-sm text-muted-foreground mt-1 text-center">{stat.label}</p>
               </div>
             ));
           })()}
