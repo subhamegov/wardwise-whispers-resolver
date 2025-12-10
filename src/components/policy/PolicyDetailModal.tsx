@@ -37,6 +37,7 @@ export const PolicyDetailModal: React.FC<PolicyDetailModalProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
   const [authorType, setAuthorType] = useState('');
+  const [selectedClause, setSelectedClause] = useState('');
   const [comments, setComments] = useState<PolicyComment[]>(policy.comments);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
@@ -125,18 +126,24 @@ export const PolicyDetailModal: React.FC<PolicyDetailModalProps> = ({
   const handleSubmitFeedback = () => {
     if (!feedbackText.trim()) return;
 
+    const clauseLabel = selectedClause 
+      ? policy.clauses?.find(c => c.id === selectedClause)?.title 
+      : undefined;
+
     const newComment: PolicyComment = {
       id: `c-${Date.now()}`,
       author: authorType ? AUTHOR_TYPES.find(t => t.value === authorType)?.label || 'Citizen' : 'Citizen',
       authorType: authorType as any || 'other',
       comment: feedbackText.trim(),
       timestamp: new Date().toISOString(),
+      relatedClause: clauseLabel,
       reactions: { helpful: 0, insightful: 0, concern: 0 }
     };
 
     setComments(prev => [newComment, ...prev]);
     setFeedbackText('');
     setAuthorType('');
+    setSelectedClause('');
     setIsSubmitted(true);
     setTimeout(() => setIsSubmitted(false), 3000);
   };
@@ -453,27 +460,46 @@ export const PolicyDetailModal: React.FC<PolicyDetailModalProps> = ({
                     aria-label="Your feedback or suggestion"
                   />
 
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <select
-                      value={authorType}
-                      onChange={(e) => setAuthorType(e.target.value)}
-                      className="flex-1 px-4 py-2.5 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                      aria-label="How does this policy affect you?"
-                    >
-                      <option value="">How does this affect you? (optional)</option>
-                      {AUTHOR_TYPES.map(type => (
-                        <option key={type.value} value={type.value}>{type.label}</option>
-                      ))}
-                    </select>
+                  <div className="flex flex-col gap-3">
+                    {/* Section selector - optional */}
+                    {policy.clauses && policy.clauses.length > 0 && (
+                      <select
+                        value={selectedClause}
+                        onChange={(e) => setSelectedClause(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        aria-label="Which section is your feedback about?"
+                      >
+                        <option value="">Which section is this about? (optional)</option>
+                        {policy.clauses.map(clause => (
+                          <option key={clause.id} value={clause.id}>
+                            {clause.section}: {clause.title}
+                          </option>
+                        ))}
+                      </select>
+                    )}
 
-                    <button
-                      onClick={handleSubmitFeedback}
-                      disabled={!feedbackText.trim()}
-                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <Send className="w-4 h-4" />
-                      Send Feedback
-                    </button>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <select
+                        value={authorType}
+                        onChange={(e) => setAuthorType(e.target.value)}
+                        className="flex-1 px-4 py-2.5 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        aria-label="How does this policy affect you?"
+                      >
+                        <option value="">How does this affect you? (optional)</option>
+                        {AUTHOR_TYPES.map(type => (
+                          <option key={type.value} value={type.value}>{type.label}</option>
+                        ))}
+                      </select>
+
+                      <button
+                        onClick={handleSubmitFeedback}
+                        disabled={!feedbackText.trim()}
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Send className="w-4 h-4" />
+                        Send Feedback
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -502,6 +528,13 @@ export const PolicyDetailModal: React.FC<PolicyDetailModalProps> = ({
                               </span>
                             </div>
                           </div>
+                          {comment.relatedClause && (
+                            <div className="mb-2">
+                              <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
+                                Re: {comment.relatedClause}
+                              </span>
+                            </div>
+                          )}
                           <p className={cn('text-muted-foreground text-sm', !isExpanded && isLong && 'line-clamp-3')}>
                             {comment.comment}
                           </p>

@@ -6,6 +6,7 @@ export interface PolicyComment {
   authorType?: 'resident' | 'business' | 'youth' | 'trader' | 'community' | 'other';
   comment: string;
   timestamp: string;
+  relatedClause?: string; // Optional: which clause this feedback relates to
   reactions?: {
     helpful: number;
     insightful: number;
