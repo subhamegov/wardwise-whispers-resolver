@@ -9,15 +9,27 @@ import { Story, ISSUE_CATEGORIES, STATUS_LABELS } from '@/types/story';
 import { apiClient } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 import { InfoTooltip } from '../ServiceAnalytics';
+import { getComplaintsByDepartment } from '@/lib/serviceAnalyticsData';
+
+// Category to Department mapping
+const CATEGORY_TO_DEPARTMENT: Record<string, string> = {
+  'WASTE': 'Environment',
+  'WATER': 'Water and Sewerage',
+  'ROADS': 'Works',
+  'STREETLIGHTS': 'Mobility and ICT Infrastructure',
+  'NOISE': 'Public Health',
+  'OTHER': 'Public Health',
+};
 
 interface SimilarComplaint {
   category: string;
   categoryLabel: string;
   icon: string;
   myCount: number;
+  othersCount: number;
   totalCount: number;
   topLocations: string[];
-  avgResolutionDays: number;
+  avgResolutionWeeks: number;
 }
 
 interface DepartmentRating {
@@ -81,19 +93,26 @@ export function MyComplaintsSummary() {
     };
   }, [myTickets]);
 
-  // Calculate similar complaints based on user's categories
+  // Calculate similar complaints based on user's categories with department data
   const similarComplaints = useMemo((): SimilarComplaint[] => {
     const myCategories = new Set(myTickets.map(t => t.issueCategory).filter(Boolean));
     
     if (myCategories.size === 0) return [];
 
+    // Get department data for "Others" counts
+    const departmentData = getComplaintsByDepartment();
+
     return Array.from(myCategories).map(categoryCode => {
       const categoryInfo = ISSUE_CATEGORIES.find(c => c.code === categoryCode);
       const myCount = myTickets.filter(t => t.issueCategory === categoryCode).length;
-      const allInCategory = allStories.filter(s => s.issueCategory === categoryCode);
-      const totalCount = allInCategory.length;
       
-      // Get top locations
+      // Get "Others" count from department data
+      const departmentName = CATEGORY_TO_DEPARTMENT[categoryCode || 'OTHER'];
+      const deptData = departmentData.find(d => d.department === departmentName);
+      const othersCount = deptData ? deptData.count : Math.round(Math.random() * 500 + 100);
+      
+      // Get top locations from all stories in this category
+      const allInCategory = allStories.filter(s => s.issueCategory === categoryCode);
       const locationCounts = allInCategory.reduce((acc, s) => {
         if (s.wardName) {
           acc[s.wardName] = (acc[s.wardName] || 0) + 1;
@@ -106,19 +125,20 @@ export function MyComplaintsSummary() {
         .slice(0, 3)
         .map(([name]) => name);
 
-      // Mock avg resolution time (in real app, calculate from actual data)
-      const avgResolutionDays = Math.floor(Math.random() * 5) + 2;
+      // Mock avg resolution time in weeks (1-4 weeks range)
+      const avgResolutionWeeks = Math.round((Math.random() * 3 + 1) * 10) / 10;
 
       return {
         category: categoryCode || 'other',
         categoryLabel: categoryInfo?.label || 'Other',
         icon: categoryInfo?.icon || '📋',
         myCount,
-        totalCount,
+        othersCount,
+        totalCount: myCount + othersCount,
         topLocations,
-        avgResolutionDays,
+        avgResolutionWeeks,
       };
-    }).filter(s => s.totalCount > 0);
+    });
   }, [myTickets, allStories]);
 
   if (isLoading) {
@@ -297,19 +317,19 @@ export function MyComplaintsSummary() {
                       <div>
                         <h4 className="font-semibold text-foreground">{similar.categoryLabel}</h4>
                         <p className="text-xs text-muted-foreground">
-                          You: {similar.myCount} • Others: {similar.totalCount - similar.myCount}
+                          You: {similar.myCount} • Others: {similar.othersCount.toLocaleString()}
                         </p>
                       </div>
                     </div>
                     <Badge variant="secondary" className="text-xs">
-                      {similar.totalCount} total
+                      {similar.totalCount.toLocaleString()} total
                     </Badge>
                   </div>
                   
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center justify-between text-muted-foreground">
                       <span>Avg. Resolution:</span>
-                      <span className="font-medium text-foreground">{similar.avgResolutionDays} days</span>
+                      <span className="font-medium text-foreground">{similar.avgResolutionWeeks} weeks</span>
                     </div>
                     
                     {similar.topLocations.length > 0 && (
