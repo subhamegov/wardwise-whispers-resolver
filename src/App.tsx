@@ -12,6 +12,7 @@ import MyTickets from "./pages/MyTickets";
 import Data from "./pages/Data";
 import Training from "./pages/Training";
 import TrainingModule from "./pages/TrainingModule";
+import AboutMyCity from "./pages/AboutMyCity";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/data" element={<Data />} />
           <Route path="/training" element={<Training />} />
           <Route path="/training/:moduleId" element={<TrainingModule />} />
+          <Route path="/about-my-city" element={<AboutMyCity />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
