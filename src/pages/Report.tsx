@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check, FileText, Mic } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, FileText, Mic, Heart } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ReportStepper } from '@/components/report/ReportStepper';
 import { CategoryPicker } from '@/components/report/CategoryPicker';
@@ -9,11 +9,12 @@ import { StarRating } from '@/components/report/StarRating';
 import { VoiceRecorder } from '@/components/voice/VoiceRecorder';
 import { LocationStep, LocationData } from '@/components/report/LocationStep';
 import { ComplaintIntentStep, ComplaintIntent, LinkedProject } from '@/components/report/ComplaintIntentStep';
+import { AppreciationStep, AppreciationData } from '@/components/report/AppreciationStep';
 import { apiClient } from '@/lib/apiClient';
 import { StorySubmission, IssueCategory } from '@/types/story';
 import { cn } from '@/lib/utils';
 
-const STEPS = [
+const STANDARD_STEPS = [
   { number: 1, label: 'Intent' },
   { number: 2, label: 'Location' },
   { number: 3, label: 'Category' },
@@ -23,11 +24,18 @@ const STEPS = [
   { number: 7, label: 'Submit' },
 ];
 
+const APPRECIATION_STEPS = [
+  { number: 1, label: 'Intent' },
+  { number: 2, label: 'Appreciation' },
+  { number: 3, label: 'Submit' },
+];
+
 const Report = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [ticketId, setTicketId] = useState<string | null>(null);
+  const [appreciationSubmitted, setAppreciationSubmitted] = useState(false);
 
   // Form state
   const [locationData, setLocationData] = useState<LocationData>({
@@ -46,28 +54,50 @@ const Report = () => {
   const [serviceRating, setServiceRating] = useState(0);
   const [reporterName, setReporterName] = useState('');
   const [reporterPhone, setReporterPhone] = useState('');
+  
+  // Appreciation form state
+  const [appreciationData, setAppreciationData] = useState<AppreciationData>({
+    department: '',
+    ward: '',
+    staffOrTeam: '',
+    message: '',
+    rating: 0,
+    photo: null,
+    audioRecording: null,
+  });
+
+  const isAppreciationFlow = complaintIntent === 'appreciation';
+  const STEPS = isAppreciationFlow ? APPRECIATION_STEPS : STANDARD_STEPS;
+  const maxStep = isAppreciationFlow ? 3 : 7;
 
   const canProceed = () => {
+    if (isAppreciationFlow) {
+      switch (currentStep) {
+        case 1: return complaintIntent !== null;
+        case 2: return appreciationData.department !== '' && appreciationData.message.trim().length > 0;
+        case 3: return true;
+        default: return false;
+      }
+    }
+    
     switch (currentStep) {
       case 1: return complaintIntent !== null;
       case 2: 
-        // Either map pin OR (sub-county + ward) must be provided
         return locationData.coordinates !== null || 
                (locationData.admin.subCounty && locationData.admin.wardCode) ||
                locationData.description.trim().length > 0;
       case 3: 
-        // For feedback, category is optional; for service/project, required
         return complaintIntent === 'feedback' || issueCategory !== null;
-      case 4: return true; // Photos optional
+      case 4: return true;
       case 5: return title.trim().length > 0 && (description.trim().length > 0 || recording !== null);
-      case 6: return true; // Rating optional
+      case 6: return true;
       case 7: return true;
       default: return false;
     }
   };
 
   const handleNext = () => {
-    if (currentStep < 7) {
+    if (currentStep < maxStep) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -75,6 +105,14 @@ const Report = () => {
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleIntentChange = (intent: ComplaintIntent) => {
+    setComplaintIntent(intent);
+    // Reset step if switching to/from appreciation
+    if (intent === 'appreciation' || complaintIntent === 'appreciation') {
+      setCurrentStep(1);
     }
   };
 
@@ -108,6 +146,72 @@ const Report = () => {
       setIsSubmitting(false);
     }
   };
+
+  const handleAppreciationSubmit = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      // Mock submission - in real app would call API
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setAppreciationSubmitted(true);
+    } catch (err) {
+      console.error('Error submitting appreciation:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Success screen for appreciation
+  if (appreciationSubmitted) {
+    return (
+      <AppLayout>
+        <div className="max-w-lg mx-auto text-center py-12">
+          <div className="w-20 h-20 bg-secondary/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Heart className="w-10 h-10 text-secondary" />
+          </div>
+          <h1 className="text-3xl font-bold text-foreground mb-4">
+            Thank You!
+          </h1>
+          <p className="text-lg text-muted-foreground mb-6">
+            Your appreciation has been recorded and shared with the department.
+          </p>
+          <div className="bg-secondary/10 border border-secondary/30 rounded-xl p-4 mb-8">
+            <p className="text-foreground">
+              Recognizing great service helps motivate better performance across all county departments.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={() => {
+                setAppreciationSubmitted(false);
+                setComplaintIntent(null);
+                setAppreciationData({
+                  department: '',
+                  ward: '',
+                  staffOrTeam: '',
+                  message: '',
+                  rating: 0,
+                  photo: null,
+                  audioRecording: null,
+                });
+                setCurrentStep(1);
+              }}
+              className="btn-primary"
+            >
+              Share Another
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              className="btn-secondary"
+            >
+              Back to Home
+            </button>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   if (ticketId) {
     return (
@@ -168,15 +272,76 @@ const Report = () => {
         {currentStep === 1 && (
           <ComplaintIntentStep
             intent={complaintIntent}
-            onIntentChange={setComplaintIntent}
+            onIntentChange={handleIntentChange}
             linkedProject={linkedProject}
             onLinkedProjectChange={setLinkedProject}
             wardCode={locationData.admin.wardCode}
           />
         )}
 
-        {/* Step 2: Location */}
-        {currentStep === 2 && (
+        {/* Appreciation Flow - Step 2: Form */}
+        {isAppreciationFlow && currentStep === 2 && (
+          <AppreciationStep
+            data={appreciationData}
+            onDataChange={setAppreciationData}
+          />
+        )}
+
+        {/* Appreciation Flow - Step 3: Review */}
+        {isAppreciationFlow && currentStep === 3 && (
+          <div className="space-y-6">
+            <div className="text-center mb-6">
+              <Heart className="w-12 h-12 text-secondary mx-auto mb-3" />
+              <h2 className="text-xl font-bold text-foreground">
+                Review Your Appreciation
+              </h2>
+            </div>
+            
+            <div className="space-y-4 text-sm">
+              <div className="flex justify-between py-2 border-b border-border">
+                <span className="text-muted-foreground">Department</span>
+                <span className="text-foreground font-medium">{appreciationData.department}</span>
+              </div>
+              {appreciationData.ward && (
+                <div className="flex justify-between py-2 border-b border-border">
+                  <span className="text-muted-foreground">Ward</span>
+                  <span className="text-foreground font-medium">{appreciationData.ward}</span>
+                </div>
+              )}
+              {appreciationData.staffOrTeam && (
+                <div className="flex justify-between py-2 border-b border-border">
+                  <span className="text-muted-foreground">Staff/Team</span>
+                  <span className="text-foreground font-medium">{appreciationData.staffOrTeam}</span>
+                </div>
+              )}
+              <div className="py-2 border-b border-border">
+                <span className="text-muted-foreground block mb-1">Message</span>
+                <span className="text-foreground">{appreciationData.message}</span>
+              </div>
+              {appreciationData.rating > 0 && (
+                <div className="flex justify-between py-2 border-b border-border">
+                  <span className="text-muted-foreground">Rating</span>
+                  <span className="text-foreground font-medium">{'⭐'.repeat(appreciationData.rating)}</span>
+                </div>
+              )}
+              {appreciationData.photo && (
+                <div className="flex justify-between py-2 border-b border-border">
+                  <span className="text-muted-foreground">Photo</span>
+                  <span className="text-foreground font-medium">1 attached</span>
+                </div>
+              )}
+              {appreciationData.audioRecording && (
+                <div className="flex justify-between py-2 border-b border-border">
+                  <span className="text-muted-foreground">Voice Note</span>
+                  <span className="text-foreground font-medium">🎤 Recording attached</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Standard Flow - Step 2: Location */}
+        {!isAppreciationFlow && currentStep === 2 && (
           <LocationStep 
             location={locationData}
             onLocationChange={setLocationData}
@@ -186,16 +351,16 @@ const Report = () => {
           />
         )}
 
-        {/* Step 3: Category */}
-        {currentStep === 3 && (
+        {/* Standard Flow - Step 3: Category */}
+        {!isAppreciationFlow && currentStep === 3 && (
           <CategoryPicker
             selected={issueCategory}
             onSelect={setIssueCategory}
           />
         )}
 
-        {/* Step 4: Photos */}
-        {currentStep === 4 && (
+        {/* Standard Flow - Step 4: Photos */}
+        {!isAppreciationFlow && currentStep === 4 && (
           <PhotoUpload
             photos={photos}
             onPhotosChange={setPhotos}
@@ -203,8 +368,8 @@ const Report = () => {
           />
         )}
 
-        {/* Step 5: Details */}
-        {currentStep === 5 && (
+        {/* Standard Flow - Step 5: Details */}
+        {!isAppreciationFlow && currentStep === 5 && (
           <div className="space-y-6">
             <div>
               <label htmlFor="title" className="block text-lg font-semibold text-foreground mb-2">
@@ -274,8 +439,8 @@ const Report = () => {
           </div>
         )}
 
-        {/* Step 6: Rating */}
-        {currentStep === 6 && (
+        {/* Standard Flow - Step 6: Rating */}
+        {!isAppreciationFlow && currentStep === 6 && (
           <div className="space-y-6">
             <StarRating
               rating={serviceRating}
@@ -322,8 +487,8 @@ const Report = () => {
           </div>
         )}
 
-        {/* Step 7: Review & Submit */}
-        {currentStep === 7 && (
+        {/* Standard Flow - Step 7: Review & Submit */}
+        {!isAppreciationFlow && currentStep === 7 && (
           <div className="space-y-6">
             <h2 className="text-xl font-bold text-foreground">
               Review your report
@@ -379,7 +544,7 @@ const Report = () => {
           <span>Back</span>
         </button>
 
-        {currentStep < 7 ? (
+        {currentStep < maxStep ? (
           <button
             onClick={handleNext}
             disabled={!canProceed()}
@@ -390,7 +555,7 @@ const Report = () => {
           </button>
         ) : (
           <button
-            onClick={handleSubmit}
+            onClick={isAppreciationFlow ? handleAppreciationSubmit : handleSubmit}
             disabled={isSubmitting}
             className="btn-primary flex items-center gap-2"
           >
@@ -398,8 +563,8 @@ const Report = () => {
               <span className="animate-pulse">Submitting...</span>
             ) : (
               <>
-                <Check className="w-5 h-5" />
-                <span>Submit Report</span>
+                {isAppreciationFlow ? <Heart className="w-5 h-5" /> : <Check className="w-5 h-5" />}
+                <span>{isAppreciationFlow ? 'Send Appreciation' : 'Submit Report'}</span>
               </>
             )}
           </button>

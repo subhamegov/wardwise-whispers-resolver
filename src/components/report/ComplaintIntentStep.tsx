@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Mic, MicOff, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type ComplaintIntent = 'service' | 'project' | 'feedback';
+export type ComplaintIntent = 'service' | 'project' | 'feedback' | 'appreciation';
 
 export interface LinkedProject {
   id: string;
@@ -39,8 +39,15 @@ const INTENT_OPTIONS = [
     id: 'feedback' as ComplaintIntent,
     icon: '💬',
     title: 'Give Us a Suggestion',
-    description: 'Share ideas, appreciation, or general comments to help improve our community.',
-    examples: 'e.g., "Great job on the new park!", "Idea for better waste bins"'
+    description: 'Share ideas or general comments to help improve our community.',
+    examples: 'e.g., "Idea for better waste bins", "Suggestion for park improvements"'
+  },
+  {
+    id: 'appreciation' as ComplaintIntent,
+    icon: '🌟',
+    title: 'Provide Appreciation',
+    description: 'Recognize excellent service or a staff member who helped you.',
+    examples: 'e.g., "Great job by the waste collection team!", "Thank you for quick response"'
   }
 ];
 
@@ -74,9 +81,11 @@ export const ComplaintIntentStep: React.FC<ComplaintIntentStepProps> = ({
       setVoiceTranscript(transcript);
 
       // Auto-detect intent from voice
-      if (transcript.includes('project') || transcript.includes('construction') || transcript.includes('building')) {
+      if (transcript.includes('appreciate') || transcript.includes('thank') || transcript.includes('great job') || transcript.includes('well done') || transcript.includes('excellent')) {
+        onIntentChange('appreciation');
+      } else if (transcript.includes('project') || transcript.includes('construction') || transcript.includes('building')) {
         onIntentChange('project');
-      } else if (transcript.includes('feedback') || transcript.includes('suggestion') || transcript.includes('appreciation') || transcript.includes('thank') || transcript.includes('idea')) {
+      } else if (transcript.includes('feedback') || transcript.includes('suggestion') || transcript.includes('idea')) {
         onIntentChange('feedback');
       } else {
         // Default to service complaint
@@ -194,8 +203,18 @@ export const ComplaintIntentStep: React.FC<ComplaintIntentStepProps> = ({
       {intent === 'feedback' && (
         <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
           <p className="text-sm text-foreground">
-            <strong>Great!</strong> On the next screens, you'll be able to share your suggestion, 
-            appreciation, or general comment. Your feedback helps us improve services for everyone.
+            <strong>Great!</strong> On the next screens, you'll be able to share your suggestion 
+            or general comment. Your feedback helps us improve services for everyone.
+          </p>
+        </div>
+      )}
+
+      {/* Appreciation Intent Additional Info */}
+      {intent === 'appreciation' && (
+        <div className="bg-secondary/10 border border-secondary/30 rounded-xl p-4">
+          <p className="text-sm text-foreground">
+            <strong>Thank you!</strong> On the next screen, you'll tell us who you'd like to 
+            appreciate. Your recognition helps celebrate great work and motivates better service.
           </p>
         </div>
       )}
