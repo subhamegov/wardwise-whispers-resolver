@@ -407,7 +407,7 @@ function IssueDetailDialog({ issue, onClose }: IssueDetailDialogProps) {
               )}
             </div>
             <div>
-              <h4 className="text-xs font-medium text-muted-foreground uppercase">SLA Deadline</h4>
+              <h4 className="text-xs font-medium text-muted-foreground uppercase">Expected Service Time</h4>
               <div className={`flex items-center gap-1 ${
                 sla.isOverdue ? 'text-destructive font-semibold' : 
                 sla.isUrgent ? 'text-warning' : 'text-foreground'
