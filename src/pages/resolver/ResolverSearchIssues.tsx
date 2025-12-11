@@ -18,7 +18,10 @@ import {
   ArrowUpCircle,
   FileText,
   RefreshCcw,
-  Send
+  Send,
+  Building2,
+  Copy,
+  MessageSquareMore
 } from 'lucide-react';
 import { ResolverLayout } from '@/components/layout/ResolverLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -351,13 +354,42 @@ function IssueDetailDialog({ issue, onClose }: IssueDetailDialogProps) {
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showEscalateModal, setShowEscalateModal] = useState(false);
+  const [showForwardModal, setShowForwardModal] = useState(false);
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [showRequestInfoModal, setShowRequestInfoModal] = useState(false);
+  
   const [newStatus, setNewStatus] = useState('');
   const [noteText, setNoteText] = useState('');
   const [assignee, setAssignee] = useState('');
   const [escalateTo, setEscalateTo] = useState('');
+  const [escalateReason, setEscalateReason] = useState('');
+  const [forwardDept, setForwardDept] = useState('');
+  const [forwardReason, setForwardReason] = useState('');
+  const [duplicateId, setDuplicateId] = useState('');
+  const [requestInfoMessage, setRequestInfoMessage] = useState('');
 
-  const RESOLVERS = ['John Kamau', 'Mary Wanjiku', 'Peter Ochieng', 'Grace Muthoni', 'David Kiprop'];
-  const SUPERVISORS = ['Dr. James Mwangi (Dept. Head)', 'Sarah Omondi (Senior Supervisor)', 'Michael Otieno (Ward Manager)'];
+  const RESOLVERS = [
+    { id: 'R001', name: 'John Kamau', department: 'Environment' },
+    { id: 'R002', name: 'Mary Wanjiku', department: 'Water and Sewerage' },
+    { id: 'R003', name: 'Peter Ochieng', department: 'Works' },
+    { id: 'R004', name: 'Grace Muthoni', department: 'Public Health' },
+    { id: 'R005', name: 'David Kiprop', department: 'Mobility & ICT Infrastructure' },
+  ];
+  
+  const SUPERVISORS = [
+    { id: 'S001', name: 'Dr. Sarah Kimani', role: 'Department Head - Environment' },
+    { id: 'S002', name: 'Eng. James Otieno', role: 'Department Head - Works' },
+    { id: 'S003', name: 'Mr. Michael Wafula', role: 'Deputy Director' },
+    { id: 'S004', name: 'Ms. Catherine Nyambura', role: 'County Complaints Officer' },
+  ];
+
+  const DEPARTMENTS = [
+    { id: 'env', name: 'Environment' },
+    { id: 'water', name: 'Water and Sewerage' },
+    { id: 'works', name: 'Works' },
+    { id: 'health', name: 'Public Health' },
+    { id: 'mobility', name: 'Mobility & ICT Infrastructure' },
+  ];
 
   if (!issue) return null;
   
@@ -465,31 +497,43 @@ function IssueDetailDialog({ issue, onClose }: IssueDetailDialogProps) {
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex gap-2 pt-4 border-t border-border">
+            {/* Scalable Actions Dropdown */}
+            <div className="flex justify-end pt-4 border-t border-border">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button className="gap-2">
                     Act on Grievance
-                    <ChevronDown className="h-4 w-4" />
+                    <MoreHorizontal className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setShowStatusModal(true)}>
-                    <RefreshCcw className="h-4 w-4" />
+                <DropdownMenuContent align="end" className="w-48 bg-popover border border-border z-50">
+                  <DropdownMenuItem onClick={() => setShowStatusModal(true)} className="gap-2 cursor-pointer">
+                    <RefreshCcw className="w-4 h-4" />
                     Update Status
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setShowNotesModal(true)}>
-                    <FileText className="h-4 w-4" />
+                  <DropdownMenuItem onClick={() => setShowNotesModal(true)} className="gap-2 cursor-pointer">
+                    <FileText className="w-4 h-4" />
                     Add Notes
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setShowAssignModal(true)}>
-                    <UserPlus className="h-4 w-4" />
+                  <DropdownMenuItem onClick={() => setShowAssignModal(true)} className="gap-2 cursor-pointer">
+                    <UserPlus className="w-4 h-4" />
                     {issue.status.toLowerCase() === 'open' ? 'Assign' : 'Reassign'}
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setShowEscalateModal(true)}>
-                    <ArrowUpCircle className="h-4 w-4" />
+                  <DropdownMenuItem onClick={() => setShowEscalateModal(true)} className="gap-2 cursor-pointer">
+                    <ArrowUpCircle className="w-4 h-4" />
                     Escalate
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowForwardModal(true)} className="gap-2 cursor-pointer">
+                    <Building2 className="w-4 h-4" />
+                    Forward to Department
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowDuplicateModal(true)} className="gap-2 cursor-pointer">
+                    <Copy className="w-4 h-4" />
+                    Mark as Duplicate
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowRequestInfoModal(true)} className="gap-2 cursor-pointer">
+                    <MessageSquareMore className="w-4 h-4" />
+                    Request More Info
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -567,13 +611,11 @@ function IssueDetailDialog({ issue, onClose }: IssueDetailDialogProps) {
 
       {/* Assign/Reassign Modal */}
       <Dialog open={showAssignModal} onOpenChange={setShowAssignModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{issue.status.toLowerCase() === 'open' ? 'Assign' : 'Reassign'} Issue</DialogTitle>
+            <DialogTitle>{issue.status.toLowerCase() === 'open' ? 'Assign Issue' : 'Reassign Issue'}</DialogTitle>
             <DialogDescription>
-              {issue.status.toLowerCase() === 'open' 
-                ? `Assign issue ${issue.id} to a resolver`
-                : `Reassign issue ${issue.id} to a different resolver`}
+              {issue.status.toLowerCase() === 'open' ? 'Assign' : 'Reassign'} {issue.id} to a resolver
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -597,39 +639,43 @@ function IssueDetailDialog({ issue, onClose }: IssueDetailDialogProps) {
               <Label>Select Resolver</Label>
               <Select value={assignee} onValueChange={setAssignee}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose a resolver" />
+                  <SelectValue placeholder="Select a resolver" />
                 </SelectTrigger>
-                <SelectContent>
-                  {RESOLVERS.map(resolver => (
-                    <SelectItem key={resolver} value={resolver}>{resolver}</SelectItem>
+                <SelectContent className="bg-popover border border-border z-50">
+                  {RESOLVERS.map((resolver) => (
+                    <SelectItem key={resolver.id} value={resolver.id}>
+                      {resolver.name} - {resolver.department}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>Assignment note (optional)</Label>
-              <Textarea placeholder="Add context for the assignee..." />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAssignModal(false)}>Cancel</Button>
-            <Button onClick={() => {
-              toast.success(`Issue ${issue.id} assigned to ${assignee}`);
-              setShowAssignModal(false);
-              setAssignee('');
-            }}>
-              {issue.status.toLowerCase() === 'open' ? 'Assign' : 'Reassign'}
+            <Button 
+              className="w-full gap-2" 
+              onClick={() => {
+                const resolver = RESOLVERS.find(r => r.id === assignee);
+                const isUnassigned = issue.status.toLowerCase() === 'open';
+                toast.success(`${issue.id} ${isUnassigned ? 'assigned' : 'reassigned'} to ${resolver?.name}. They will receive a notification.`);
+                setShowAssignModal(false);
+                setAssignee('');
+              }}
+              disabled={!assignee}
+            >
+              <UserPlus className="w-4 h-4" />
+              {issue.status.toLowerCase() === 'open' ? 'Assign Issue' : 'Reassign Issue'}
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Escalate Modal */}
       <Dialog open={showEscalateModal} onOpenChange={setShowEscalateModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Escalate Issue</DialogTitle>
-            <DialogDescription>Escalate issue {issue.id} to a supervisor</DialogDescription>
+            <DialogDescription>
+              Escalate {issue.id} to a supervisor or department head
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -638,31 +684,174 @@ function IssueDetailDialog({ issue, onClose }: IssueDetailDialogProps) {
                 <SelectTrigger>
                   <SelectValue placeholder="Select supervisor" />
                 </SelectTrigger>
-                <SelectContent>
-                  {SUPERVISORS.map(supervisor => (
-                    <SelectItem key={supervisor} value={supervisor}>{supervisor}</SelectItem>
+                <SelectContent className="bg-popover border border-border z-50">
+                  {SUPERVISORS.map((supervisor) => (
+                    <SelectItem key={supervisor.id} value={supervisor.id}>
+                      {supervisor.name} - {supervisor.role}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label>Reason for Escalation</Label>
-              <Textarea 
-                placeholder="Explain why this issue needs escalation..." 
-                className="min-h-[100px]"
+              <Textarea
+                placeholder="Explain why this issue needs escalation..."
+                value={escalateReason}
+                onChange={(e) => setEscalateReason(e.target.value)}
+                rows={3}
               />
             </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEscalateModal(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={() => {
-              toast.success(`Issue ${issue.id} escalated to ${escalateTo}`);
-              setShowEscalateModal(false);
-              setEscalateTo('');
-            }}>
+            <Button 
+              className="w-full gap-2" 
+              onClick={() => {
+                const supervisor = SUPERVISORS.find(s => s.id === escalateTo);
+                toast.success(`${issue.id} escalated to ${supervisor?.name}. Issue marked as priority and supervisor notified.`);
+                setShowEscalateModal(false);
+                setEscalateTo('');
+                setEscalateReason('');
+              }}
+              disabled={!escalateTo || !escalateReason.trim()}
+            >
+              <ArrowUpCircle className="w-4 h-4" />
               Escalate Issue
             </Button>
-          </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Forward to Department Modal */}
+      <Dialog open={showForwardModal} onOpenChange={setShowForwardModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Forward to Department</DialogTitle>
+            <DialogDescription>
+              Transfer {issue.id} to another department for handling
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {/* Current Department - Read Only */}
+            <div className="p-3 bg-muted/50 rounded-lg">
+              <Label className="text-xs text-muted-foreground">Current Department</Label>
+              <p className="text-sm font-medium">{issue.department}</p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Forward To</Label>
+              <Select value={forwardDept} onValueChange={setForwardDept}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select department" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border border-border z-50">
+                  {DEPARTMENTS.filter(d => d.name !== issue.department).map((dept) => (
+                    <SelectItem key={dept.id} value={dept.id}>
+                      {dept.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Reason for Transfer</Label>
+              <Textarea
+                placeholder="Explain why this issue belongs to another department..."
+                value={forwardReason}
+                onChange={(e) => setForwardReason(e.target.value)}
+                rows={3}
+              />
+            </div>
+            <Button 
+              className="w-full gap-2" 
+              onClick={() => {
+                const dept = DEPARTMENTS.find(d => d.id === forwardDept);
+                toast.success(`${issue.id} forwarded to ${dept?.name}. New department will be notified and issue removed from your queue.`);
+                setShowForwardModal(false);
+                setForwardDept('');
+                setForwardReason('');
+              }}
+              disabled={!forwardDept || !forwardReason.trim()}
+            >
+              <Building2 className="w-4 h-4" />
+              Forward Issue
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Mark as Duplicate Modal */}
+      <Dialog open={showDuplicateModal} onOpenChange={setShowDuplicateModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Mark as Duplicate</DialogTitle>
+            <DialogDescription>
+              Link {issue.id} to an existing issue as a duplicate
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Original Issue ID</Label>
+              <input
+                type="text"
+                placeholder="e.g., GRV-2024-001"
+                value={duplicateId}
+                onChange={(e) => setDuplicateId(e.target.value.toUpperCase())}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+              <p className="text-xs text-muted-foreground">
+                Enter the ID of the original issue this is a duplicate of
+              </p>
+            </div>
+            <Button 
+              className="w-full gap-2" 
+              onClick={() => {
+                toast.success(`${issue.id} marked as duplicate of ${duplicateId}. Issues are now linked and citizen notified to track ${duplicateId} instead.`);
+                setShowDuplicateModal(false);
+                setDuplicateId('');
+              }}
+              disabled={!duplicateId.trim()}
+            >
+              <Copy className="w-4 h-4" />
+              Mark as Duplicate
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Request More Info Modal */}
+      <Dialog open={showRequestInfoModal} onOpenChange={setShowRequestInfoModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Request More Information</DialogTitle>
+            <DialogDescription>
+              Ask the citizen for additional details about {issue.id}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Message to Citizen</Label>
+              <Textarea
+                placeholder="Please provide more details about..."
+                value={requestInfoMessage}
+                onChange={(e) => setRequestInfoMessage(e.target.value)}
+                rows={4}
+              />
+              <p className="text-xs text-muted-foreground">
+                This message will be sent via SMS to {issue.citizenName}
+              </p>
+            </div>
+            <Button 
+              className="w-full gap-2" 
+              onClick={() => {
+                toast.success(`Request sent to ${issue.citizenName}. Status changed to "Awaiting Response" and SLA paused until citizen replies.`);
+                setShowRequestInfoModal(false);
+                setRequestInfoMessage('');
+              }}
+              disabled={!requestInfoMessage.trim()}
+            >
+              <MessageSquareMore className="w-4 h-4" />
+              Send Request
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </>
