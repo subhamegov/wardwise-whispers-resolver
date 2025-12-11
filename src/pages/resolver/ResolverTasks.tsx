@@ -13,7 +13,10 @@ import {
   ArrowUpCircle,
   FileText,
   RefreshCcw,
-  Send
+  Send,
+  Building2,
+  Copy,
+  MessageSquareMore
 } from 'lucide-react';
 import { ResolverLayout } from '@/components/layout/ResolverLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -341,17 +344,32 @@ const SUPERVISORS = [
   { id: 'S004', name: 'Ms. Catherine Nyambura', role: 'County Complaints Officer' },
 ];
 
+const DEPARTMENTS = [
+  { id: 'env', name: 'Environment' },
+  { id: 'water', name: 'Water and Sewerage' },
+  { id: 'works', name: 'Works' },
+  { id: 'health', name: 'Public Health' },
+  { id: 'mobility', name: 'Mobility & ICT Infrastructure' },
+];
+
 function IssueDetailDialog({ issue, onClose }: IssueDetailDialogProps) {
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showEscalateModal, setShowEscalateModal] = useState(false);
+  const [showForwardModal, setShowForwardModal] = useState(false);
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [showRequestInfoModal, setShowRequestInfoModal] = useState(false);
   
   const [newStatus, setNewStatus] = useState('');
   const [noteText, setNoteText] = useState('');
   const [assignee, setAssignee] = useState('');
   const [escalateTo, setEscalateTo] = useState('');
   const [escalateReason, setEscalateReason] = useState('');
+  const [forwardDept, setForwardDept] = useState('');
+  const [forwardReason, setForwardReason] = useState('');
+  const [duplicateId, setDuplicateId] = useState('');
+  const [requestInfoMessage, setRequestInfoMessage] = useState('');
   
   if (!issue) return null;
   
@@ -472,6 +490,18 @@ function IssueDetailDialog({ issue, onClose }: IssueDetailDialogProps) {
                   <DropdownMenuItem onClick={() => setShowEscalateModal(true)} className="gap-2 cursor-pointer">
                     <ArrowUpCircle className="w-4 h-4" />
                     Escalate
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowForwardModal(true)} className="gap-2 cursor-pointer">
+                    <Building2 className="w-4 h-4" />
+                    Forward to Department
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowDuplicateModal(true)} className="gap-2 cursor-pointer">
+                    <Copy className="w-4 h-4" />
+                    Mark as Duplicate
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowRequestInfoModal(true)} className="gap-2 cursor-pointer">
+                    <MessageSquareMore className="w-4 h-4" />
+                    Request More Info
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -660,6 +690,141 @@ function IssueDetailDialog({ issue, onClose }: IssueDetailDialogProps) {
             >
               <ArrowUpCircle className="w-4 h-4" />
               Escalate Issue
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Forward to Department Modal */}
+      <Dialog open={showForwardModal} onOpenChange={setShowForwardModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Forward to Department</DialogTitle>
+            <DialogDescription>
+              Transfer {issue.id} to another department for handling
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {/* Current Department - Read Only */}
+            <div className="p-3 bg-muted/50 rounded-lg">
+              <Label className="text-xs text-muted-foreground">Current Department</Label>
+              <p className="text-sm font-medium">{issue.department}</p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Forward To</Label>
+              <Select value={forwardDept} onValueChange={setForwardDept}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select department" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border border-border z-50">
+                  {DEPARTMENTS.filter(d => d.name !== issue.department).map((dept) => (
+                    <SelectItem key={dept.id} value={dept.id}>
+                      {dept.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Reason for Transfer</Label>
+              <Textarea
+                placeholder="Explain why this issue belongs to another department..."
+                value={forwardReason}
+                onChange={(e) => setForwardReason(e.target.value)}
+                rows={3}
+              />
+            </div>
+            <Button 
+              className="w-full gap-2" 
+              onClick={() => {
+                const dept = DEPARTMENTS.find(d => d.id === forwardDept);
+                toast.success(`${issue.id} forwarded to ${dept?.name}. New department will be notified and issue removed from your queue.`);
+                setShowForwardModal(false);
+                setForwardDept('');
+                setForwardReason('');
+              }}
+              disabled={!forwardDept || !forwardReason.trim()}
+            >
+              <Building2 className="w-4 h-4" />
+              Forward Issue
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Mark as Duplicate Modal */}
+      <Dialog open={showDuplicateModal} onOpenChange={setShowDuplicateModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Mark as Duplicate</DialogTitle>
+            <DialogDescription>
+              Link {issue.id} to an existing issue as a duplicate
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Original Issue ID</Label>
+              <input
+                type="text"
+                placeholder="e.g., GRV-2024-001"
+                value={duplicateId}
+                onChange={(e) => setDuplicateId(e.target.value.toUpperCase())}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+              <p className="text-xs text-muted-foreground">
+                Enter the ID of the original issue this is a duplicate of
+              </p>
+            </div>
+            <Button 
+              className="w-full gap-2" 
+              onClick={() => {
+                toast.success(`${issue.id} marked as duplicate of ${duplicateId}. Issues are now linked and citizen notified to track ${duplicateId} instead.`);
+                setShowDuplicateModal(false);
+                setDuplicateId('');
+              }}
+              disabled={!duplicateId.trim()}
+            >
+              <Copy className="w-4 h-4" />
+              Mark as Duplicate
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Request More Info Modal */}
+      <Dialog open={showRequestInfoModal} onOpenChange={setShowRequestInfoModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Request More Information</DialogTitle>
+            <DialogDescription>
+              Ask the citizen for additional details about {issue.id}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Message to Citizen</Label>
+              <Textarea
+                placeholder="Please provide more details about..."
+                value={requestInfoMessage}
+                onChange={(e) => setRequestInfoMessage(e.target.value)}
+                rows={4}
+              />
+              <p className="text-xs text-muted-foreground">
+                This message will be sent via SMS to {issue.citizenName}
+              </p>
+            </div>
+            <Button 
+              className="w-full gap-2" 
+              onClick={() => {
+                toast.success(`Request sent to ${issue.citizenName}. Status changed to "Awaiting Response" and SLA paused until citizen replies.`);
+                setShowRequestInfoModal(false);
+                setRequestInfoMessage('');
+              }}
+              disabled={!requestInfoMessage.trim()}
+            >
+              <MessageSquareMore className="w-4 h-4" />
+              Send Request
             </Button>
           </div>
         </DialogContent>
