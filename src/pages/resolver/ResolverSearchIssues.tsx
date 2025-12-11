@@ -17,7 +17,8 @@ import {
   UserPlus,
   ArrowUpCircle,
   FileText,
-  RefreshCcw
+  RefreshCcw,
+  Send
 } from 'lucide-react';
 import { ResolverLayout } from '@/components/layout/ResolverLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -36,7 +37,12 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
+  DialogDescription,
 } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -341,142 +347,308 @@ interface IssueDetailDialogProps {
 }
 
 function IssueDetailDialog({ issue, onClose }: IssueDetailDialogProps) {
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showNotesModal, setShowNotesModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [showEscalateModal, setShowEscalateModal] = useState(false);
+  const [newStatus, setNewStatus] = useState('');
+  const [noteText, setNoteText] = useState('');
+  const [assignee, setAssignee] = useState('');
+  const [escalateTo, setEscalateTo] = useState('');
+
+  const RESOLVERS = ['John Kamau', 'Mary Wanjiku', 'Peter Ochieng', 'Grace Muthoni', 'David Kiprop'];
+  const SUPERVISORS = ['Dr. James Mwangi (Dept. Head)', 'Sarah Omondi (Senior Supervisor)', 'Michael Otieno (Ward Manager)'];
+
   if (!issue) return null;
   
   const sla = getSlaCountdown(issue.slaHoursRemaining);
 
   return (
-    <Dialog open={!!issue} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <span className="font-mono text-primary">{issue.id}</span>
-            {issue.isReopened && (
-              <Badge variant="destructive" className="gap-1">
-                <RotateCcw className="w-3 h-3" />
-                Reopened ({issue.reopenCount}x)
-              </Badge>
-            )}
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-6">
-          {/* Citizen's Report */}
-          <div>
-            <h4 className="text-sm font-semibold text-foreground mb-2">Citizen Report</h4>
-            <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-              <p className="font-medium text-foreground">{issue.citizenTitle}</p>
-              <p className="text-sm text-muted-foreground">{issue.description}</p>
-              <div className="flex items-center gap-4 pt-2">
-                {issue.hasImages && (
-                  <Button variant="outline" size="sm" className="gap-1">
-                    <Image className="w-4 h-4" />
-                    View Photos
-                  </Button>
-                )}
-                {issue.hasVoiceNote && (
-                  <Button variant="outline" size="sm" className="gap-1">
-                    <Mic className="w-4 h-4" />
-                    Play Voice Note
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Details Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <h4 className="text-xs font-medium text-muted-foreground uppercase">Location</h4>
-              <p className="text-foreground">{issue.ward}, {issue.zone}</p>
-              <p className="text-sm text-muted-foreground">{issue.subCounty}</p>
-            </div>
-            <div>
-              <h4 className="text-xs font-medium text-muted-foreground uppercase">Department</h4>
-              <Badge className={DEPARTMENT_COLORS[issue.department]} variant="secondary">
-                {issue.department}
-              </Badge>
-            </div>
-            <div>
-              <h4 className="text-xs font-medium text-muted-foreground uppercase">Status</h4>
-              <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(issue.status)}`}>
-                {issue.status}
-              </span>
-            </div>
-            <div>
-              <h4 className="text-xs font-medium text-muted-foreground uppercase">Priority</h4>
-              {getPriorityBadge(issue.priority)}
-            </div>
-            <div>
-              <h4 className="text-xs font-medium text-muted-foreground uppercase">Assigned To</h4>
-              {issue.assignedTo ? (
-                <p className="text-foreground">{issue.assignedDepartment} Team</p>
-              ) : (
-                <Badge variant="outline" className="text-warning border-warning">
-                  Unassigned
+    <>
+      <Dialog open={!!issue} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <span className="font-mono text-primary">{issue.id}</span>
+              {issue.isReopened && (
+                <Badge variant="destructive" className="gap-1">
+                  <RotateCcw className="w-3 h-3" />
+                  Reopened ({issue.reopenCount}x)
                 </Badge>
               )}
-            </div>
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Citizen's Report */}
             <div>
-              <h4 className="text-xs font-medium text-muted-foreground uppercase">Expected Service Time</h4>
-              <div className={`flex items-center gap-1 ${
-                sla.isOverdue ? 'text-destructive font-semibold' : 
-                sla.isUrgent ? 'text-warning' : 'text-foreground'
-              }`}>
-                {(sla.isOverdue || sla.isUrgent) && <AlertTriangle className="w-4 h-4" />}
-                {sla.text}
+              <h4 className="text-sm font-semibold text-foreground mb-2">Citizen Report</h4>
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                <p className="font-medium text-foreground">{issue.citizenTitle}</p>
+                <p className="text-sm text-muted-foreground">{issue.description}</p>
+                <div className="flex items-center gap-4 pt-2">
+                  {issue.hasImages && (
+                    <Button variant="outline" size="sm" className="gap-1">
+                      <Image className="w-4 h-4" />
+                      View Photos
+                    </Button>
+                  )}
+                  {issue.hasVoiceNote && (
+                    <Button variant="outline" size="sm" className="gap-1">
+                      <Mic className="w-4 h-4" />
+                      Play Voice Note
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Citizen Info */}
-          <div>
-            <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">Citizen</h4>
-            <p className="text-foreground">{issue.citizenName}</p>
-            {issue.citizenPhone && (
-              <p className="text-sm text-muted-foreground">{issue.citizenPhone}</p>
-            )}
-          </div>
+            {/* Details Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground uppercase">Location</h4>
+                <p className="text-foreground">{issue.ward}, {issue.zone}</p>
+                <p className="text-sm text-muted-foreground">{issue.subCounty}</p>
+              </div>
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground uppercase">Department</h4>
+                <Badge className={DEPARTMENT_COLORS[issue.department]} variant="secondary">
+                  {issue.department}
+                </Badge>
+              </div>
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground uppercase">Status</h4>
+                <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(issue.status)}`}>
+                  {issue.status}
+                </span>
+              </div>
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground uppercase">Priority</h4>
+                {getPriorityBadge(issue.priority)}
+              </div>
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground uppercase">Assigned To</h4>
+                {issue.assignedTo ? (
+                  <p className="text-foreground">{issue.assignedDepartment} Team</p>
+                ) : (
+                  <Badge variant="outline" className="text-warning border-warning">
+                    Unassigned
+                  </Badge>
+                )}
+              </div>
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground uppercase">Expected Service Time</h4>
+                <div className={`flex items-center gap-1 ${
+                  sla.isOverdue ? 'text-destructive font-semibold' : 
+                  sla.isUrgent ? 'text-warning' : 'text-foreground'
+                }`}>
+                  {(sla.isOverdue || sla.isUrgent) && <AlertTriangle className="w-4 h-4" />}
+                  {sla.text}
+                </div>
+              </div>
+            </div>
 
-          {/* Issue Timeline placeholder */}
-          <div>
-            <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">Issue History</h4>
-            <div className="text-sm text-muted-foreground bg-muted/30 rounded p-3">
-              Timeline of status changes and internal notes would appear here.
+            {/* Citizen Info */}
+            <div>
+              <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">Citizen</h4>
+              <p className="text-foreground">{issue.citizenName}</p>
+              {issue.citizenPhone && (
+                <p className="text-sm text-muted-foreground">{issue.citizenPhone}</p>
+              )}
+            </div>
+
+            {/* Issue Timeline placeholder */}
+            <div>
+              <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">Issue History</h4>
+              <div className="text-sm text-muted-foreground bg-muted/30 rounded p-3">
+                Timeline of status changes and internal notes would appear here.
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2 pt-4 border-t border-border">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="gap-2">
+                    Act on Grievance
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setShowStatusModal(true)}>
+                    <RefreshCcw className="h-4 w-4" />
+                    Update Status
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setShowNotesModal(true)}>
+                    <FileText className="h-4 w-4" />
+                    Add Notes
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setShowAssignModal(true)}>
+                    <UserPlus className="h-4 w-4" />
+                    {issue.status.toLowerCase() === 'open' ? 'Assign' : 'Reassign'}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setShowEscalateModal(true)}>
+                    <ArrowUpCircle className="h-4 w-4" />
+                    Escalate
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
 
-          {/* Actions */}
-          <div className="flex gap-2 pt-4 border-t border-border">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button className="gap-2">
-                  Act on Grievance
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                <DropdownMenuItem className="gap-2 cursor-pointer">
-                  <RefreshCcw className="h-4 w-4" />
-                  Update Status
-                </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer">
-                  <FileText className="h-4 w-4" />
-                  Add Notes
-                </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer">
-                  <UserPlus className="h-4 w-4" />
-                  {issue.status.toLowerCase() === 'open' ? 'Assign' : 'Reassign'}
-                </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer">
-                  <ArrowUpCircle className="h-4 w-4" />
-                  Escalate
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+      {/* Update Status Modal */}
+      <Dialog open={showStatusModal} onOpenChange={setShowStatusModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Update Status</DialogTitle>
+            <DialogDescription>Change the status of issue {issue.id}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>New Status</Label>
+              <Select value={newStatus} onValueChange={setNewStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select new status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="in-progress">In Progress</SelectItem>
+                  <SelectItem value="awaiting-response">Awaiting Response</SelectItem>
+                  <SelectItem value="resolved">Resolved</SelectItem>
+                  <SelectItem value="closed">Closed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Reason for status change (optional)</Label>
+              <Textarea placeholder="Add a note explaining the status change..." />
+            </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowStatusModal(false)}>Cancel</Button>
+            <Button onClick={() => {
+              toast.success(`Status updated to "${newStatus}" for ${issue.id}`);
+              setShowStatusModal(false);
+              setNewStatus('');
+            }}>Update Status</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Notes Modal */}
+      <Dialog open={showNotesModal} onOpenChange={setShowNotesModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Internal Notes</DialogTitle>
+            <DialogDescription>Add notes to issue {issue.id} (visible only to staff)</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <Textarea 
+              placeholder="Enter your notes here..." 
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              className="min-h-[120px]"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowNotesModal(false)}>Cancel</Button>
+            <Button onClick={() => {
+              toast.success('Note added successfully');
+              setShowNotesModal(false);
+              setNoteText('');
+            }} className="gap-2">
+              <Send className="h-4 w-4" />
+              Add Note
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Assign/Reassign Modal */}
+      <Dialog open={showAssignModal} onOpenChange={setShowAssignModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{issue.status.toLowerCase() === 'open' ? 'Assign' : 'Reassign'} Issue</DialogTitle>
+            <DialogDescription>
+              {issue.status.toLowerCase() === 'open' 
+                ? `Assign issue ${issue.id} to a resolver`
+                : `Reassign issue ${issue.id} to a different resolver`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Select Resolver</Label>
+              <Select value={assignee} onValueChange={setAssignee}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a resolver" />
+                </SelectTrigger>
+                <SelectContent>
+                  {RESOLVERS.map(resolver => (
+                    <SelectItem key={resolver} value={resolver}>{resolver}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Assignment note (optional)</Label>
+              <Textarea placeholder="Add context for the assignee..." />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAssignModal(false)}>Cancel</Button>
+            <Button onClick={() => {
+              toast.success(`Issue ${issue.id} assigned to ${assignee}`);
+              setShowAssignModal(false);
+              setAssignee('');
+            }}>
+              {issue.status.toLowerCase() === 'open' ? 'Assign' : 'Reassign'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Escalate Modal */}
+      <Dialog open={showEscalateModal} onOpenChange={setShowEscalateModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Escalate Issue</DialogTitle>
+            <DialogDescription>Escalate issue {issue.id} to a supervisor</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Escalate To</Label>
+              <Select value={escalateTo} onValueChange={setEscalateTo}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select supervisor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SUPERVISORS.map(supervisor => (
+                    <SelectItem key={supervisor} value={supervisor}>{supervisor}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Reason for Escalation</Label>
+              <Textarea 
+                placeholder="Explain why this issue needs escalation..." 
+                className="min-h-[100px]"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEscalateModal(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={() => {
+              toast.success(`Issue ${issue.id} escalated to ${escalateTo}`);
+              setShowEscalateModal(false);
+              setEscalateTo('');
+            }}>
+              Escalate Issue
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
