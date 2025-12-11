@@ -577,6 +577,22 @@ function IssueDetailDialog({ issue, onClose }: IssueDetailDialogProps) {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
+            {/* Issue Context - Read Only */}
+            <div className="grid grid-cols-3 gap-3 p-3 bg-muted/50 rounded-lg">
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Department</Label>
+                <p className="text-sm font-medium">{issue.department}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Sub-County</Label>
+                <p className="text-sm font-medium">{issue.subCounty || 'Nairobi Central'}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Ward</Label>
+                <p className="text-sm font-medium">{issue.ward}</p>
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label>Select Resolver</Label>
               <Select value={assignee} onValueChange={setAssignee}>
