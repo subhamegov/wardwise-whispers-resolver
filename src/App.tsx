@@ -14,6 +14,8 @@ import Training from "./pages/Training";
 import TrainingModule from "./pages/TrainingModule";
 import AboutMyCity from "./pages/AboutMyCity";
 import NotFound from "./pages/NotFound";
+import ResolverHome from "./pages/resolver/ResolverHome";
+import ResolverTasks from "./pages/resolver/ResolverTasks";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +36,9 @@ const App = () => (
           <Route path="/training" element={<Training />} />
           <Route path="/training/:moduleId" element={<TrainingModule />} />
           <Route path="/about-my-city" element={<AboutMyCity />} />
+          {/* Resolver Portal Routes */}
+          <Route path="/resolver" element={<ResolverHome />} />
+          <Route path="/resolver/tasks" element={<ResolverTasks />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
