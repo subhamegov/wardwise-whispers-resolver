@@ -12,7 +12,12 @@ import {
   Clock,
   AlertTriangle,
   RotateCcw,
-  User
+  User,
+  MoreHorizontal,
+  UserPlus,
+  ArrowUpCircle,
+  FileText,
+  RefreshCcw
 } from 'lucide-react';
 import { ResolverLayout } from '@/components/layout/ResolverLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -32,6 +37,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   ALL_COUNTY_ISSUES,
   getTop100LatestIssues,
@@ -436,11 +447,33 @@ function IssueDetailDialog({ issue, onClose }: IssueDetailDialogProps) {
           </div>
 
           {/* Actions */}
-          <div className="flex flex-wrap gap-2 pt-4 border-t border-border">
-            <Button className="flex-1">Update Status</Button>
-            <Button variant="outline" className="flex-1">Add Notes</Button>
-            <Button variant="outline">Reassign</Button>
-            <Button variant="outline">Escalate</Button>
+          <div className="flex gap-2 pt-4 border-t border-border">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="gap-2">
+                  Act on Grievance
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem className="gap-2 cursor-pointer">
+                  <RefreshCcw className="h-4 w-4" />
+                  Update Status
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2 cursor-pointer">
+                  <FileText className="h-4 w-4" />
+                  Add Notes
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2 cursor-pointer">
+                  <UserPlus className="h-4 w-4" />
+                  {issue.status.toLowerCase() === 'open' ? 'Assign' : 'Reassign'}
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2 cursor-pointer">
+                  <ArrowUpCircle className="h-4 w-4" />
+                  Escalate
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </DialogContent>
