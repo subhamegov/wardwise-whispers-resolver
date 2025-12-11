@@ -12,11 +12,13 @@ import {
   Send,
   FileEdit,
   MessageSquarePlus,
-  CheckCheck
+  CheckCheck,
+  PhoneMissed
 } from 'lucide-react';
 import { ResolverLayout } from '@/components/layout/ResolverLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Mock data for resolver metrics
 const RESOLVER_METRICS = [
@@ -28,6 +30,16 @@ const RESOLVER_METRICS = [
     trendUp: true,
     color: 'text-primary',
     bgColor: 'bg-primary/10',
+  },
+  {
+    label: 'Missed Call Tickets',
+    value: 8,
+    icon: PhoneMissed,
+    trend: '+2 today',
+    trendUp: true,
+    color: 'text-orange-600',
+    bgColor: 'bg-orange-100',
+    description: 'Missed calls are automatically created as tickets',
   },
   {
     label: 'Resolved This Week',
@@ -122,25 +134,36 @@ export default function ResolverHome() {
       {/* Quick Metrics */}
       <section className="mb-8">
         <h2 className="text-lg font-semibold text-foreground mb-4">Your Performance</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {RESOLVER_METRICS.map((metric, index) => (
-            <Card key={index} className="relative overflow-hidden">
-              <CardContent className="p-4">
-                <div className={`w-10 h-10 rounded-lg ${metric.bgColor} flex items-center justify-center mb-3`}>
-                  <metric.icon className={`w-5 h-5 ${metric.color}`} />
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-bold text-foreground">{metric.value}</span>
-                  {metric.unit && <span className="text-sm text-muted-foreground">{metric.unit}</span>}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">{metric.label}</p>
-                <div className={`flex items-center gap-1 mt-2 text-xs ${metric.trendUp ? 'text-success' : 'text-destructive'}`}>
-                  {metric.trendUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                  <span>{metric.trend}</span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <TooltipProvider>
+            {RESOLVER_METRICS.map((metric, index) => (
+              <Tooltip key={index}>
+                <TooltipTrigger asChild>
+                  <Card className="relative overflow-hidden cursor-default">
+                    <CardContent className="p-4">
+                      <div className={`w-10 h-10 rounded-lg ${metric.bgColor} flex items-center justify-center mb-3`}>
+                        <metric.icon className={`w-5 h-5 ${metric.color}`} />
+                      </div>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-2xl font-bold text-foreground">{metric.value}</span>
+                        {metric.unit && <span className="text-sm text-muted-foreground">{metric.unit}</span>}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">{metric.label}</p>
+                      <div className={`flex items-center gap-1 mt-2 text-xs ${metric.trendUp ? 'text-success' : 'text-destructive'}`}>
+                        {metric.trendUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                        <span>{metric.trend}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TooltipTrigger>
+                {metric.description && (
+                  <TooltipContent side="bottom" className="max-w-[200px]">
+                    <p className="text-xs">{metric.description}</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            ))}
+          </TooltipProvider>
         </div>
       </section>
 
