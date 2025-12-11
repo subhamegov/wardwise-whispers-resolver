@@ -7,7 +7,13 @@ import {
   Eye,
   Image,
   Mic,
-  RotateCcw
+  RotateCcw,
+  MoreHorizontal,
+  UserPlus,
+  ArrowUpCircle,
+  FileText,
+  RefreshCcw,
+  Send
 } from 'lucide-react';
 import { ResolverLayout } from '@/components/layout/ResolverLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -19,7 +25,24 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
 import {
   ALL_COUNTY_ISSUES,
   CURRENT_RESOLVER,
@@ -303,108 +326,344 @@ interface IssueDetailDialogProps {
   onClose: () => void;
 }
 
+const RESOLVERS = [
+  { id: 'R001', name: 'John Kamau', department: 'Environment' },
+  { id: 'R002', name: 'Mary Wanjiku', department: 'Water and Sewerage' },
+  { id: 'R003', name: 'Peter Ochieng', department: 'Works' },
+  { id: 'R004', name: 'Grace Muthoni', department: 'Public Health' },
+  { id: 'R005', name: 'David Kiprop', department: 'Mobility & ICT Infrastructure' },
+];
+
+const SUPERVISORS = [
+  { id: 'S001', name: 'Dr. Sarah Kimani', role: 'Department Head - Environment' },
+  { id: 'S002', name: 'Eng. James Otieno', role: 'Department Head - Works' },
+  { id: 'S003', name: 'Mr. Michael Wafula', role: 'Deputy Director' },
+  { id: 'S004', name: 'Ms. Catherine Nyambura', role: 'County Complaints Officer' },
+];
+
 function IssueDetailDialog({ issue, onClose }: IssueDetailDialogProps) {
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showNotesModal, setShowNotesModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [showEscalateModal, setShowEscalateModal] = useState(false);
+  
+  const [newStatus, setNewStatus] = useState('');
+  const [noteText, setNoteText] = useState('');
+  const [assignee, setAssignee] = useState('');
+  const [escalateTo, setEscalateTo] = useState('');
+  const [escalateReason, setEscalateReason] = useState('');
+  
   if (!issue) return null;
   
   const sla = getSlaCountdown(issue.slaHoursRemaining);
+  const isUnassigned = issue.status === 'Open';
 
   return (
-    <Dialog open={!!issue} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <span className="font-mono text-primary">{issue.id}</span>
-            {issue.isReopened && (
-              <Badge variant="destructive" className="gap-1">
-                <RotateCcw className="w-3 h-3" />
-                Reopened ({issue.reopenCount}x)
-              </Badge>
-            )}
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-6">
-          {/* Citizen's Report */}
-          <div>
-            <h4 className="text-sm font-semibold text-foreground mb-2">Citizen Report</h4>
-            <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-              <p className="font-medium text-foreground">{issue.citizenTitle}</p>
-              <p className="text-sm text-muted-foreground">{issue.description}</p>
-              <div className="flex items-center gap-4 pt-2">
-                {issue.hasImages && (
-                  <Button variant="outline" size="sm" className="gap-1">
-                    <Image className="w-4 h-4" />
-                    View Photos
-                  </Button>
-                )}
-                {issue.hasVoiceNote && (
-                  <Button variant="outline" size="sm" className="gap-1">
-                    <Mic className="w-4 h-4" />
-                    Play Voice Note
-                  </Button>
-                )}
+    <>
+      <Dialog open={!!issue} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <span className="font-mono text-primary">{issue.id}</span>
+              {issue.isReopened && (
+                <Badge variant="destructive" className="gap-1">
+                  <RotateCcw className="w-3 h-3" />
+                  Reopened ({issue.reopenCount}x)
+                </Badge>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Citizen's Report */}
+            <div>
+              <h4 className="text-sm font-semibold text-foreground mb-2">Citizen Report</h4>
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                <p className="font-medium text-foreground">{issue.citizenTitle}</p>
+                <p className="text-sm text-muted-foreground">{issue.description}</p>
+                <div className="flex items-center gap-4 pt-2">
+                  {issue.hasImages && (
+                    <Button variant="outline" size="sm" className="gap-1">
+                      <Image className="w-4 h-4" />
+                      View Photos
+                    </Button>
+                  )}
+                  {issue.hasVoiceNote && (
+                    <Button variant="outline" size="sm" className="gap-1">
+                      <Mic className="w-4 h-4" />
+                      Play Voice Note
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Details Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <h4 className="text-xs font-medium text-muted-foreground uppercase">Location</h4>
-              <p className="text-foreground">{issue.ward}, {issue.zone}</p>
-              <p className="text-sm text-muted-foreground">{issue.subCounty}</p>
-            </div>
-            <div>
-              <h4 className="text-xs font-medium text-muted-foreground uppercase">Department</h4>
-              <Badge className={DEPARTMENT_COLORS[issue.department]} variant="secondary">
-                {issue.department}
-              </Badge>
-            </div>
-            <div>
-              <h4 className="text-xs font-medium text-muted-foreground uppercase">Status</h4>
-              <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(issue.status)}`}>
-                {issue.status}
-              </span>
-            </div>
-            <div>
-              <h4 className="text-xs font-medium text-muted-foreground uppercase">Priority</h4>
-              {getPriorityBadge(issue.priority)}
-            </div>
-            <div>
-              <h4 className="text-xs font-medium text-muted-foreground uppercase">SLA Deadline</h4>
-              <div className={`flex items-center gap-1 ${
-                sla.isOverdue ? 'text-destructive font-semibold' : 
-                sla.isUrgent ? 'text-warning' : 'text-foreground'
-              }`}>
-                {(sla.isOverdue || sla.isUrgent) && <AlertTriangle className="w-4 h-4" />}
-                {sla.text}
+            {/* Details Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground uppercase">Location</h4>
+                <p className="text-foreground">{issue.ward}, {issue.zone}</p>
+                <p className="text-sm text-muted-foreground">{issue.subCounty}</p>
+              </div>
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground uppercase">Department</h4>
+                <Badge className={DEPARTMENT_COLORS[issue.department]} variant="secondary">
+                  {issue.department}
+                </Badge>
+              </div>
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground uppercase">Status</h4>
+                <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(issue.status)}`}>
+                  {issue.status}
+                </span>
+              </div>
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground uppercase">Priority</h4>
+                {getPriorityBadge(issue.priority)}
+              </div>
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground uppercase">SLA Deadline</h4>
+                <div className={`flex items-center gap-1 ${
+                  sla.isOverdue ? 'text-destructive font-semibold' : 
+                  sla.isUrgent ? 'text-warning' : 'text-foreground'
+                }`}>
+                  {(sla.isOverdue || sla.isUrgent) && <AlertTriangle className="w-4 h-4" />}
+                  {sla.text}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground uppercase">Submitted</h4>
+                <p className="text-foreground">{issue.createdOn}</p>
+                <p className="text-sm text-muted-foreground">{getIssueAge(issue.createdAt)} ago</p>
               </div>
             </div>
+
+            {/* Citizen Info */}
             <div>
-              <h4 className="text-xs font-medium text-muted-foreground uppercase">Submitted</h4>
-              <p className="text-foreground">{issue.createdOn}</p>
-              <p className="text-sm text-muted-foreground">{getIssueAge(issue.createdAt)} ago</p>
+              <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">Citizen</h4>
+              <p className="text-foreground">{issue.citizenName}</p>
+              {issue.citizenPhone && (
+                <p className="text-sm text-muted-foreground">{issue.citizenPhone}</p>
+              )}
+            </div>
+
+            {/* Scalable Actions Dropdown */}
+            <div className="flex justify-end pt-4 border-t border-border">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="gap-2">
+                    Act on Grievance
+                    <MoreHorizontal className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-popover border border-border z-50">
+                  <DropdownMenuItem onClick={() => setShowStatusModal(true)} className="gap-2 cursor-pointer">
+                    <RefreshCcw className="w-4 h-4" />
+                    Update Status
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowNotesModal(true)} className="gap-2 cursor-pointer">
+                    <FileText className="w-4 h-4" />
+                    Add Notes
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowAssignModal(true)} className="gap-2 cursor-pointer">
+                    <UserPlus className="w-4 h-4" />
+                    {isUnassigned ? 'Assign' : 'Reassign'}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowEscalateModal(true)} className="gap-2 cursor-pointer">
+                    <ArrowUpCircle className="w-4 h-4" />
+                    Escalate
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
 
-          {/* Citizen Info */}
-          <div>
-            <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">Citizen</h4>
-            <p className="text-foreground">{issue.citizenName}</p>
-            {issue.citizenPhone && (
-              <p className="text-sm text-muted-foreground">{issue.citizenPhone}</p>
-            )}
+      {/* Update Status Modal */}
+      <Dialog open={showStatusModal} onOpenChange={setShowStatusModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Update Status</DialogTitle>
+            <DialogDescription>
+              Change the status of issue {issue.id}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>New Status</Label>
+              <Select value={newStatus} onValueChange={setNewStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select new status" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border border-border z-50">
+                  <SelectItem value="in-progress">In Progress</SelectItem>
+                  <SelectItem value="awaiting-response">Awaiting Citizen Response</SelectItem>
+                  <SelectItem value="resolved">Resolved</SelectItem>
+                  <SelectItem value="closed">Closed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button 
+              className="w-full gap-2" 
+              onClick={() => {
+                toast.success(`Status updated to "${newStatus.replace('-', ' ')}" for ${issue.id}. Citizen will be notified via SMS.`);
+                setShowStatusModal(false);
+                setNewStatus('');
+              }}
+              disabled={!newStatus}
+            >
+              <Send className="w-4 h-4" />
+              Update & Notify Citizen
+            </Button>
           </div>
+        </DialogContent>
+      </Dialog>
 
-          {/* Actions */}
-          <div className="flex flex-wrap gap-2 pt-4 border-t border-border">
-            <Button className="flex-1">Update Status</Button>
-            <Button variant="outline" className="flex-1">Add Notes</Button>
-            <Button variant="outline">Reassign</Button>
-            <Button variant="outline">Escalate</Button>
+      {/* Add Notes Modal */}
+      <Dialog open={showNotesModal} onOpenChange={setShowNotesModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Internal Notes</DialogTitle>
+            <DialogDescription>
+              Add notes visible only to county staff for {issue.id}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Note</Label>
+              <Textarea
+                placeholder="Enter your notes here..."
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                rows={4}
+              />
+            </div>
+            <Button 
+              className="w-full gap-2" 
+              onClick={() => {
+                toast.success(`Note added to ${issue.id}. Visible in issue timeline for staff.`);
+                setShowNotesModal(false);
+                setNoteText('');
+              }}
+              disabled={!noteText.trim()}
+            >
+              <FileText className="w-4 h-4" />
+              Save Note
+            </Button>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      {/* Assign/Reassign Modal */}
+      <Dialog open={showAssignModal} onOpenChange={setShowAssignModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{isUnassigned ? 'Assign Issue' : 'Reassign Issue'}</DialogTitle>
+            <DialogDescription>
+              {isUnassigned ? 'Assign' : 'Reassign'} {issue.id} to a resolver
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {/* Issue Context - Read Only */}
+            <div className="grid grid-cols-3 gap-3 p-3 bg-muted/50 rounded-lg">
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Department</Label>
+                <p className="text-sm font-medium">{issue.department}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Sub-County</Label>
+                <p className="text-sm font-medium">{issue.subCounty || 'Nairobi Central'}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Ward</Label>
+                <p className="text-sm font-medium">{issue.ward}</p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Select Resolver</Label>
+              <Select value={assignee} onValueChange={setAssignee}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a resolver" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border border-border z-50">
+                  {RESOLVERS.map((resolver) => (
+                    <SelectItem key={resolver.id} value={resolver.id}>
+                      {resolver.name} - {resolver.department}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button 
+              className="w-full gap-2" 
+              onClick={() => {
+                const resolver = RESOLVERS.find(r => r.id === assignee);
+                toast.success(`${issue.id} ${isUnassigned ? 'assigned' : 'reassigned'} to ${resolver?.name}. They will receive a notification.`);
+                setShowAssignModal(false);
+                setAssignee('');
+              }}
+              disabled={!assignee}
+            >
+              <UserPlus className="w-4 h-4" />
+              {isUnassigned ? 'Assign Issue' : 'Reassign Issue'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Escalate Modal */}
+      <Dialog open={showEscalateModal} onOpenChange={setShowEscalateModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Escalate Issue</DialogTitle>
+            <DialogDescription>
+              Escalate {issue.id} to a supervisor or department head
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Escalate To</Label>
+              <Select value={escalateTo} onValueChange={setEscalateTo}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select supervisor" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border border-border z-50">
+                  {SUPERVISORS.map((supervisor) => (
+                    <SelectItem key={supervisor.id} value={supervisor.id}>
+                      {supervisor.name} - {supervisor.role}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Reason for Escalation</Label>
+              <Textarea
+                placeholder="Explain why this issue needs escalation..."
+                value={escalateReason}
+                onChange={(e) => setEscalateReason(e.target.value)}
+                rows={3}
+              />
+            </div>
+            <Button 
+              className="w-full gap-2" 
+              onClick={() => {
+                const supervisor = SUPERVISORS.find(s => s.id === escalateTo);
+                toast.success(`${issue.id} escalated to ${supervisor?.name}. Issue marked as priority and supervisor notified.`);
+                setShowEscalateModal(false);
+                setEscalateTo('');
+                setEscalateReason('');
+              }}
+              disabled={!escalateTo || !escalateReason.trim()}
+            >
+              <ArrowUpCircle className="w-4 h-4" />
+              Escalate Issue
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
