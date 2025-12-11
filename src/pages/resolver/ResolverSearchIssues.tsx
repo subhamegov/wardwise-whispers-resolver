@@ -119,6 +119,89 @@ export default function ResolverSearchIssues() {
         </p>
       </section>
 
+      {/* Search Panel - Moved to top */}
+      <section className="mb-6">
+        <h2 className="text-lg font-semibold text-foreground mb-4">Search & Filter</h2>
+        <Card>
+          <CardContent className="p-4 space-y-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by issue ID, category, citizen name, phone, ward, or keyword..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-wrap gap-3">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Filters:</span>
+              </div>
+
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((cat) => (
+                    <SelectItem key={cat} value={cat}>{cat === 'All' ? 'All Categories' : cat}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Department" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEPARTMENTS.map((dept) => (
+                    <SelectItem key={dept} value={dept}>{dept === 'All' ? 'All Departments' : dept}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={wardFilter} onValueChange={setWardFilter}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Ward" />
+                </SelectTrigger>
+                <SelectContent>
+                  {WARDS.map((ward) => (
+                    <SelectItem key={ward} value={ward}>{ward === 'All' ? 'All Wards' : ward}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUSES.map((status) => (
+                    <SelectItem key={status} value={status}>{status === 'All' ? 'All Statuses' : status}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Button variant="outline" size="sm" className="gap-2">
+                <Calendar className="w-4 h-4" />
+                Date Range
+                <ChevronDown className="w-3 h-3" />
+              </Button>
+
+              {hasActiveFilters && (
+                <Button variant="ghost" size="sm" onClick={clearFilters}>
+                  Clear Filters
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
       {/* Top 100 Latest Issues Section */}
       <section className="mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -225,91 +308,8 @@ export default function ResolverSearchIssues() {
             {/* Footer */}
             <div className="p-4 border-t border-border bg-muted/30">
               <p className="text-sm text-muted-foreground text-center">
-                Showing {filteredIssues.length} of 100 most recent issues. Use the search panel below to find specific tickets.
+                Showing {filteredIssues.length} of 100 most recent issues.
               </p>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* Search Panel */}
-      <section>
-        <h2 className="text-lg font-semibold text-foreground mb-4">Search & Filter</h2>
-        <Card>
-          <CardContent className="p-4 space-y-4">
-            {/* Search Bar */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by issue ID, category, citizen name, phone, ward, or keyword..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            {/* Filters */}
-            <div className="flex flex-wrap gap-3">
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Filters:</span>
-              </div>
-
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-[160px]">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat}>{cat === 'All' ? 'All Categories' : cat}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                <SelectTrigger className="w-[160px]">
-                  <SelectValue placeholder="Department" />
-                </SelectTrigger>
-                <SelectContent>
-                  {DEPARTMENTS.map((dept) => (
-                    <SelectItem key={dept} value={dept}>{dept === 'All' ? 'All Departments' : dept}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select value={wardFilter} onValueChange={setWardFilter}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Ward" />
-                </SelectTrigger>
-                <SelectContent>
-                  {WARDS.map((ward) => (
-                    <SelectItem key={ward} value={ward}>{ward === 'All' ? 'All Wards' : ward}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {STATUSES.map((status) => (
-                    <SelectItem key={status} value={status}>{status === 'All' ? 'All Statuses' : status}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Button variant="outline" size="sm" className="gap-2">
-                <Calendar className="w-4 h-4" />
-                Date Range
-                <ChevronDown className="w-3 h-3" />
-              </Button>
-
-              {hasActiveFilters && (
-                <Button variant="ghost" size="sm" onClick={clearFilters}>
-                  Clear Filters
-                </Button>
-              )}
             </div>
           </CardContent>
         </Card>
