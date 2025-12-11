@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Menu, X, Home, ClipboardList, BarChart3, AlertTriangle, Users, ClipboardCheck, Bell, HelpCircle, User } from 'lucide-react';
+import { Menu, X, Home, ClipboardList, BarChart3, AlertTriangle, Users, ClipboardCheck, Bell, HelpCircle, User, GraduationCap, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import kenyaCoatOfArms from '@/assets/kenya-coat-of-arms.png';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,8 @@ const navigation = [
   { name: 'Internal Issues', href: '/resolver/internal', icon: AlertTriangle, description: 'Staff tickets' },
   { name: 'Employee Corner', href: '/resolver/employee', icon: Users, description: 'HR & SOPs' },
   { name: 'Surveys', href: '/resolver/surveys', icon: ClipboardCheck, description: 'Survey admin' },
+  { name: 'Training', href: '/resolver/training', icon: GraduationCap, description: 'Training & SOPs' },
+  { name: 'About My City', href: '/resolver/about', icon: Building, description: 'City reference' },
 ];
 
 export function ResolverLayout({ children }: ResolverLayoutProps) {

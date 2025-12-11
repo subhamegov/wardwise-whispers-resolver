@@ -16,6 +16,8 @@ import AboutMyCity from "./pages/AboutMyCity";
 import NotFound from "./pages/NotFound";
 import ResolverHome from "./pages/resolver/ResolverHome";
 import ResolverTasks from "./pages/resolver/ResolverTasks";
+import ResolverTraining from "./pages/resolver/ResolverTraining";
+import ResolverAboutCity from "./pages/resolver/ResolverAboutCity";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +41,8 @@ const App = () => (
           {/* Resolver Portal Routes */}
           <Route path="/resolver" element={<ResolverHome />} />
           <Route path="/resolver/tasks" element={<ResolverTasks />} />
+          <Route path="/resolver/training" element={<ResolverTraining />} />
+          <Route path="/resolver/about" element={<ResolverAboutCity />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
