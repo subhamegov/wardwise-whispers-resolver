@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Menu, X, Home, ClipboardList, BarChart3, AlertTriangle, Users, ClipboardCheck, Bell, HelpCircle, User, GraduationCap, Building } from 'lucide-react';
+import { Menu, X, Home, ClipboardList, Search, BarChart3, AlertTriangle, Users, ClipboardCheck, Bell, HelpCircle, User, GraduationCap, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import kenyaCoatOfArms from '@/assets/kenya-coat-of-arms.png';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ interface ResolverLayoutProps {
 const navigation = [
   { name: 'Home', href: '/resolver', icon: Home, description: 'Overview & KPIs' },
   { name: 'Tasks', href: '/resolver/tasks', icon: ClipboardList, description: 'All assigned issues' },
+  { name: 'Search Issues', href: '/resolver/search', icon: Search, description: 'Browse & find any issue' },
   { name: 'Data', href: '/resolver/data', icon: BarChart3, description: 'Analytics & trends' },
   { name: 'Internal Issues', href: '/resolver/internal', icon: AlertTriangle, description: 'Staff tickets' },
   { name: 'Employee Corner', href: '/resolver/employee', icon: Users, description: 'HR & SOPs' },
