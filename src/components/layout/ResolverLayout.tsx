@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Menu, X, Home, ClipboardList, Search, BarChart3, AlertTriangle, Users, ClipboardCheck, Bell, HelpCircle, User, GraduationCap, Building } from 'lucide-react';
+import { Menu, X, Home, ClipboardList, Search, BarChart3, AlertTriangle, Users, ClipboardCheck, Bell, HelpCircle, User, GraduationCap, Building, ArrowRightLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import kenyaCoatOfArms from '@/assets/kenya-coat-of-arms.png';
 import { Button } from '@/components/ui/button';
@@ -82,6 +82,16 @@ export function ResolverLayout({ children }: ResolverLayoutProps) {
                   <span>{item.name}</span>
                 </NavLink>
               ))}
+              
+              {/* Switch to Citizen Portal */}
+              <NavLink
+                to="/"
+                className="ncc-nav-item ml-2 border-l border-white/20 pl-3"
+                aria-label="Switch to Citizen Portal"
+              >
+                <ArrowRightLeft className="w-5 h-5" aria-hidden="true" />
+                <span>Switch to Citizen</span>
+              </NavLink>
             </nav>
 
             {/* Right side actions */}
@@ -175,6 +185,20 @@ export function ResolverLayout({ children }: ResolverLayoutProps) {
                   </div>
                 </NavLink>
               ))}
+              
+              {/* Switch to Citizen Portal - Mobile */}
+              <NavLink
+                to="/"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all hover:bg-white/10 mt-4 border-t border-white/10 pt-4"
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Switch to Citizen Portal"
+              >
+                <ArrowRightLeft className="w-6 h-6" aria-hidden="true" />
+                <div>
+                  <span className="block font-semibold">Switch to Citizen</span>
+                  <span className="text-sm opacity-80">Go to citizen portal</span>
+                </div>
+              </NavLink>
             </div>
           </nav>
         )}
