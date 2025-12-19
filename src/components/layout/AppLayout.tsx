@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { MapPin, Menu, X, Home, Ticket, Phone, Mail, Globe, ClipboardList, FileText, BarChart3, GraduationCap, Building } from 'lucide-react';
+import { MapPin, Menu, X, Home, Ticket, Phone, Mail, Globe, ClipboardList, FileText, BarChart3, GraduationCap, Building, ArrowRightLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import kenyaCoatOfArms from '@/assets/kenya-coat-of-arms.png';
 
@@ -76,6 +76,16 @@ export function AppLayout({ children }: AppLayoutProps) {
                   <span>{item.name}</span>
                 </NavLink>
               ))}
+              
+              {/* Switch to Resolver Portal */}
+              <NavLink
+                to="/resolver"
+                className="ncc-nav-item ml-2 border-l border-white/20 pl-3"
+                aria-label="Switch to Resolver Dashboard"
+              >
+                <ArrowRightLeft className="w-5 h-5" aria-hidden="true" />
+                <span>Switch to Resolver</span>
+              </NavLink>
             </nav>
 
             {/* Mobile Menu Button */}
@@ -125,6 +135,20 @@ export function AppLayout({ children }: AppLayoutProps) {
                   </div>
                 </NavLink>
               ))}
+              
+              {/* Switch to Resolver Portal - Mobile */}
+              <NavLink
+                to="/resolver"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all hover:bg-white/10 mt-4 border-t border-white/10 pt-4"
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Switch to Resolver Dashboard"
+              >
+                <ArrowRightLeft className="w-6 h-6" aria-hidden="true" />
+                <div>
+                  <span className="block font-semibold">Switch to Resolver</span>
+                  <span className="text-sm opacity-80">Go to staff portal</span>
+                </div>
+              </NavLink>
             </div>
           </nav>
         )}
